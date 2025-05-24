@@ -1,9 +1,8 @@
 // src\controllers\webhook.controller.ts
 import { Request, Response } from "express";
-import { validateWebhookSignature } from "../utils/validateWebhookSignature.js"; 
+import { validateWebhookSignature } from "../utils/validateWebhookSignature.js";
 import { shopifyApiService } from "../services/shopify.service.js";
 import { Webhook } from "../models/webhook.js";
-import { SHOPIFY_WEBHOOK_SECRET } from "../config/config.js";
 
 export const handleWebhook = async (req: Request, res: Response) => {
   try {
@@ -12,19 +11,9 @@ export const handleWebhook = async (req: Request, res: Response) => {
 
     console.log("BODY TYPE:", typeof req.body, Buffer.isBuffer(req.body));
 
-    // Validate the webhook FIRST before any processing
-    const webhookSecret = SHOPIFY_WEBHOOK_SECRET;
-    if (!webhookSecret) {
-      console.log("SHOPIFY_WEBHOOK_SECRET is not configured");
-      return res.status(500).json({
-        success: false,
-        error: "Configuration Error",
-        message: "SHOPIFY_WEBHOOK_SECRET is not configured",
-      });
-    }
-
-    if (!validateWebhookSignature(req, webhookSecret)) {
-      console.log("Webhook signature mismatch");
+    // Validate signature first, before any body parsing
+    if (!validateWebhookSignature(req)) {
+      console.log("Webhook signature validation failed");
       return res.status(401).json({
         success: false,
         error: "Invalid signature",
@@ -42,10 +31,11 @@ export const handleWebhook = async (req: Request, res: Response) => {
       });
     }
 
-    // Parse the payload AFTER validation
+    // Parse the raw body buffer to JSON AFTER validation
     let payload: any;
     try {
-      payload = JSON.parse(req.body.toString("utf8"));
+      // req.body is a Buffer here because of express.raw()
+      payload = JSON.parse(req.body.toString());
     } catch (parseError) {
       console.log("Failed to parse webhook payload", parseError);
       return res.status(400).json({

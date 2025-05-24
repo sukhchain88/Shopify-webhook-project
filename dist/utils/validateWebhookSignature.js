@@ -1,4 +1,3 @@
-// src\utils\validateWebhookSignature.ts
 import crypto from "crypto";
 export const validateWebhookSignature = (req, webhookSecret) => {
     try {
@@ -7,9 +6,9 @@ export const validateWebhookSignature = (req, webhookSecret) => {
             return false;
         const calculatedHmac = crypto
             .createHmac("sha256", webhookSecret)
-            .update(req.body)
+            .update(req.body) // 👈 Must be Buffer, not string
             .digest("base64");
-        return calculatedHmac === hmacHeader;
+        return crypto.timingSafeEqual(Buffer.from(hmacHeader, "utf8"), Buffer.from(calculatedHmac, "utf8"));
     }
     catch (error) {
         console.error("Error validating webhook signature:", error);

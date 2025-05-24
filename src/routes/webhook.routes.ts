@@ -2,7 +2,6 @@
 import express, { RequestHandler } from "express";
 import {
   handleWebhook,
-  deleteOldNgrokWebhooks,
   getWebhook,
 } from "../controllers/webhook.controller.js";
 
