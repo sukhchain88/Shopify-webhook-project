@@ -1,24 +1,39 @@
-// src\utils\validateWebhookSignature.ts
 import crypto from "crypto";
 import { Request } from "express";
+import { SHOPIFY_WEBHOOK_SECRET } from "../config/config.js";
 
-export const validateWebhookSignature = (
-  req: Request,
-  webhookSecret: string
-): boolean => {
+export const validateWebhookSignature = (req: Request): boolean => {
   try {
     const hmacHeader = req.headers["x-shopify-hmac-sha256"] as string;
-    if (!hmacHeader || !req.body) return false;
+    console.log("hmacHeader", hmacHeader);
+
+    if (!hmacHeader || !req.body) {
+      console.log("Missing hmac header or body");
+      return false;
+    }
+
+    const webhookSecret = SHOPIFY_WEBHOOK_SECRET;
+    if (!webhookSecret) {
+      console.log("Missing webhook secret");
+      return false;
+    }
+
+    // req.body is already a Buffer here because of express.raw()
+    const rawBody = req.body as Buffer;
 
     const calculatedHmac = crypto
       .createHmac("sha256", webhookSecret)
-      .update(req.body)
+      .update(rawBody) // Ensure we're using a Buffer
       .digest("base64");
 
-    return calculatedHmac === hmacHeader;
+    console.log("calculatedHmac", calculatedHmac);
+
+    return crypto.timingSafeEqual(
+      Buffer.from(hmacHeader, "utf8"),
+      Buffer.from(calculatedHmac, "utf8")
+    );
   } catch (error) {
     console.error("Error validating webhook signature:", error);
     return false;
   }
 };
- 

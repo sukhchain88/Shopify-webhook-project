@@ -2,6 +2,7 @@ import { validateWebhookSignature } from "../utils/validateWebhookSignature.js";
 import { shopifyApiService } from "../services/shopify.service.js";
 import { Webhook } from "../models/webhook.js";
 import { SHOPIFY_WEBHOOK_SECRET } from "../config/config.js";
+import { Product } from "../models/product.js";
 export const handleWebhook = async (req, res) => {
     try {
         const topic = req.headers["x-shopify-topic"];
@@ -52,7 +53,7 @@ export const handleWebhook = async (req, res) => {
             shopDomain,
             payload: JSON.stringify(payload).substring(0, 100) + "...",
         });
-        // Store the webhook in the database
+        // Store the webhook in the database 
         await Webhook.create({
             topic: topic,
             shop_domain: shopDomain,
@@ -119,5 +120,32 @@ export const getWebhook = async (req, res) => {
             error: "Failed to fetch webhooks",
             message: err instanceof Error ? err.message : "Unknown error",
         });
+    }
+};
+export const handleProductWebhook = async (req, res) => {
+    try {
+        const payload = req.body;
+        console.log("📦 Webhook payload received:", payload);
+        const productData = {
+            title: payload.title,
+            price: parseFloat(payload.variants?.[0]?.price || "0"),
+            description: payload.body_html || null,
+            metadata: {
+                vendor: payload.vendor,
+                product_type: payload.product_type,
+                tags: payload.tags,
+            },
+            shopify_product_id: payload.id.toString(), // 🔑 must match your DB model's unique key
+        };
+        const [product, created] = await Product.upsert(productData, {
+            conflictFields: ['shopify_product_id'],
+            returning: true,
+        });
+        console.log(created ? "✅ Webhook product created" : "♻️ Webhook product updated");
+        return res.status(200).send("Webhook processed");
+    }
+    catch (err) {
+        console.error("❌ Webhook error:", err.message || err);
+        return res.status(500).send("Failed to process webhook");
     }
 };

@@ -8,15 +8,13 @@ import webhookRoutes from "./routes/webhook.routes.js";
 import shopifyRoutes from "./routes/shopify.routes.js";
 import customerRoutes from "./routes/customer.routes.js";
 import orderRoutes from "./routes/order.routes.js";
-import userRoutes from "./routes/user.routes.js";
 import { viewUsers } from "./controllers/user.controller.js";
 import {
   verifyAndRegisterWebhooks,
   listRegisteredWebhooks,
 } from "./services/shopify.service.js";
-import bodyParser from "body-parser";
-import crypto from "crypto";
 import userRouter from "./routes/user.routes.js";
+
 const router = express.Router();
 config();
 
@@ -24,10 +22,10 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Add this **before** any route uses or bodyParser.json
-app.use("/api/webhooks", bodyParser.raw({ type: "application/json" }));
+app.use("/api/webhooks", express.raw({ type: "application/json" }));
 
 // Only use JSON parser for other non-webhook routes
-app.use(bodyParser.json());
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(cors());

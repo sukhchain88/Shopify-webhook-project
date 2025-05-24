@@ -9,7 +9,7 @@ export const Product = sequelize.define("products", {
     },
     shopify_product_id: {
         type: DataTypes.STRING(255),
-        allowNull: true,
+        allowNull: false,
         unique: true,
     },
     title: {
