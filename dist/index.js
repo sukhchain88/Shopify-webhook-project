@@ -1,56 +1,188 @@
-// src\index.ts
+/**
+ * Shopify Webhook Handler - Main Server Entry Point
+ *
+ * This is the main server file that sets up Express.js with all routes,
+ * middleware, and database connections for handling Shopify webhooks
+ * and product management.
+ *
+ * @author Your Name
+ * @version 1.0.0
+ */
 import express from "express";
 import cors from "cors";
-import { config } from "dotenv";
-import sequelize from "./config/db.js";
+import * as dotenv from "dotenv";
+// Import route handlers
 import productRoutes from "./routes/products.routes.js";
 import webhookRoutes from "./routes/webhook.routes.js";
 import shopifyRoutes from "./routes/shopify.routes.js";
+import shopifyAdminRoutes from "./routes/shopify-admin.routes.js";
 import customerRoutes from "./routes/customer.routes.js";
 import orderRoutes from "./routes/order.routes.js";
-import { viewUsers } from "./controllers/user.controller.js";
-import { verifyAndRegisterWebhooks, listRegisteredWebhooks, } from "./services/shopify.service.js";
-import bodyParser from "body-parser";
+import healthRoutes from "./routes/health.routes.js";
 import userRouter from "./routes/user.routes.js";
-const router = express.Router();
-config();
+// Import middleware
+import { requestTiming } from "./middleware/requestTiming.js";
+import { errorHandler } from "./middleware/errorHandler.js";
+// Import database connection
+import "./config/db.js"; // This initializes the database connection
+// Load environment variables
+dotenv.config();
+/**
+ * Initialize Express application
+ */
 const app = express();
-const port = process.env.PORT || 3000;
-// Add this **before** any route uses or bodyParser.json
-app.use("/api/webhooks", bodyParser.raw({ type: "application/json" }));
-// Only use JSON parser for other non-webhook routes
-app.use(bodyParser.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cors());
-app.use("/api/products", productRoutes);
-app.use("/api/shopify", shopifyRoutes);
-app.use("/api/customers", customerRoutes);
-app.use("/api/orders", orderRoutes);
-app.use("/api/users", userRouter);
+/**
+ * CORS Configuration
+ * Allow cross-origin requests for API access
+ */
+app.use(cors({
+    origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
+    credentials: true
+}));
+/**
+ * Request Timing Middleware
+ * Logs request duration for performance monitoring
+ */
+app.use(requestTiming);
+/**
+ * Body Parsing Middleware
+ *
+ * IMPORTANT: Order matters here!
+ * 1. Raw body parser for webhooks (must come first)
+ * 2. JSON parser for regular API endpoints
+ */
+// Raw body parser for webhook endpoints
+// Shopify sends webhooks as raw JSON that needs HMAC verification
+app.use("/api/webhooks", express.raw({
+    type: "application/json",
+    limit: '10mb' // Increase limit for large webhook payloads
+}));
+// JSON parser for all other endpoints
+app.use(express.json({
+    limit: '10mb' // Increase limit for large requests
+}));
+// URL-encoded parser for form data
+app.use(express.urlencoded({
+    extended: true,
+    limit: '10mb'
+}));
+/**
+ * API Routes Configuration
+ *
+ * Routes are organized by functionality:
+ * - /health: Server health checks
+ * - /products: Product CRUD operations
+ * - /api/webhooks: Shopify webhook handlers
+ * - /shopify: Shopify API integration
+ * - /api/shopify-admin: Shopify Admin API operations
+ * - /customers: Customer management
+ * - /orders: Order management
+ * - /users: User management
+ */
+// Health check endpoint (should be first for monitoring)
+app.use("/health", healthRoutes);
+// Product management routes
+app.use("/products", productRoutes);
+// Webhook handling routes (with raw body parsing)
 app.use("/api/webhooks", webhookRoutes);
-router.get("/users", viewUsers);
-app.get("/health", (req, res) => {
-    res.json({ status: "ok" });
+// Shopify integration routes
+app.use("/shopify", shopifyRoutes);
+// Shopify Admin API routes
+app.use("/api/shopify-admin", shopifyAdminRoutes);
+// Customer management routes
+app.use("/customers", customerRoutes);
+// Order management routes
+app.use("/orders", orderRoutes);
+// User management routes
+app.use("/users", userRouter);
+/**
+ * Root endpoint - API information
+ */
+app.get("/", (req, res) => {
+    res.json({
+        message: "🚀 Shopify Webhook Handler API",
+        version: "1.0.0",
+        status: "running",
+        endpoints: {
+            health: "/health",
+            products: "/products",
+            webhooks: "/api/webhooks",
+            shopify: "/shopify",
+            "shopify-admin": "/api/shopify-admin",
+            customers: "/customers",
+            orders: "/orders",
+            users: "/users"
+        },
+        documentation: "See README.md for API documentation"
+    });
 });
-const startServer = async () => {
-    try {
-        await sequelize.authenticate();
-        console.log("✅ Database connection established");
-        await sequelize.sync();
-        console.log("✅ Models synchronized");
-        await verifyAndRegisterWebhooks();
-        console.log("✅ Webhooks verified and registered");
-        await listRegisteredWebhooks();
-        console.log("✅ Webhook list retrieved");
-        app.listen(port, () => {
-            console.log(`🚀 Server is running on port ${port}`);
-        });
+/**
+ * 404 Handler - Route not found
+ */
+app.use("*", (req, res) => {
+    res.status(404).json({
+        success: false,
+        message: "Route not found",
+        path: req.originalUrl,
+        method: req.method,
+        timestamp: new Date().toISOString()
+    });
+});
+/**
+ * Global Error Handler
+ * Catches all unhandled errors and returns consistent error responses
+ */
+app.use(errorHandler);
+/**
+ * Server Configuration
+ */
+const PORT = process.env.PORT || 3000;
+const NODE_ENV = process.env.NODE_ENV || 'development';
+/**
+ * Start the server
+ */
+const server = app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📊 Environment: ${NODE_ENV}`);
+    console.log(`🔗 API URL: http://localhost:${PORT}`);
+    console.log(`📚 Health Check: http://localhost:${PORT}/health`);
+    if (NODE_ENV === 'development') {
+        console.log(`🧪 Test the API with: node tests/api-tests.js`);
     }
-    catch (error) {
-        console.error("🔥 Server/database startup error:", error);
-        app.listen(port, () => {
-            console.log(`⚠️ Running on port ${port} without DB`);
-        });
+});
+/**
+ * Graceful Shutdown Handler
+ * Properly close database connections and server on shutdown
+ */
+process.on('SIGTERM', () => {
+    console.log('🛑 SIGTERM received, shutting down gracefully...');
+    server.close(() => {
+        console.log('✅ Server closed');
+        process.exit(0);
+    });
+});
+process.on('SIGINT', () => {
+    console.log('🛑 SIGINT received, shutting down gracefully...');
+    server.close(() => {
+        console.log('✅ Server closed');
+        process.exit(0);
+    });
+});
+/**
+ * Unhandled Promise Rejection Handler
+ */
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+    // Don't exit the process in production, just log the error
+    if (NODE_ENV !== 'production') {
+        process.exit(1);
     }
-};
-startServer();
+});
+/**
+ * Uncaught Exception Handler
+ */
+process.on('uncaughtException', (error) => {
+    console.error('❌ Uncaught Exception:', error);
+    process.exit(1);
+});
+export default app;

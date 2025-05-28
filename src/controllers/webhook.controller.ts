@@ -1,17 +1,25 @@
 // src\controllers\webhook.controller.ts
 import { Request, Response } from "express";
 import { validateWebhookSignature } from "../utils/validateWebhookSignature.js";
-import { shopifyApiService } from "../services/shopify.service.js";
-import { Webhook } from "../models/webhook.js";
+import { WebhookService } from "../services/webhook.service.js";
+import { validateWebhookPayload } from "../validators/webhook.validator.js";
 
 export const handleWebhook = async (req: Request, res: Response) => {
   try {
-    const topic = req.headers["x-shopify-topic"];
-    const shopDomain = req.headers["x-shopify-shop-domain"];
+    const topic = req.headers["x-shopify-topic"] as string;
+    const shopDomain = req.headers["x-shopify-shop-domain"] as string;
 
-    console.log("BODY TYPE:", typeof req.body, Buffer.isBuffer(req.body));
+    // 1. Check required headers
+    if (!topic || !shopDomain) {
+      console.log("Missing required headers", { topic, shopDomain });
+      return res.status(400).json({
+        success: false,
+        error: "Missing required headers",
+        message: "Both x-shopify-topic and x-shopify-shop-domain headers are required",
+      });
+    }
 
-    // Validate signature first, before any body parsing
+    // 2. Validate signature
     if (!validateWebhookSignature(req)) {
       console.log("Webhook signature validation failed");
       return res.status(401).json({
@@ -21,21 +29,16 @@ export const handleWebhook = async (req: Request, res: Response) => {
       });
     }
 
-    if (!topic || !shopDomain) {
-      console.log("Missing required headers", { topic, shopDomain });
-      return res.status(400).json({
-        success: false,
-        error: "Missing required headers",
-        message:
-          "Both x-shopify-topic and x-shopify-shop-domain headers are required",
-      });
-    }
-
-    // Parse the raw body buffer to JSON AFTER validation
+    // 3. Parse payload
     let payload: any;
     try {
-      // req.body is a Buffer here because of express.raw()
-      payload = JSON.parse(req.body.toString());
+      const rawBody = req.body.toString();
+      payload = JSON.parse(rawBody);
+      
+      // Ensure shop_domain is set
+      if (!payload.shop_domain) {
+        payload.shop_domain = shopDomain;
+      }
     } catch (parseError) {
       console.log("Failed to parse webhook payload", parseError);
       return res.status(400).json({
@@ -45,29 +48,31 @@ export const handleWebhook = async (req: Request, res: Response) => {
       });
     }
 
-    console.log("Webhook received", {
-      path: req.path,
-      topic,
-      shopDomain,
-      payload: JSON.stringify(payload).substring(0, 100) + "...",
-    });
+    // 4. Validate payload schema
+    const validationResult = validateWebhookPayload(topic, payload);
+    if (!validationResult.success) {
+      console.log("Webhook payload validation failed:", validationResult.error);
+      return res.status(400).json({
+        success: false,
+        error: "Invalid payload",
+        message: "Webhook payload validation failed",
+        details: validationResult.error.errors
+      });
+    }
 
-    // Store the webhook in the database
-    await Webhook.create({
-      topic: topic as string,
-      shop_domain: shopDomain as string,
-      payload: payload,
-      processed: false,
-    });
+    // 5. Process webhook
+    console.log(`📥 Processing webhook: ${topic}`);
+    const webhook = await WebhookService.processWebhook(topic, payload, shopDomain);
 
     return res.status(200).json({
       success: true,
       message: "Webhook processed successfully",
       topic,
       shopDomain,
+      webhookId: (webhook as any).id
     });
   } catch (error) {
-    console.log("Error processing webhook:", error);
+    console.error("Error processing webhook:", error);
     return res.status(500).json({
       success: false,
       error: "Internal Server Error",
@@ -77,46 +82,80 @@ export const handleWebhook = async (req: Request, res: Response) => {
 };
 
 /**
- * Delete a webhook from Shopify
+ * Get all webhooks with pagination
  */
-export const deleteOldNgrokWebhooks = async (req: Request, res: Response) => {
-  const id = req.params.id;
+export const getWebhooks = async (req: Request, res: Response) => {
   try {
-    await shopifyApiService("DELETE", `webhooks/${id}.json`);
-    console.log(`Webhook ${id} deleted successfully`);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    const webhooks = await WebhookService.getWebhooks(page, limit);
+    
     return res.status(200).json({
       success: true,
-      message: `Webhook ${id} deleted successfully`,
+      data: webhooks.rows,
+      pagination: {
+        total: webhooks.count,
+        page,
+        limit,
+        pages: Math.ceil(webhooks.count / limit)
+      }
     });
   } catch (err) {
-    console.log("Error deleting webhook:", err);
+    console.error("Error fetching webhooks:", err);
     return res.status(500).json({
       success: false,
-      error: "Failed to delete webhook",
+      error: "Failed to fetch webhooks",
       message: err instanceof Error ? err.message : "Unknown error",
     });
   }
 };
 
 /**
- * Get all webhooks from the database
+ * Get a single webhook by ID
  */
-export const getWebhook = async (req: Request, res: Response) => {
+export const getWebhookById = async (req: Request, res: Response) => {
   try {
-    const webhooks = await Webhook.findAll({
-      order: [["createdAt", "DESC"]],
-      limit: 10,
-    });
-    console.log(`Retrieved ${webhooks.length} webhooks`);
+    const webhook = await WebhookService.getWebhookById(parseInt(req.params.id));
+    
+    if (!webhook) {
+      return res.status(404).json({
+        success: false,
+        error: "Not found",
+        message: "Webhook not found"
+      });
+    }
+
     return res.status(200).json({
       success: true,
-      webhooks,
+      data: webhook
     });
   } catch (err) {
-    console.log("Error fetching webhooks:", err);
+    console.error("Error fetching webhook:", err);
     return res.status(500).json({
       success: false,
-      error: "Failed to fetch webhooks",
+      error: "Failed to fetch webhook",
+      message: err instanceof Error ? err.message : "Unknown error",
+    });
+  }
+};
+
+/**
+ * Delete a webhook
+ */
+export const deleteWebhook = async (req: Request, res: Response) => {
+  try {
+    await WebhookService.deleteWebhook(parseInt(req.params.id));
+    
+    return res.status(200).json({
+      success: true,
+      message: "Webhook deleted successfully"
+    });
+  } catch (err) {
+    console.error("Error deleting webhook:", err);
+    return res.status(500).json({
+      success: false,
+      error: "Failed to delete webhook",
       message: err instanceof Error ? err.message : "Unknown error",
     });
   }

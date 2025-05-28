@@ -40,14 +40,6 @@ export const Order = sequelize.define("orders", {
     shopify_order_id: {
         type: DataTypes.STRING(255),
         allowNull: true,
-    },
-    created_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
-    },
-    updated_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
     }
 }, {
     tableName: "orders",

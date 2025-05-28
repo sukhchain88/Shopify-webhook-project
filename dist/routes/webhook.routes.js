@@ -1,8 +1,13 @@
 // src\routes\webhook.routes.ts
 import express from "express";
-import { handleWebhook, getWebhook, handleProductWebhook } from "../controllers/webhook.controller.js";
+import { handleWebhook, getWebhooks, getWebhookById, deleteWebhook } from "../controllers/webhook.controller.js";
 const webhookRoutes = express.Router();
+// Handle incoming webhooks
 webhookRoutes.post("/", handleWebhook);
-webhookRoutes.get("/", getWebhook);
-webhookRoutes.post("/product", handleProductWebhook);
+// Get all webhooks with pagination
+webhookRoutes.get("/", getWebhooks);
+// Get a single webhook by ID
+webhookRoutes.get("/:id", getWebhookById);
+// Delete a webhook
+webhookRoutes.delete("/:id", deleteWebhook);
 export default webhookRoutes;

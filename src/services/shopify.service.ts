@@ -13,6 +13,12 @@ export const shopifyApiService = async <T>(
   endpoint: string,
   data?: object
 ): Promise<T> => {
+  if (!SHOPIFY_STORE_URL || !SHOPIFY_ACCESS_TOKEN) {
+    throw new Error(
+      "Shopify API credentials are not configured. Please check your .env file."
+    );
+  }
+
   const url = `https://${SHOPIFY_STORE_URL}/admin/api/2025-04/${endpoint}`;
 
   try {
@@ -25,6 +31,7 @@ export const shopifyApiService = async <T>(
       },
       data,
     });
+
     return response.data;
   } catch (error: any) {
     console.error(

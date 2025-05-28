@@ -1,18 +1,14 @@
-export const formatShopifyProductPayload = (product) => {
+export const formatShopifyProduct = (webhookData) => {
     return {
-        product: {
-            title: product.title,
-            body_html: product.description || '',
-            vendor: product.metadata?.vendor || '',
-            product_type: product.metadata?.product_type || '',
-            tags: Array.isArray(product.metadata?.tags)
-                ? product.metadata.tags.join(', ')
-                : product.metadata?.tags || '',
-            variants: [
-                {
-                    price: product.price?.toString() || '',
-                },
-            ],
-        },
+        title: webhookData.title,
+        description: webhookData.body_html || null,
+        price: webhookData.variants[0]?.price || '0',
+        shopify_product_id: webhookData.id.toString(),
+        status: webhookData.status,
+        metadata: {
+            vendor: webhookData.vendor,
+            product_type: webhookData.product_type,
+            tags: webhookData.tags
+        }
     };
 };

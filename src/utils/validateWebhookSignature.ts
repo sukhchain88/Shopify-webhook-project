@@ -5,7 +5,7 @@ import { SHOPIFY_WEBHOOK_SECRET } from "../config/config.js";
 export const validateWebhookSignature = (req: Request): boolean => {
   try {
     const hmacHeader = req.headers["x-shopify-hmac-sha256"] as string;
-    console.log("hmacHeader", hmacHeader);
+    console.log("Received HMAC:", hmacHeader);
 
     if (!hmacHeader || !req.body) {
       console.log("Missing hmac header or body");
@@ -26,12 +26,15 @@ export const validateWebhookSignature = (req: Request): boolean => {
       .update(rawBody) // Ensure we're using a Buffer
       .digest("base64");
 
-    console.log("calculatedHmac", calculatedHmac);
+    console.log("Calculated HMAC:", calculatedHmac);
 
-    return crypto.timingSafeEqual(
+    const isValid = crypto.timingSafeEqual(
       Buffer.from(hmacHeader, "utf8"),
       Buffer.from(calculatedHmac, "utf8")
     );
+
+    console.log("Signature validation result:", isValid);
+    return isValid;
   } catch (error) {
     console.error("Error validating webhook signature:", error);
     return false;

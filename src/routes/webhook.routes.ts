@@ -2,12 +2,23 @@
 import express, { RequestHandler } from "express";
 import {
   handleWebhook,
-  getWebhook,
+  getWebhooks,
+  getWebhookById,
+  deleteWebhook
 } from "../controllers/webhook.controller.js";
 
 const webhookRoutes = express.Router();
 
+// Handle incoming webhooks
 webhookRoutes.post("/", handleWebhook as unknown as RequestHandler);
-webhookRoutes.get("/", getWebhook as unknown as RequestHandler);
+
+// Get all webhooks with pagination
+webhookRoutes.get("/", getWebhooks as unknown as RequestHandler);
+
+// Get a single webhook by ID
+webhookRoutes.get("/:id", getWebhookById as unknown as RequestHandler);
+
+// Delete a webhook
+webhookRoutes.delete("/:id", deleteWebhook as unknown as RequestHandler);
 
 export default webhookRoutes;
