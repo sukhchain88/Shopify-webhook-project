@@ -1,5 +1,9 @@
 // src\services\webhook.service.ts
+import { Webhook } from "../models/webhook.js";
 import { shopifyApiService } from "./shopify.service.js";
+import { handleProductWebhook } from "../webhookHandlers/productHandler.js";
+import { handleOrderWebhook } from "../webhookHandlers/orderHandler.js";
+import { handleCustomerWebhook } from "../webhookHandlers/customerHandler.js";
 import {
   WebhookOptions,
   WebhookResponse,
@@ -7,7 +11,10 @@ import {
 } from "../types/webhookInterface.js";
 
 export const VALID_WEBHOOK_TOPICS = [
- 
+  "customers/create",
+  "customers/update",
+  "customers/delete",
+  "customers_marketing_consent/update",
   "orders/create",
 
   // Products
@@ -101,5 +108,142 @@ export const deleteShopifyWebhook = async (
     throw error;
   }
 };
+
+export class WebhookService {
+  /**
+   * Process a webhook based on its topic
+   */
+  static async processWebhook(topic: string, payload: any, shopDomain: string) {
+    let webhook;
+    try {
+      // Store the webhook in the database first
+      webhook = await this.storeWebhook(topic, payload, shopDomain);
+
+      // Process based on topic
+      await this.processWebhookByTopic(topic, payload);
+
+      // Mark as processed
+      await this.markWebhookAsProcessed(webhook);
+
+      return webhook;
+    } catch (error) {
+      console.error("Error processing webhook:", error);
+      if (webhook && error instanceof Error) {
+        await this.markWebhookAsFailed(webhook, error.message);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Store webhook in database
+   */
+  private static async storeWebhook(topic: string, payload: any, shopDomain: string) {
+    return await Webhook.create({
+      topic,
+      shop_domain: shopDomain,
+      payload,
+      processed: false
+    });
+  }
+
+  /**
+   * Process webhook based on topic
+   */
+  private static async processWebhookByTopic(topic: string, payload: any) {
+    // Add webhook_type to payload
+    payload.webhook_type = topic;
+
+    switch (topic) {
+      case "customers/create":
+      case "customers/update":
+      case "customers/delete":
+        await handleCustomerWebhook(payload);
+        break;
+      case "products/create":
+      case "products/update":
+      case "products/delete":
+        await handleProductWebhook(payload);
+        break;
+      case "orders/create":
+      case "orders/updated":
+      case "orders/cancelled":
+      case "orders/fulfilled":
+        await handleOrderWebhook(payload);
+        break;
+      default:
+        console.log(`Unhandled webhook topic: ${topic}`);
+    }
+  }
+
+  /**
+   * Mark webhook as processed
+   */
+  private static async markWebhookAsProcessed(webhook: any) {
+    try {
+      await webhook.update({
+        processed: true,
+        processed_at: new Date()
+      });
+    } catch (error) {
+      console.error('Error marking webhook as processed:', error);
+    }
+  }
+
+  /**
+   * Mark webhook as failed
+   */
+  private static async markWebhookAsFailed(webhook: any, errorMessage: string) {
+    try {
+      await webhook.update({
+        processed: false,
+        processed_at: new Date()
+      });
+      console.error('Webhook processing failed:', errorMessage);
+    } catch (error) {
+      console.error('Error marking webhook as failed:', error);
+    }
+  }
+
+  /**
+   * Get all webhooks with pagination
+   */
+  static async getWebhooks(page = 1, limit = 10) {
+    return await Webhook.findAndCountAll({
+      order: [["createdAt", "DESC"]],
+      limit,
+      offset: (page - 1) * limit
+    });
+  }
+
+  /**
+   * Get webhook by ID
+   */
+  static async getWebhookById(id: number) {
+    return await Webhook.findByPk(id);
+  }
+
+  /**
+   * Delete webhook from both database and Shopify
+   */
+  static async deleteWebhook(id: number) {
+    const webhook = await this.getWebhookById(id);
+    if (!webhook) {
+      throw new Error("Webhook not found");
+    }
+
+    // Delete from Shopify first
+    try {
+      await shopifyApiService("DELETE", `webhooks/${id}.json`);
+    } catch (error) {
+      console.error("Failed to delete webhook from Shopify:", error);
+      // Continue with local deletion even if Shopify deletion fails
+    }
+
+    // Delete from local database
+    await webhook.destroy();
+    return true;
+  }
+}
 
 

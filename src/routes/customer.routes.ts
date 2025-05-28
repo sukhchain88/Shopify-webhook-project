@@ -1,30 +1,33 @@
 // src\routes\customer.routes.ts
-import express, { RequestHandler } from 'express';
-import { 
-  getAllCustomers, 
-  getCustomerById, 
-  createCustomer, 
-  updateCustomer, 
-  deleteCustomer 
-} from '../controllers/customer.controller.js';
+import express from "express";
+import {
+  createCustomer,
+  getAllCustomers,
+  getCustomerById,
+  updateCustomer,
+  deleteCustomer,
+  syncCustomers
+} from "../controllers/customer.controller.js";
 
-const router = express.Router();
+const customerRoutes = express.Router();
 
-// No need to add /customers prefix as it's already in the path
-// GET all customers
-router.get('/', getAllCustomers as unknown as RequestHandler);
+// Create a new customer
+customerRoutes.post("/", createCustomer);
 
-// GET a single customer by ID
-router.get('/:id', getCustomerById as unknown as RequestHandler);
+// Get all customers with pagination and search
+customerRoutes.get("/", getAllCustomers);
 
-// POST create a new customer
-router.post('/', createCustomer as unknown as RequestHandler);
+// Get a single customer by ID
+customerRoutes.get("/:id", getCustomerById);
 
-// PUT update a customer
-router.put('/:id', updateCustomer as unknown as RequestHandler);
+// Update a customer
+customerRoutes.put("/:id", updateCustomer);
 
-// DELETE a customer
-router.delete('/:id', deleteCustomer as unknown as RequestHandler);
+// Delete a customer
+customerRoutes.delete("/:id", deleteCustomer);
 
-export default router; 
+// Sync customers from Shopify
+customerRoutes.post("/sync", syncCustomers);
+
+export default customerRoutes; 
  

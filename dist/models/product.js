@@ -7,33 +7,33 @@ export const Product = sequelize.define("products", {
         autoIncrement: true,
         primaryKey: true,
     },
-    shopify_product_id: {
-        type: DataTypes.STRING(255),
-        allowNull: false,
-        unique: true,
-    },
     title: {
         type: DataTypes.STRING(255),
         allowNull: false,
-    },
-    price: {
-        type: DataTypes.DECIMAL(10, 2),
-        allowNull: true,
     },
     description: {
         type: DataTypes.TEXT,
         allowNull: true,
     },
-    status: {
-        type: DataTypes.STRING(50),
+    price: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+    },
+    shopify_product_id: {
+        type: DataTypes.STRING(255),
         allowNull: true,
-        defaultValue: "active",
+    },
+    status: {
+        type: DataTypes.ENUM('active', 'draft', 'archived'),
+        defaultValue: 'active',
     },
     metadata: {
         type: DataTypes.JSON,
         allowNull: true,
-    },
+        defaultValue: {}
+    }
 }, {
     tableName: "products",
-    timestamps: true,
+    timestamps: false,
+    underscored: true,
 });

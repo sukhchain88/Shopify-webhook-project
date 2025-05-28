@@ -2,6 +2,9 @@ import axios from "axios";
 import { SHOPIFY_STORE_URL, SHOPIFY_ACCESS_TOKEN, NGROK_URL, } from "../config/config.js";
 import { VALID_WEBHOOK_TOPICS } from "./webhook.service.js";
 export const shopifyApiService = async (method, endpoint, data) => {
+    if (!SHOPIFY_STORE_URL || !SHOPIFY_ACCESS_TOKEN) {
+        throw new Error("Shopify API credentials are not configured. Please check your .env file.");
+    }
     const url = `https://${SHOPIFY_STORE_URL}/admin/api/2025-04/${endpoint}`;
     try {
         const response = await axios({

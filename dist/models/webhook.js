@@ -29,5 +29,6 @@ export const Webhook = sequelize.define("webhooks", {
     }
 }, {
     tableName: "webhooks",
-    timestamps: true,
+    timestamps: false,
+    underscored: true
 });

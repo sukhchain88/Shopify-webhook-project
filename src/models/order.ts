@@ -1,6 +1,6 @@
 // src\models\order.ts
 import { DataTypes } from "sequelize";
-import sequelize from "../config/db.js";
+import  sequelize  from "../config/db.js";
 import { Customer } from "./customer.js";
 
 export const Order = sequelize.define("orders", {
@@ -41,14 +41,6 @@ export const Order = sequelize.define("orders", {
   shopify_order_id: {
     type: DataTypes.STRING(255),
     allowNull: true,
-  },
-  created_at: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-  },
-  updated_at: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
   }
 }, {
   tableName: "orders",
