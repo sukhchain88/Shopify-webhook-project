@@ -3,14 +3,34 @@ export async function handleProductWebhook(payload) {
     try {
         // Convert Shopify product ID to string
         const shopifyProductId = String(payload.id);
-        console.log(`Processing product webhook for Shopify ID: ${shopifyProductId}`);
+        const webhookType = payload.webhook_type || 'unknown';
+        console.log(`Processing ${webhookType} product webhook for Shopify ID: ${shopifyProductId}`);
+        // Handle delete webhooks differently (they don't have title/variants)
+        if (webhookType === 'products/delete') {
+            const existingProduct = await Product.findOne({
+                where: { shopify_product_id: shopifyProductId },
+            });
+            if (existingProduct) {
+                await existingProduct.destroy();
+                console.log(`✅ Deleted product from database: Shopify ID ${shopifyProductId}`);
+            }
+            else {
+                console.log(`⚠️ Product not found for deletion: Shopify ID ${shopifyProductId}`);
+            }
+            return;
+        }
+        // For create/update webhooks, validate required fields
+        if (!payload.title) {
+            console.error(`❌ Product webhook missing title field for ${webhookType}`);
+            throw new Error(`Product webhook missing required title field`);
+        }
         // Extract relevant data from the webhook payload
         const productData = {
             title: payload.title,
             price: parseFloat(String(payload.variants?.[0]?.price)) || 0,
             description: payload.body_html || null,
             shopify_product_id: shopifyProductId, // Store as string
-            status: payload.status,
+            status: payload.status || 'active',
             metadata: {
                 vendor: payload.vendor,
                 product_type: payload.product_type,
