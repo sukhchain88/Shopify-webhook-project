@@ -14,14 +14,15 @@ import cors from "cors";
 import * as dotenv from "dotenv";
 
 // Import route handlers
-import productRoutes from "./routes/products.routes.js";
-import webhookRoutes from "./routes/webhook.routes.js";
-import shopifyRoutes from "./routes/shopify.routes.js";
-import shopifyAdminRoutes from "./routes/shopify-admin.routes.js";
-import customerRoutes from "./routes/customer.routes.js";
-import orderRoutes from "./routes/order.routes.js";
-import healthRoutes from "./routes/health.routes.js";
-import userRouter from "./routes/user.routes.js";
+import productRoutes from "./routes/ProductRoutes.js";
+import webhookRoutes from "./routes/WebhookRoutes.js";
+import shopifyRoutes from "./routes/ShopifyRoutes.js";
+import shopifyAdminRoutes from "./routes/ShopifyAdminRoutes.js";
+import customerRoutes from "./routes/CustomerRoutes.js";
+import orderRoutes from "./routes/OrderRoutes.js";
+import orderItemsRoutes from "./routes/OrderItemRoutes.js";
+import healthRoutes from "./routes/HealthRoutes.js";
+import userRouter from "./routes/UserRoutes.js";
 
 // Import middleware
 import { requestTiming } from "./middleware/requestTiming.js";
@@ -29,6 +30,7 @@ import { errorHandler } from "./middleware/errorHandler.js";
 
 // Import database connection
 import "./config/db.js"; // This initializes the database connection
+import { initDatabase } from "./config/initDatabase.js"; // Initialize database tables
 
 // Load environment variables
 dotenv.config();
@@ -90,6 +92,7 @@ app.use(express.urlencoded({
  * - /api/shopify-admin: Shopify Admin API operations
  * - /customers: Customer management
  * - /orders: Order management
+ * - /api/order-items: Order items and product relationships
  * - /users: User management
  */
 
@@ -114,6 +117,9 @@ app.use("/customers", customerRoutes);
 // Order management routes
 app.use("/orders", orderRoutes);
 
+// Order items and product relationships routes
+app.use("/api/order-items", orderItemsRoutes);
+
 // User management routes
 app.use("/users", userRouter);
 
@@ -133,6 +139,7 @@ app.get("/", (req, res) => {
       "shopify-admin": "/api/shopify-admin",
       customers: "/customers",
       orders: "/orders",
+      "order-items": "/api/order-items",
       users: "/users"
     },
     documentation: "See README.md for API documentation"
@@ -167,36 +174,50 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 /**
  * Start the server
  */
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📊 Environment: ${NODE_ENV}`);
-  console.log(`🔗 API URL: http://localhost:${PORT}`);
-  console.log(`📚 Health Check: http://localhost:${PORT}/health`);
-  
-  if (NODE_ENV === 'development') {
-    console.log(`🧪 Test the API with: node tests/api-tests.js`);
+const startServer = async () => {
+  try {
+    // Initialize database first
+    await initDatabase();
+    
+    const server = app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`📊 Environment: ${NODE_ENV}`);
+      console.log(`🔗 API URL: http://localhost:${PORT}`);
+      console.log(`📚 Health Check: http://localhost:${PORT}/health`);
+      
+      if (NODE_ENV === 'development') {
+        console.log(`🧪 Test the API with: node tests/api-tests.js`);
+      }
+    });
+
+    /**
+     * Graceful Shutdown Handler
+     * Properly close database connections and server on shutdown
+     */
+    process.on('SIGTERM', () => {
+      console.log('🛑 SIGTERM received, shutting down gracefully...');
+      server.close(() => {
+        console.log('✅ Server closed');
+        process.exit(0);
+      });
+    });
+
+    process.on('SIGINT', () => {
+      console.log('🛑 SIGINT received, shutting down gracefully...');
+      server.close(() => {
+        console.log('✅ Server closed');
+        process.exit(0);
+      });
+    });
+    
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
   }
-});
+};
 
-/**
- * Graceful Shutdown Handler
- * Properly close database connections and server on shutdown
- */
-process.on('SIGTERM', () => {
-  console.log('🛑 SIGTERM received, shutting down gracefully...');
-  server.close(() => {
-    console.log('✅ Server closed');
-    process.exit(0);
-  });
-});
-
-process.on('SIGINT', () => {
-  console.log('🛑 SIGINT received, shutting down gracefully...');
-  server.close(() => {
-    console.log('✅ Server closed');
-    process.exit(0);
-  });
-});
+// Start the server
+startServer();
 
 /**
  * Unhandled Promise Rejection Handler

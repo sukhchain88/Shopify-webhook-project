@@ -1,7 +1,21 @@
 import crypto from "crypto";
-import { SHOPIFY_WEBHOOK_SECRET } from "../config/config.js";
+import { SHOPIFY_WEBHOOK_SECRET, NODE_ENV } from "../config/config.js";
 export const validateWebhookSignature = (req) => {
     try {
+        // In development mode, be more flexible with validation
+        if (NODE_ENV === "development") {
+            // Skip validation if no secret is configured
+            if (!SHOPIFY_WEBHOOK_SECRET) {
+                console.log("⚠️ Skipping webhook signature validation in development mode (no secret configured)");
+                return true;
+            }
+            // Allow test webhooks with test HMAC header
+            const hmacHeader = req.headers["x-shopify-hmac-sha256"];
+            if (hmacHeader && hmacHeader.includes("test-hmac")) {
+                console.log("⚠️ Accepting test webhook in development mode");
+                return true;
+            }
+        }
         const hmacHeader = req.headers["x-shopify-hmac-sha256"];
         console.log("Received HMAC:", hmacHeader);
         if (!hmacHeader || !req.body) {

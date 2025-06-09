@@ -1,7 +1,7 @@
 // src\models\order.ts
 import { DataTypes } from "sequelize";
 import  sequelize  from "../config/db.js";
-import { Customer } from "./customer.js";
+import { Customer } from "./Customer.js";
 
 export const Order = sequelize.define("orders", {
   id: {
@@ -50,5 +50,5 @@ export const Order = sequelize.define("orders", {
 
 // Define the relationship between Order and Customer
 Order.belongsTo(Customer, { foreignKey: 'customer_id' });
-Customer.hasMany(Order, { foreignKey: 'customer_id' }); 
+Customer.hasMany(Order, { foreignKey: 'customer_id' });
  

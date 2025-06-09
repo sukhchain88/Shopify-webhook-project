@@ -1,4 +1,4 @@
-import { Customer } from "../models/customer.js";
+import { Customer } from "../models/Customer.js";
 export const handleCustomerWebhook = async (payload) => {
     try {
         console.log("🔍 Received customer webhook topic:", payload.webhook_type);

@@ -1,4 +1,4 @@
-import { Product } from "../models/product.js";
+import { Product } from "../models/Product.js";
 export async function handleProductWebhook(payload) {
     try {
         // Convert Shopify product ID to string

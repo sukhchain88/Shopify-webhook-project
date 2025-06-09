@@ -1,5 +1,6 @@
-import { Customer } from "../models/customer.js";
-import { Order } from "../models/order.js";
+import { Customer } from "../models/Customer.js";
+import { Order } from "../models/Order.js";
+import { OrderItemService } from "../services/OrderItemService.js";
 export async function handleOrderWebhook(payload) {
     try {
         // Convert Shopify order ID to string
@@ -74,15 +75,15 @@ export async function handleOrderWebhook(payload) {
             console.log('⚠️ No customer email provided - creating order without customer link');
         }
         // Check if order exists
-        const existingOrder = await Order.findOne({
+        let order = await Order.findOne({
             where: {
                 shopify_order_id: shopifyOrderId,
                 shop_domain: shopDomain
             }
-        });
-        if (existingOrder) {
+        }); // Type assertion to avoid linter errors
+        if (order) {
             // Update existing order
-            await existingOrder.update({
+            await order.update({
                 ...orderData,
                 customer_id: customer?.id
             });
@@ -90,11 +91,38 @@ export async function handleOrderWebhook(payload) {
         }
         else {
             // Create new order
-            await Order.create({
+            order = await Order.create({
                 ...orderData,
                 customer_id: customer?.id
-            });
+            }); // Type assertion to avoid linter errors
             console.log(`✅ Created new order in database: ${orderData.order_number} (ID: ${shopifyOrderId})`);
+        }
+        // ========================================
+        // NEW: Process Line Items (Order-Product Relationships)
+        // ========================================
+        if (payload.line_items && Array.isArray(payload.line_items) && payload.line_items.length > 0) {
+            console.log(`📦 Processing ${payload.line_items.length} line items for order ${order.id}`);
+            try {
+                // Create order items from webhook line items
+                const orderItems = await OrderItemService.createOrderItemsFromWebhook(order.id, payload.line_items);
+                console.log(`✅ Successfully created ${orderItems.length} order items`);
+                // Log summary of products in this order
+                const productSummary = orderItems.map(item => ({
+                    title: item.product_title,
+                    quantity: item.quantity,
+                    unit_price: item.unit_price,
+                    total: item.total_price
+                }));
+                console.log('📋 Order items summary:', JSON.stringify(productSummary, null, 2));
+            }
+            catch (lineItemError) {
+                console.error('❌ Error processing line items:', lineItemError);
+                // Don't throw error - order was created successfully, just line items failed
+                console.log('⚠️ Order created but line items processing failed');
+            }
+        }
+        else {
+            console.log('⚠️ No line items found in webhook payload');
         }
     }
     catch (error) {

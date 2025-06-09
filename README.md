@@ -26,45 +26,341 @@ A comprehensive Node.js application for handling Shopify webhooks and managing p
 - **Search & Filtering**: Product search and status filtering
 - **Health Monitoring**: Health check endpoint for monitoring
 
-## 📁 Project Structure
+## 📁 Project Structure & File Relationships
 
 ```
 shopify-webhook-project/
-├── src/
-│   ├── config/           # Configuration files
-│   │   ├── db.ts         # Database connection
-│   │   └── config.ts     # App configuration
-│   ├── controllers/      # Request handlers
-│   │   ├── product.controller.ts
-│   │   ├── webhook.controller.ts
-│   │   └── ...
-│   ├── middleware/       # Express middleware
-│   │   ├── errorHandler.ts
-│   │   ├── requestTiming.ts
-│   │   └── verifyShopifyWebhook.ts
-│   ├── models/          # Database models
-│   │   ├── product.ts
-│   │   ├── webhook.ts
-│   │   └── ...
-│   ├── routes/          # API routes
-│   │   ├── products.routes.ts
-│   │   ├── webhook.routes.ts
-│   │   └── ...
-│   ├── services/        # Business logic
-│   │   ├── product.service.ts
-│   │   └── ...
-│   ├── validators/      # Input validation
-│   │   ├── product.validator.ts
-│   │   └── ...
-│   ├── utils/          # Utility functions
-│   └── index.ts        # Main application entry
-├── tests/              # Test files
-│   └── api-tests.js    # Comprehensive API tests
-├── scripts/            # Database scripts
-├── migrations/         # Database migrations
-├── dist/              # Compiled JavaScript
-└── docs/              # Documentation
+├── 📁 src/                          # Source code directory
+│   ├── 📄 index.ts                  # 🚀 Main application entry point
+│   │                                #    ├── Imports config.app from config/
+│   │                                #    ├── Sets up middleware from middleware/
+│   │                                #    ├── Registers routes from routes/
+│   │                                #    └── Starts Express server
+│   │
+│   ├── 📁 config/                   # 🔧 Configuration & Database Setup
+│   │   ├── 📄 config.app.ts         #    ├── Environment variables & app settings
+│   │   ├── 📄 db.connection.ts      #    ├── Sequelize database connection
+│   │   └── 📄 database.init.ts      #    └── Database initialization & model sync
+│   │                                #         └── Links to all models
+│   │
+│   ├── 📁 models/                   # 🗄️ Database Models (Sequelize ORM)
+│   │   ├── 📄 product.ts            #    ├── Product model definition
+│   │   ├── 📄 customer.ts           #    ├── Customer model definition
+│   │   ├── 📄 order.ts              #    ├── Order model definition  
+│   │   ├── 📄 orderItem.ts          #    ├── OrderItem model definition
+│   │   ├── 📄 webhook.ts            #    ├── Webhook model definition
+│   │   └── 📄 user.ts               #    └── User model definition
+│   │                                #         └── Each model defines associations
+│   │
+│   ├── 📁 routes/                   # 🛣️ API Route Definitions
+│   │   ├── 📄 products.routes.ts    #    ├── Product endpoints → product.controller
+│   │   ├── 📄 customer.routes.ts    #    ├── Customer endpoints → customer.controller
+│   │   ├── 📄 order.routes.ts       #    ├── Order endpoints → order.controller
+│   │   ├── 📄 orderItems.routes.ts  #    ├── OrderItem endpoints → order.controller
+│   │   ├── 📄 webhook.routes.ts     #    ├── Webhook endpoints → webhook.controller
+│   │   ├── 📄 user.routes.ts        #    ├── User endpoints → user.controller
+│   │   ├── 📄 shopify.routes.ts     #    ├── Shopify API → shopify.controller
+│   │   ├── 📄 shopify-admin.routes.ts#   ├── Shopify Admin → shopify.controller
+│   │   └── 📄 health.routes.ts      #    └── Health check endpoint
+│   │                                #         └── Each route uses middleware & validators
+│   │
+│   ├── 📁 controllers/              # 🎮 Request Controllers (Business Logic)
+│   │   ├── 📄 product.controller.ts #    ├── Product CRUD → product.service
+│   │   ├── 📄 customer.controller.ts#    ├── Customer CRUD → customer.service
+│   │   ├── 📄 order.controller.ts   #    ├── Order CRUD → order.service
+│   │   ├── 📄 webhook.controller.ts #    ├── Webhook processing → webhook.service
+│   │   ├── 📄 user.controller.ts    #    ├── User management → user model
+│   │   └── 📄 shopify.controller.ts #    └── Shopify integration → shopify.service
+│   │                                #         └── Controllers use validators & utils
+│   │
+│   ├── 📁 services/                 # 🔧 Business Logic Services
+│   │   ├── 📄 product.service.ts    #    ├── Product business logic → product model
+│   │   ├── 📄 customer.service.ts   #    ├── Customer business logic → customer model
+│   │   ├── 📄 order.service.ts      #    ├── Order business logic → order model
+│   │   ├── 📄 orderItem.service.ts  #    ├── OrderItem logic → orderItem model
+│   │   ├── 📄 webhook.service.ts    #    ├── Webhook processing → webhook model
+│   │   ├── 📄 shopify.service.ts    #    ├── Shopify API calls → utils
+│   │   ├── 📄 shopify-admin.service.ts# ├── Admin operations → models
+│   │   └── 📄 queue.service.ts      #    └── Background job processing
+│   │                                #         └── Services interact with models & utils
+│   │
+│   ├── 📁 middleware/               # 🛡️ Express Middleware
+│   │   ├── 📄 errorHandler.ts       # Global error handling
+│   │   ├── 📄 requestTiming.ts      # Request timing & logging
+│   │   └── 📄 verifyShopifyWebhook.ts # Shopify webhook verification
+│   │                                #              └── Uses validateWebhookSignature
+│   │
+│   ├── 📁 validators/               # ✅ Input Validation (Zod Schemas)
+│   │   ├── 📄 product.validator.ts  #    ├── Product validation schemas
+│   │   ├── 📄 customer.validator.ts #    ├── Customer validation schemas
+│   │   ├── 📄 order.validator.ts    #    ├── Order validation schemas
+│   │   └── 📄 webhook.validator.ts  #    └── Webhook validation schemas
+│   │                                #         └── Used by controllers & routes
+│   │
+│   ├── 📁 utils/                    # 🛠️ Utility Functions
+│   │   ├── 📄 responseHandler.ts    # Standardized API responses
+│   │   ├── 📄 logger.ts             # Application logging
+│   │   ├── 📄 phoneValidator.ts     # Phone number validation
+│   │   ├── 📄 shopifyFormatter.ts   # Shopify data formatting
+│   │   └── 📄 validateWebhookSignature.ts  # Webhook signature validation
+│   │                                #         └── Used across services & controllers
+│   │
+│   ├── 📁 types/                    # 📝 TypeScript Type Definitions
+│   │   ├── 📄 customerInterface.ts  #    ├── Customer interfaces & types
+│   │   ├── 📄 shopifyInterface.ts   #    ├── Shopify API types
+│   │   └── 📄 webhookInterface.ts   #    └── Webhook interfaces
+│   │                                #         └── Used throughout the application
+│   │
+│   ├── 📁 webhookHandlers/          # 🔄 Webhook Event Processors
+│   │   └── [Event-specific handlers] #         └── Process different webhook events
+│   │
+│   ├── 📁 jobs/                     # ⚡ Background Job Definitions
+│   │   └── [Job processors]         #         └── Queue job processing
+│   │
+│   ├── 📁 queues/                   # 📋 Queue Management
+│   │   └── [Queue configurations]   #         └── BullMQ queue setup
+│   │
+│   ├── 📁 workers/                  # 👷 Background Workers
+│   │   └── [Worker processes]       #         └── Process queued jobs
+│   │
+│   └── 📁 examples/                 # 📚 Code Examples & Demos
+│       └── [Example implementations]
+│
+├── 📁 config/                       # 🔧 External Configuration
+│   └── [Sequelize config files]
+│
+├── 📁 migrations/                   # 🗄️ Database Migrations
+│   └── [Migration files]
+│
+├── 📁 seeders/                      # 🌱 Database Seeders
+│   └── [Seed data files]
+│
+├── 📁 scripts/                      # 🔨 Utility Scripts
+│   └── [Database & deployment scripts]
+│
+├── 📁 sql-queries/                  # 📊 SQL Query Files
+│   └── [Raw SQL queries]
+│
+├── 📁 dist/                         # 📦 Compiled JavaScript Output
+│   └── [Compiled TypeScript files]
+│
+├── 📁 node_modules/                 # 📚 Dependencies
+├── 📄 package.json                  # 📋 Project configuration & dependencies
+├── 📄 tsconfig.json                 # ⚙️ TypeScript configuration
+├── 📄 Dockerfile                    # 🐳 Docker configuration
+└── 📄 README.md                     # 📖 This documentation
 ```
+
+### 🔗 File Relationship Flow
+
+```
+Request Flow:
+📡 HTTP Request
+  ↓
+🛣️ [entity].routes.ts
+  ↓ (applies middleware)
+🛡️ [middleware].ts
+  ↓ (validates input)
+✅ [entity].validator.ts
+  ↓ (processes request)
+🎮 [entity].controller.ts
+  ↓ (business logic)
+🔧 [entity].service.ts
+  ↓ (database operations)
+🗄️ [entity].ts
+  ↓ (formats response)
+🛠️ responseHandler.ts
+  ↓
+📡 HTTP Response
+
+Data Flow:
+🗄️ models.[entity].ts ←→ 🔧 services.[entity].ts ←→ 🎮 controllers.[entity].ts
+                      ↓                              ↓
+                🛠️ utils.[helpers].ts    ✅ validators.[entity].ts
+
+Configuration Flow:
+🚀 index.ts → 🔧 config.app.ts → 🗄️ db.connection.ts → 📄 database.init.ts → 🗄️ models.*
+```
+
+### 🔗 Detailed File Relationships with Examples
+
+#### 📊 Product Feature Flow
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           Product Management Flow                                │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                 │
+│  📡 GET /products?page=1&limit=10                                              │
+│     ↓                                                                          │
+│  🛣️ products.routes.ts                                                         │
+│     ├── Applies: requestTiming.ts                                             │
+│     ├── Validates: product.validator.ts (query params)                       │
+│     └── Routes to: product.controller.ts                                     │
+│           ↓                                                                    │
+│  🎮 product.controller.ts                                                     │
+│     ├── Calls: product.service.ts.getAllProducts()                          │
+│     └── Uses: responseHandler.ts                                             │
+│           ↓                                                                    │
+│  🔧 product.service.ts                                                        │
+│     ├── Queries: product.ts (Sequelize)                                     │
+│     ├── Uses: logger.ts                                                      │
+│     └── Applies business logic                                                │
+│           ↓                                                                    │
+│  🗄️ product.ts                                                                │
+│     ├── Sequelize model definition                                            │
+│     ├── Associations with: orderItem.ts                                      │
+│     └── Database table: products                                              │
+│           ↓                                                                    │
+│  📡 Response: JSON with products array + pagination                           │
+│                                                                                │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+#### 🔄 Webhook Processing Flow
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                          Shopify Webhook Processing                             │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                 │
+│  📡 POST /api/webhooks (Shopify webhook)                                       │
+│     ↓                                                                          │
+│  🛣️ routes.webhooks.ts                                                         │
+│     ├── Applies: middleware.verify-shopify.ts                                 │
+│     │   └── Uses: utils.validate-webhook.ts                                   │
+│     ├── Validates: validators.webhook.ts                                       │
+│     └── Routes to: controllers.webhook.ts                                     │
+│           ↓                                                                    │
+│  🎮 controllers.webhook.ts                                                     │
+│     ├── Calls: services.webhook.ts.processWebhook()                          │
+│     ├── Logs: utils.logger.ts                                                │
+│     └── Queues: services.queue.ts (for async processing)                     │
+│           ↓                                                                    │
+│  🔧 services.webhook.ts                                                        │
+│     ├── Stores: models.webhook.ts                                            │
+│     ├── Updates: models.product.ts (if product webhook)                       │
+│     ├── Updates: models.customer.ts (if customer webhook)                     │
+│     └── Updates: models.order.ts (if order webhook)                          │
+│           ↓                                                                    │
+│  🗄️ Database Updates                                                           │
+│     ├── webhooks table (log entry)                                            │
+│     └── Respective entity table (product/customer/order)                      │
+│                                                                                │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+#### 🏗️ Application Bootstrap Flow
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                         Application Startup Sequence                            │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                 │
+│  🚀 index.ts (Entry Point)                                                     │
+│     ├── Loads: config.app.ts                                                  │
+│     │   └── Reads environment variables                                        │
+│     ├── Connects: config.database.ts                                          │
+│     │   └── Establishes PostgreSQL connection                                  │
+│     ├── Initializes: database.init.ts                                         │
+│     │   ├── Syncs: models.product.ts                                          │
+│     │   ├── Syncs: models.customer.ts                                         │
+│     │   ├── Syncs: models.order.ts                                            │
+│     │   ├── Syncs: models.order-item.ts                                       │
+│     │   ├── Syncs: models.webhook.ts                                          │
+│     │   └── Syncs: models.user.ts                                             │
+│     ├── Applies Middleware:                                                    │
+│     │   ├── middleware.request-timing.ts                                      │
+│     │   ├── middleware.error-handler.ts                                       │
+│     │   └── Express built-ins (CORS, JSON parser)                             │
+│     ├── Registers Routes:                                                      │
+│     │   ├── routes.products.ts                                                │
+│     │   ├── routes.customers.ts                                               │
+│     │   ├── routes.orders.ts                                                  │
+│     │   ├── routes.webhooks.ts                                                │
+│     │   ├── routes.users.ts                                                   │
+│     │   └── routes.health.ts                                                  │
+│     └── Starts server on configured port                                       │
+│                                                                                │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+#### 📋 Model Associations & Dependencies
+```
+Database Models Relationship Map:
+
+🗄️ models.customer.ts
+   ├── hasMany → models.order.ts
+   └── Uses → types.customer.ts
+
+🗄️ models.order.ts  
+   ├── belongsTo → models.customer.ts
+   ├── hasMany → models.order-item.ts
+   └── Uses → types.order.ts
+
+🗄️ models.order-item.ts
+   ├── belongsTo → models.order.ts
+   ├── belongsTo → models.product.ts
+   └── Contains quantity, price data
+
+🗄️ models.product.ts
+   ├── hasMany → models.order-item.ts
+   └── Uses → types.product.ts
+
+🗄️ models.webhook.ts
+   ├── Stores webhook logs
+   └── Uses → types.webhook.ts
+
+🗄️ models.user.ts
+   └── Authentication/authorization data
+```
+
+## 📝 File Naming Conventions & Best Practices
+
+### 🎯 Current File Naming Pattern
+
+**Consistent Structure (Already Implemented)**
+
+```
+# Current Structure - Well Organized
+src/models/product.ts                  ✅ Database model definitions
+src/models/customer.ts                 ✅ Database model definitions
+src/controllers/product.controller.ts  ✅ Request handlers  
+src/services/product.service.ts        ✅ Business logic services
+src/routes/products.routes.ts          ✅ API route definitions
+src/validators/product.validator.ts    ✅ Input validation schemas
+src/utils/responseHandler.ts           ✅ Utility functions (camelCase)
+src/middleware/errorHandler.ts         ✅ Express middleware (camelCase)
+```
+
+### 🔄 Benefits of Current Naming Convention
+
+1. **Clear Purpose**: `.controller.ts`, `.service.ts`, `.routes.ts` clearly indicate file type
+2. **Intuitive Structure**: Easy to understand what each file does
+3. **Standard Pattern**: Follows common Node.js/Express conventions
+4. **IDE Friendly**: Good autocomplete and file navigation
+5. **Maintainable**: Easy to find and organize related files
+
+### 📂 File Naming Rules
+
+| Directory | Pattern | Example | Purpose |
+|-----------|---------|---------|---------|
+| `models/` | `{entity}.ts` | `product.ts` | Database model definitions |
+| `controllers/` | `{entity}.controller.ts` | `product.controller.ts` | Request handlers |
+| `services/` | `{entity}.service.ts` | `product.service.ts` | Business logic |
+| `routes/` | `{entity}.routes.ts` | `products.routes.ts` | API route definitions |
+| `validators/` | `{entity}.validator.ts` | `product.validator.ts` | Input validation schemas |
+| `utils/` | `camelCase.ts` | `responseHandler.ts` | Helper functions |
+| `middleware/` | `camelCase.ts` | `errorHandler.ts` | Express middleware |
+| `types/` | `{domain}Interface.ts` | `customerInterface.ts` | TypeScript interfaces |
+| `config/` | `camelCase.ts` | `config.ts`, `db.ts` | Configuration files |
+
+### 📋 Current File Organization Benefits
+
+✅ **No migration needed** - Your current structure is already well-organized!
+
+The existing naming convention provides:
+- **Clear identification** of file types through suffixes
+- **Logical grouping** within directories  
+- **Standard patterns** commonly used in Node.js projects
+- **Easy navigation** and file discovery
 
 ## 🛠 Installation
 

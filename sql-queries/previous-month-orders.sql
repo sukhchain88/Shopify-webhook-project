@@ -1,0 +1,157 @@
+-- SQL Queries for Previous Month Orders and Order Items
+
+-- 1. Get all customers who placed orders in the previous month
+SELECT DISTINCT 
+    c.id as customer_id,
+    c.first_name,
+    c.last_name,
+    c.email,
+    c.phone,
+    c.shopify_customer_id,
+    COUNT(o.id) as total_orders,
+    SUM(o.total_price) as total_spent
+FROM customers c
+INNER JOIN orders o ON c.shopify_customer_id = o.customer_id
+WHERE o.created_at >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL '1 month')
+  AND o.created_at < DATE_TRUNC('month', CURRENT_DATE)
+GROUP BY c.id, c.first_name, c.last_name, c.email, c.phone, c.shopify_customer_id
+ORDER BY total_spent DESC;
+
+-- 2. Get all orders from the previous month
+SELECT 
+    o.id as order_id,
+    o.shopify_order_id,
+    o.customer_id,
+    c.first_name,
+    c.last_name,
+    c.email,
+    o.total_price,
+    o.currency,
+    o.financial_status,
+    o.fulfillment_status,
+    o.created_at as order_date,
+    COUNT(oi.id) as total_items
+FROM orders o
+LEFT JOIN customers c ON o.customer_id = c.shopify_customer_id
+LEFT JOIN order_items oi ON o.shopify_order_id = oi.order_id
+WHERE o.created_at >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL '1 month')
+  AND o.created_at < DATE_TRUNC('month', CURRENT_DATE)
+GROUP BY o.id, o.shopify_order_id, o.customer_id, c.first_name, c.last_name, c.email, 
+         o.total_price, o.currency, o.financial_status, o.fulfillment_status, o.created_at
+ORDER BY o.created_at DESC;
+
+-- 3. Get all order items for orders from the previous month
+SELECT 
+    oi.id as order_item_id,
+    oi.order_id,
+    oi.product_id,
+    oi.variant_id,
+    oi.quantity,
+    oi.price,
+    oi.title as product_title,
+    oi.variant_title,
+    p.title as product_name,
+    p.vendor,
+    o.created_at as order_date,
+    c.first_name,
+    c.last_name,
+    c.email
+FROM order_items oi
+INNER JOIN orders o ON oi.order_id = o.shopify_order_id
+LEFT JOIN customers c ON o.customer_id = c.shopify_customer_id
+LEFT JOIN products p ON oi.product_id = p.shopify_product_id
+WHERE o.created_at >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL '1 month')
+  AND o.created_at < DATE_TRUNC('month', CURRENT_DATE)
+ORDER BY o.created_at DESC, oi.id;
+
+-- 4. Comprehensive query: Customers, Orders, and Order Items from previous month
+SELECT 
+    -- Customer Information
+    c.id as customer_id,
+    c.first_name,
+    c.last_name,
+    c.email,
+    c.phone,
+    
+    -- Order Information
+    o.id as order_id,
+    o.shopify_order_id,
+    o.total_price as order_total,
+    o.currency,
+    o.financial_status,
+    o.fulfillment_status,
+    o.created_at as order_date,
+    
+    -- Order Item Information
+    oi.id as order_item_id,
+    oi.product_id,
+    oi.quantity,
+    oi.price as item_price,
+    oi.title as product_title,
+    oi.variant_title,
+    
+    -- Product Information
+    p.title as product_name,
+    p.vendor,
+    p.product_type,
+    
+    -- Calculated fields
+    (oi.quantity * oi.price) as item_total
+FROM customers c
+INNER JOIN orders o ON c.shopify_customer_id = o.customer_id
+INNER JOIN order_items oi ON o.shopify_order_id = oi.order_id
+LEFT JOIN products p ON oi.product_id = p.shopify_product_id
+WHERE o.created_at >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL '1 month')
+  AND o.created_at < DATE_TRUNC('month', CURRENT_DATE)
+ORDER BY o.created_at DESC, oi.id;
+
+-- 5. Summary statistics for previous month
+SELECT 
+    COUNT(DISTINCT c.id) as unique_customers,
+    COUNT(DISTINCT o.id) as total_orders,
+    COUNT(oi.id) as total_order_items,
+    SUM(o.total_price) as total_revenue,
+    AVG(o.total_price) as average_order_value,
+    SUM(oi.quantity) as total_items_sold
+FROM customers c
+INNER JOIN orders o ON c.shopify_customer_id = o.customer_id
+INNER JOIN order_items oi ON o.shopify_order_id = oi.order_id
+WHERE o.created_at >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL '1 month')
+  AND o.created_at < DATE_TRUNC('month', CURRENT_DATE);
+
+-- 6. Top selling products from previous month
+SELECT 
+    p.id as product_id,
+    p.title as product_name,
+    p.vendor,
+    p.product_type,
+    SUM(oi.quantity) as total_quantity_sold,
+    SUM(oi.quantity * oi.price) as total_revenue,
+    COUNT(DISTINCT oi.order_id) as number_of_orders,
+    AVG(oi.price) as average_price
+FROM order_items oi
+INNER JOIN orders o ON oi.order_id = o.shopify_order_id
+LEFT JOIN products p ON oi.product_id = p.shopify_product_id
+WHERE o.created_at >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL '1 month')
+  AND o.created_at < DATE_TRUNC('month', CURRENT_DATE)
+GROUP BY p.id, p.title, p.vendor, p.product_type
+ORDER BY total_quantity_sold DESC;
+
+-- 7. Top customers by spending in previous month
+SELECT 
+    c.id as customer_id,
+    c.first_name,
+    c.last_name,
+    c.email,
+    COUNT(DISTINCT o.id) as number_of_orders,
+    SUM(o.total_price) as total_spent,
+    AVG(o.total_price) as average_order_value,
+    SUM(oi.quantity) as total_items_purchased
+FROM customers c
+INNER JOIN orders o ON c.shopify_customer_id = o.customer_id
+INNER JOIN order_items oi ON o.shopify_order_id = oi.order_id
+WHERE o.created_at >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL '1 month')
+  AND o.created_at < DATE_TRUNC('month', CURRENT_DATE)
+GROUP BY c.id, c.first_name, c.last_name, c.email
+ORDER BY total_spent DESC
+LIMIT 10; 

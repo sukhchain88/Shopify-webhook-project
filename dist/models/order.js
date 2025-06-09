@@ -1,7 +1,7 @@
 // src\models\order.ts
 import { DataTypes } from "sequelize";
 import sequelize from "../config/db.js";
-import { Customer } from "./customer.js";
+import { Customer } from "./Customer.js";
 export const Order = sequelize.define("orders", {
     id: {
         type: DataTypes.INTEGER,
