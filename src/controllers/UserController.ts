@@ -1,6 +1,6 @@
 // src\controllers\user.controller.ts
 import { Request, Response } from "express";
-import { Users } from "../models/User.js";
+import { Users } from "../models/User";
 
 // Get all users
 export const getAllUsers = async (req: Request, res: Response) => {

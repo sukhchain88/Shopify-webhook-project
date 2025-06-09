@@ -1,4 +1,7 @@
-export const formatShopifyProduct = (webhookData) => {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.formatShopifyProduct = void 0;
+const formatShopifyProduct = (webhookData) => {
     return {
         title: webhookData.title,
         description: webhookData.body_html || null,
@@ -12,3 +15,4 @@ export const formatShopifyProduct = (webhookData) => {
         }
     };
 };
+exports.formatShopifyProduct = formatShopifyProduct;

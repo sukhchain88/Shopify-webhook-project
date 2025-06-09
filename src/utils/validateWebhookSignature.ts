@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import { Request } from "express";
-import { SHOPIFY_WEBHOOK_SECRET, NODE_ENV } from "../config/config.js";
+import { SHOPIFY_WEBHOOK_SECRET, NODE_ENV } from "../config/config";
 
 export const validateWebhookSignature = (req: Request): boolean => {
   try {

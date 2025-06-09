@@ -1,3 +1,4 @@
+"use strict";
 /**
  * Global Error Handler Middleware
  *
@@ -6,6 +7,8 @@
  *
  * @author Your Name
  */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.notFoundHandler = exports.asyncHandler = exports.errorHandler = void 0;
 /**
  * Error Handler Middleware
  *
@@ -14,7 +17,7 @@
  * @param res - Express response object
  * @param next - Express next function
  */
-export const errorHandler = (error, req, res, next) => {
+const errorHandler = (error, req, res, next) => {
     // Log the error for debugging
     console.error('❌ Error occurred:', {
         message: error.message,
@@ -98,6 +101,7 @@ export const errorHandler = (error, req, res, next) => {
     // Send error response
     res.status(statusCode).json(errorResponse);
 };
+exports.errorHandler = errorHandler;
 /**
  * Async Error Handler Wrapper
  *
@@ -106,11 +110,12 @@ export const errorHandler = (error, req, res, next) => {
  * @param fn - Async function to wrap
  * @returns Wrapped function that catches errors
  */
-export const asyncHandler = (fn) => {
+const asyncHandler = (fn) => {
     return (req, res, next) => {
         Promise.resolve(fn(req, res, next)).catch(next);
     };
 };
+exports.asyncHandler = asyncHandler;
 /**
  * Not Found Handler
  *
@@ -120,8 +125,9 @@ export const asyncHandler = (fn) => {
  * @param res - Express response object
  * @param next - Express next function
  */
-export const notFoundHandler = (req, res, next) => {
+const notFoundHandler = (req, res, next) => {
     const error = new Error(`Route ${req.originalUrl} not found`);
     error.statusCode = 404;
     next(error);
 };
+exports.notFoundHandler = notFoundHandler;

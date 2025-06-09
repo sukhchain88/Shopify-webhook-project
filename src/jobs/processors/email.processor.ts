@@ -1,5 +1,5 @@
 import { Job } from 'bullmq';
-import { EmailJobData, JobResult, JobError } from '../../queues/types.js';
+import { EmailJobData, JobResult, JobError } from '../../queues/types';
 
 /**
  * Email Job Processor

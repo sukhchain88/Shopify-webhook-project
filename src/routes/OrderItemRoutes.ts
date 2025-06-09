@@ -1,8 +1,8 @@
 // @ts-nocheck
 import express from "express";
-import { OrderItemService } from "../services/OrderItemService.js";
-import { Order } from "../models/Order.js";
-import { OrderItem } from "../models/OrderItem.js";
+import { OrderItemService } from "../services/OrderItemService";
+import { Order } from "../models/Order";
+import { OrderItem } from "../models/OrderItem";
 
 const router = express.Router();
 
@@ -381,7 +381,7 @@ router.post("/test-webhook", async (req, res) => {
 
     try {
       // Import the order webhook handler
-      const { handleOrderWebhook } = await import("../webhookHandlers/orderHandler.js");
+      const { handleOrderWebhook } = await import("../webhookHandlers/orderHandler");
       
       // Process the webhook using the actual handler
       await handleOrderWebhook(webhookPayload);

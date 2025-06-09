@@ -9,16 +9,39 @@ const sequelize = new Sequelize(
   process.env.DB_USER!,
   process.env.DB_PASSWORD!,
   {
-    host: process.env.DB_HOST || "localhost",
+    host: process.env.DB_HOST || "",
     port: parseInt(process.env.DB_PORT || "5432"),
     dialect: "postgres",
     dialectOptions: {
-      ssl: process.env.NODE_ENV === "production" ? {
+      // Enable SSL for managed databases (DigitalOcean, AWS RDS, etc.)
+      // Check if we're using a managed database service that requires SSL
+      ssl: process.env.DB_HOST?.includes('digitalocean') || 
+           process.env.DB_HOST?.includes('amazonaws') ||
+           process.env.DB_HOST?.includes('azure') ||
+           process.env.DB_USER === 'doadmin' ||
+           process.env.NODE_ENV === "production" ? {
         require: true,
-        rejectUnauthorized: false,
-      } : undefined,
+        rejectUnauthorized: false, // Allow self-signed certificates for managed services
+      } : false
+    },
+    // Optimized connection pool settings for production
+    pool: {
+      max: process.env.NODE_ENV === "production" ? 20 : 5,
+      min: process.env.NODE_ENV === "production" ? 5 : 0,
+      acquire: 60000, // Increased for better reliability  
+      idle: 10000,
+      evict: 1000
     },
     logging: process.env.NODE_ENV === "development" ? console.log : false,
+    retry: {
+      match: [
+        /ConnectionError/,
+        /ConnectionRefusedError/,
+        /ConnectionTimedOutError/,
+        /TimeoutError/,
+      ],
+      max: 3
+    }
   }
 );
 

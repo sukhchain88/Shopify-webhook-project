@@ -1,5 +1,8 @@
-import { Product } from "../models/Product.js";
-export async function handleProductWebhook(payload) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.handleProductWebhook = handleProductWebhook;
+const Product_1 = require("../models/Product");
+async function handleProductWebhook(payload) {
     try {
         // Convert Shopify product ID to string
         const shopifyProductId = String(payload.id);
@@ -7,7 +10,7 @@ export async function handleProductWebhook(payload) {
         console.log(`Processing ${webhookType} product webhook for Shopify ID: ${shopifyProductId}`);
         // Handle delete webhooks differently (they don't have title/variants)
         if (webhookType === 'products/delete') {
-            const existingProduct = await Product.findOne({
+            const existingProduct = await Product_1.Product.findOne({
                 where: { shopify_product_id: shopifyProductId },
             });
             if (existingProduct) {
@@ -38,7 +41,7 @@ export async function handleProductWebhook(payload) {
             },
         };
         // Check if product exists
-        const existingProduct = await Product.findOne({
+        const existingProduct = await Product_1.Product.findOne({
             where: { shopify_product_id: shopifyProductId }, // Use string ID
         });
         if (existingProduct) {
@@ -48,7 +51,7 @@ export async function handleProductWebhook(payload) {
         }
         else {
             // Create new product
-            await Product.create(productData);
+            await Product_1.Product.create(productData);
             console.log(`✅ Created new product in database: ${payload.title} (ID: ${shopifyProductId})`);
         }
     }

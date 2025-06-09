@@ -1,4 +1,7 @@
-export class ResponseHandler {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ResponseHandler = void 0;
+class ResponseHandler {
     static formatDuration(startTime) {
         return `${Date.now() - startTime}ms`;
     }
@@ -28,3 +31,4 @@ export class ResponseHandler {
         return res.status(statusCode).json(response);
     }
 }
+exports.ResponseHandler = ResponseHandler;

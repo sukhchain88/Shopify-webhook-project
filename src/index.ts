@@ -14,23 +14,23 @@ import cors from "cors";
 import * as dotenv from "dotenv";
 
 // Import route handlers
-import productRoutes from "./routes/ProductRoutes.js";
-import webhookRoutes from "./routes/WebhookRoutes.js";
-import shopifyRoutes from "./routes/ShopifyRoutes.js";
-import shopifyAdminRoutes from "./routes/ShopifyAdminRoutes.js";
-import customerRoutes from "./routes/CustomerRoutes.js";
-import orderRoutes from "./routes/OrderRoutes.js";
-import orderItemsRoutes from "./routes/OrderItemRoutes.js";
-import healthRoutes from "./routes/HealthRoutes.js";
-import userRouter from "./routes/UserRoutes.js";
+import productRoutes from "./routes/ProductRoutes";
+import webhookRoutes from "./routes/WebhookRoutes";
+import shopifyRoutes from "./routes/ShopifyRoutes";
+import shopifyAdminRoutes from "./routes/ShopifyAdminRoutes";
+import customerRoutes from "./routes/CustomerRoutes";
+import orderRoutes from "./routes/OrderRoutes";
+import orderItemsRoutes from "./routes/OrderItemRoutes";
+import healthRoutes from "./routes/HealthRoutes";
+import userRouter from "./routes/UserRoutes";
 
 // Import middleware
-import { requestTiming } from "./middleware/requestTiming.js";
-import { errorHandler } from "./middleware/errorHandler.js";
+import { requestTiming } from "./middleware/requestTiming";
+import { errorHandler } from "./middleware/errorHandler";
 
 // Import database connection
-import "./config/db.js"; // This initializes the database connection
-import { initDatabase } from "./config/initDatabase.js"; // Initialize database tables
+import "./config/db"; // This initializes the database connection
+import { initDatabase } from "./config/initDatabase"; // Initialize database tables
 
 // Load environment variables
 dotenv.config();

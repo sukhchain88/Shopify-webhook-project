@@ -1,2 +1,3 @@
+"use strict";
 // src\types\webhookInterface.ts
-export {};
+Object.defineProperty(exports, "__esModule", { value: true });

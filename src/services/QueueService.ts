@@ -1,5 +1,5 @@
 import { JobsOptions } from 'bullmq';
-import { queues } from '../queues/index.js';
+import { queues } from '../queues/index';
 import { 
   EmailJobData, 
   WebhookJobData, 
@@ -10,7 +10,7 @@ import {
   NotificationJobData,
   JOB_NAMES,
   JobResult 
-} from '../queues/types.js';
+} from '../queues/types';
 
 /**
  * Queue Service

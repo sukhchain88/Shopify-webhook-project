@@ -4,7 +4,7 @@ import {
   createWebhookHandler,
   listWebhooksHandler,
   deleteWebhookHandler,
-} from "../controllers/ShopifyController.js";
+} from "../controllers/ShopifyController";
 
 const router = express.Router();
 

@@ -1,6 +1,6 @@
 // src\models\product.ts
 import { DataTypes } from "sequelize";
-import sequelize from "../config/db.js";
+import sequelize from "../config/db";
 
 export const Product = sequelize.define("products", {
   id: {

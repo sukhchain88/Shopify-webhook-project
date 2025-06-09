@@ -4,9 +4,9 @@ import axios from "axios";
 import {
   SHOPIFY_STORE_URL,
   SHOPIFY_ACCESS_TOKEN,
-  NGROK_URL,
-} from "../config/config.js";
-import { VALID_WEBHOOK_TOPICS } from "./WebhookService.js";
+  WEBHOOK_BASE_URL,
+} from "../config/config";
+import { VALID_WEBHOOK_TOPICS } from "./WebhookService";
 
 export const shopifyApiService = async <T>(
   method: Method,
@@ -44,11 +44,11 @@ export const shopifyApiService = async <T>(
 };
 
 export const verifyAndRegisterWebhooks = async (): Promise<boolean> => {
-  if (!SHOPIFY_STORE_URL || !SHOPIFY_ACCESS_TOKEN || !NGROK_URL) {
+  if (!SHOPIFY_STORE_URL || !SHOPIFY_ACCESS_TOKEN || !WEBHOOK_BASE_URL) {
     throw new Error("Missing required environment variables");
   }
 
-  const webhookUrl = NGROK_URL.trim();
+  const webhookUrl = WEBHOOK_BASE_URL.trim();
 
   try {
     const { webhooks: existingWebhooks } = await shopifyApiService<{

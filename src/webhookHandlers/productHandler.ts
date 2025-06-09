@@ -1,4 +1,4 @@
-import { Product } from "../models/Product.js";
+import { Product } from "../models/Product";
 
 export async function handleProductWebhook(payload: any) {
   try {
