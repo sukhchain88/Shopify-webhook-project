@@ -1,4 +1,4 @@
-// src\models\webhook.ts
+// src/models/Webhook.ts
 import { DataTypes } from "sequelize";
 import sequelize from "../config/db";
 

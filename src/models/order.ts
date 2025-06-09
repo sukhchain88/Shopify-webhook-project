@@ -1,4 +1,4 @@
-// src\models\order.ts
+// src/models/Order.ts
 import { DataTypes } from "sequelize";
 import  sequelize  from "../config/db";
 import { Customer } from "./Customer";

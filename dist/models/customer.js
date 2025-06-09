@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Customer = void 0;
-// src\models\customer.ts
+// src/models/Customer.ts
 const sequelize_1 = require("sequelize");
 const db_1 = __importDefault(require("../config/db"));
 // Define the Customer model with proper TypeScript types

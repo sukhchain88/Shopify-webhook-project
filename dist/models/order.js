@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Order = void 0;
-// src\models\order.ts
+// src/models/Order.ts
 const sequelize_1 = require("sequelize");
 const db_1 = __importDefault(require("../config/db"));
 const Customer_1 = require("./Customer");

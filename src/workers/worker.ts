@@ -1,4 +1,4 @@
-import { Worker } from 'bullmq';
+import { Worker, Job } from 'bullmq';
 import { redisConnection, workerConfig } from '../queues/config';
 import { QUEUE_NAMES } from '../queues/types';
 import { processEmailJob } from '../jobs/processors/email.processor';
@@ -25,7 +25,7 @@ import { processWebhookJob } from '../jobs/processors/webhook.processor';
  */
 export const emailWorker = new Worker(
   QUEUE_NAMES.EMAIL,
-  async (job) => {
+  async (job: Job) => {
     console.log(`[Email Worker] Processing job ${job.id}: ${job.name}`);
     return await processEmailJob(job);
   },
@@ -44,7 +44,7 @@ export const emailWorker = new Worker(
  */
 export const webhookWorker = new Worker(
   QUEUE_NAMES.WEBHOOK,
-  async (job) => {
+  async (job: Job) => {
     console.log(`[Webhook Worker] Processing job ${job.id}: ${job.name}`);
     return await processWebhookJob(job);
   },
@@ -63,7 +63,7 @@ export const webhookWorker = new Worker(
  */
 export const productSyncWorker = new Worker(
   QUEUE_NAMES.PRODUCT_SYNC,
-  async (job) => {
+  async (job: Job) => {
     console.log(`[Product Sync Worker] Processing job ${job.id}: ${job.name}`);
     
     // Placeholder processor - implement based on your needs
@@ -90,7 +90,7 @@ export const productSyncWorker = new Worker(
  */
 export const backgroundWorker = new Worker(
   QUEUE_NAMES.BACKGROUND,
-  async (job) => {
+  async (job: Job) => {
     console.log(`[Background Worker] Processing job ${job.id}: ${job.name}`);
     
     // Placeholder processor - implement based on your needs
@@ -129,7 +129,7 @@ export const backgroundWorker = new Worker(
  */
 export const orderProcessingWorker = new Worker(
   QUEUE_NAMES.ORDER_PROCESSING,
-  async (job) => {
+  async (job: Job) => {
     console.log(`[Order Processing Worker] Processing job ${job.id}: ${job.name}`);
     
     // Placeholder processor - implement based on your needs
@@ -159,7 +159,7 @@ export const orderProcessingWorker = new Worker(
  */
 export const notificationWorker = new Worker(
   QUEUE_NAMES.NOTIFICATIONS,
-  async (job) => {
+  async (job: Job) => {
     console.log(`[Notification Worker] Processing job ${job.id}: ${job.name}`);
     
     // Placeholder processor - implement based on your needs
@@ -203,7 +203,7 @@ function setupWorkerEventHandlers() {
 
   workers.forEach(({ worker, name }) => {
     // Job completion events
-    worker.on('completed', (job, result) => {
+    worker.on('completed', (job: Job, result: any) => {
       console.log(`[${name} Worker] ✅ Job ${job.id} completed successfully:`, {
         jobId: job.id,
         jobName: job.name,
@@ -214,7 +214,7 @@ function setupWorkerEventHandlers() {
     });
 
     // Job failure events
-    worker.on('failed', (job, err) => {
+    worker.on('failed', (job: Job | undefined, err: Error) => {
       console.error(`[${name} Worker] ❌ Job ${job?.id} failed:`, {
         jobId: job?.id,
         jobName: job?.name,
@@ -225,7 +225,7 @@ function setupWorkerEventHandlers() {
     });
 
     // Job active events
-    worker.on('active', (job) => {
+    worker.on('active', (job: Job) => {
       console.log(`[${name} Worker] 🔄 Job ${job.id} started processing:`, {
         jobId: job.id,
         jobName: job.name,
@@ -234,12 +234,12 @@ function setupWorkerEventHandlers() {
     });
 
     // Job progress events
-    worker.on('progress', (job, progress) => {
+    worker.on('progress', (job: Job, progress: any) => {
       console.log(`[${name} Worker] 📊 Job ${job.id} progress: ${progress}%`);
     });
 
     // Worker error events
-    worker.on('error', (err) => {
+    worker.on('error', (err: Error) => {
       console.error(`[${name} Worker] 💥 Worker error:`, {
         error: err.message,
         stack: err.stack,
@@ -247,7 +247,7 @@ function setupWorkerEventHandlers() {
     });
 
     // Worker stalled events
-    worker.on('stalled', (jobId) => {
+    worker.on('stalled', (jobId: string) => {
       console.warn(`[${name} Worker] ⚠️ Job ${jobId} stalled and will be retried`);
     });
 
@@ -275,7 +275,7 @@ setupWorkerEventHandlers();
  * 
  * Handles data cleanup background tasks
  */
-async function processCleanupTask(job: any, parameters: any) {
+async function processCleanupTask(job: Job, parameters: any) {
   const { olderThan = 30, tables = ['orders'] } = parameters;
   
   console.log(`[Background Worker] Starting cleanup task:`, {
@@ -300,7 +300,7 @@ async function processCleanupTask(job: any, parameters: any) {
  * 
  * Handles report generation background tasks
  */
-async function processReportGeneration(job: any, parameters: any) {
+async function processReportGeneration(job: Job, parameters: any) {
   const { reportType = 'sales', dateRange } = parameters;
   
   console.log(`[Background Worker] Starting report generation:`, {

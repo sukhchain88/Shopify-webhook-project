@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Users = void 0;
-// src\models\user.ts
+// src/models/User.ts
 const sequelize_1 = require("sequelize");
 const db_1 = __importDefault(require("../config/db"));
 exports.Users = db_1.default.define("users", {

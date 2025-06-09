@@ -66,7 +66,7 @@ export class OrderService {
     const ordersResult = await Order.findAll(queryOptions);
     
     // Convert to plain objects for consistent response format
-    const orders = ordersResult.map(order => {
+    const orders = ordersResult.map((order: any) => {
       const orderData = order.toJSON();
       return orderData;
     });
