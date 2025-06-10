@@ -30,7 +30,6 @@ import { errorHandler } from "./middleware/errorHandler";
 
 // Import database connection
 import "./config/db"; // This initializes the database connection
-import { initDatabase } from "./config/initDatabase"; // Initialize database tables
 
 // Load environment variables
 dotenv.config();
@@ -176,8 +175,6 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
  */
 const startServer = async () => {
   try {
-    // Initialize database first
-    await initDatabase();
     
     const server = app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);

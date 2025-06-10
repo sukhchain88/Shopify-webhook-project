@@ -96,7 +96,7 @@ router.post("/test-webhook", async (req, res) => {
             const product = await Product_1.Product.findOne({
                 where: { shopify_product_id: String(webhookPayload.id) }
             });
-            res.json({
+            return res.json({
                 success: true,
                 message: "Product webhook test completed",
                 data: {
@@ -120,7 +120,7 @@ router.post("/test-webhook", async (req, res) => {
         }
         catch (webhookError) {
             console.error("❌ Product webhook processing error:", webhookError);
-            res.status(500).json({
+            return res.status(500).json({
                 success: false,
                 message: "Product webhook processing failed",
                 error: webhookError.message,
@@ -134,7 +134,7 @@ router.post("/test-webhook", async (req, res) => {
     }
     catch (error) {
         console.error("Error in test product webhook:", error);
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             message: "Test product webhook endpoint failed",
             error: error.message || "Unknown error"
