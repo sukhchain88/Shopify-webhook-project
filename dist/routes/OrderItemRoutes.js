@@ -1,7 +1,7 @@
 import express from "express";
-import { OrderItemService } from "../services/OrderItemService.js";
-import { Order } from "../models/Order.js";
-import { OrderItem } from "../models/OrderItem.js";
+import { OrderItemService } from "../services/OrderItemService";
+import { Order } from "../models/Order";
+import { OrderItem } from "../models/OrderItem";
 const router = express.Router();
 router.get("/", async (req, res) => {
     try {
@@ -310,7 +310,7 @@ router.post("/test-webhook", async (req, res) => {
         }
         console.log("🧪 Testing webhook payload:", JSON.stringify(webhookPayload, null, 2));
         try {
-            const { handleOrderWebhook } = await import("../webhookHandlers/orderHandler.js");
+            const { handleOrderWebhook } = await import("../webhookHandlers/orderHandler");
             await handleOrderWebhook(webhookPayload);
             const createdOrder = await Order.findOne({
                 where: {

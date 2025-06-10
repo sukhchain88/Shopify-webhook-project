@@ -1,6 +1,6 @@
-import sequelize from "./db.js";
-import { Product } from "../models/Product.js";
-import { Customer } from "../models/Customer.js";
+import sequelize from "./db";
+import { Product } from "../models/Product";
+import { Customer } from "../models/Customer";
 export const initDatabase = async () => {
     try {
         console.log("🔧 Initializing database...");
