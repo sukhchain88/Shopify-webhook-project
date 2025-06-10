@@ -11,7 +11,18 @@
 
 import express from "express";
 import cors from "cors";
+import morgan from "morgan";
+import compression from "compression";
 import * as dotenv from "dotenv";
+
+// Import security middleware
+import { 
+  helmetConfig, 
+  generalRateLimit, 
+  webhookRateLimit,
+  sanitizeRequest,
+  requestSizeLimit
+} from "./middleware/security.js";
 
 // Import route handlers
 import productRoutes from "./routes/ProductRoutes.js";
@@ -40,19 +51,48 @@ dotenv.config();
 const app = express();
 
 /**
+ * Security Middleware
+ * Applied before other middleware for maximum protection
+ */
+app.use(helmetConfig);
+app.use(compression());
+
+/**
+ * Request Logging (in development)
+ */
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('combined'));
+}
+
+/**
  * CORS Configuration
  * Allow cross-origin requests for API access
  */
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  optionsSuccessStatus: 200
 }));
+
+/**
+ * Trust proxy for accurate IP addresses behind reverse proxies
+ */
+app.set('trust proxy', 1);
 
 /**
  * Request Timing Middleware
  * Logs request duration for performance monitoring
  */
 app.use(requestTiming);
+
+/**
+ * General Security Middleware
+ */
+app.use(requestSizeLimit);
+app.use(generalRateLimit);
+app.use(sanitizeRequest);
 
 /**
  * Body Parsing Middleware
@@ -101,8 +141,8 @@ app.use("/health", healthRoutes);
 // Product management routes
 app.use("/products", productRoutes);
 
-// Webhook handling routes (with raw body parsing)
-app.use("/api/webhooks", webhookRoutes);
+// Webhook handling routes (with raw body parsing and specific rate limiting)
+app.use("/api/webhooks", webhookRateLimit, webhookRoutes);
 
 // Shopify integration routes
 app.use("/shopify", shopifyRoutes);
