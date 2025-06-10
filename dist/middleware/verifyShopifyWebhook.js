@@ -1,4 +1,3 @@
-"use strict";
 /**
  * Shopify Webhook Verification Middleware
  *
@@ -9,13 +8,8 @@
  *
  * @author Your Name
  */
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyShopifyWebhook = void 0;
-const crypto_1 = __importDefault(require("crypto"));
-const config_js_1 = require("../config/config.js");
+import crypto from 'crypto';
+import { SHOPIFY_WEBHOOK_SECRET } from '../config/config.js';
 /**
  * Custom Error for Webhook Verification
  */
@@ -33,7 +27,7 @@ class WebhookError extends Error {
  * @param res - Express response object
  * @param next - Express next function
  */
-const verifyShopifyWebhook = (req, res, next) => {
+export const verifyShopifyWebhook = (req, res, next) => {
     try {
         // Extract required headers
         const hmacHeader = req.headers['x-shopify-hmac-sha256'];
@@ -45,7 +39,7 @@ const verifyShopifyWebhook = (req, res, next) => {
             return next(error);
         }
         // Check if webhook secret is configured
-        if (!config_js_1.SHOPIFY_WEBHOOK_SECRET) {
+        if (!SHOPIFY_WEBHOOK_SECRET) {
             const error = new WebhookError(500, 'Shopify webhook secret is not configured');
             return next(error);
         }
@@ -56,8 +50,8 @@ const verifyShopifyWebhook = (req, res, next) => {
             return next(error);
         }
         // Calculate HMAC signature
-        const calculatedHmac = crypto_1.default
-            .createHmac('sha256', config_js_1.SHOPIFY_WEBHOOK_SECRET)
+        const calculatedHmac = crypto
+            .createHmac('sha256', SHOPIFY_WEBHOOK_SECRET)
             .update(rawBody)
             .digest('base64');
         console.log('🔐 Webhook verification:', {
@@ -98,4 +92,3 @@ const verifyShopifyWebhook = (req, res, next) => {
         next(error);
     }
 };
-exports.verifyShopifyWebhook = verifyShopifyWebhook;

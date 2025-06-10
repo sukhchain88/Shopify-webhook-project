@@ -1,9 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.processWebhookJob = processWebhookJob;
-const Order_js_1 = require("../../models/Order.js");
-const OrderItem_js_1 = require("../../models/OrderItem.js");
-const Product_js_1 = require("../../models/Product.js");
+import { Order } from '../../models/Order.js';
+import { OrderItem } from '../../models/OrderItem.js';
+import { Product } from '../../models/Product.js';
 /**
  * Webhook Job Processor
  *
@@ -20,7 +17,7 @@ const Product_js_1 = require("../../models/Product.js");
  *
  * This function routes webhook processing based on the source and event type
  */
-async function processWebhookJob(job) {
+export async function processWebhookJob(job) {
     const startTime = Date.now();
     const { source, eventType, payload, headers, signature } = job.data;
     console.log(`[Webhook Processor] Starting webhook job ${job.id}:`, {
@@ -129,7 +126,7 @@ async function handleOrderCreated(job, shopifyOrder) {
     console.log(`[Shopify Webhook] Creating order from Shopify order ${shopifyOrder.id}`);
     await job.updateProgress(30);
     // Check if order already exists
-    const existingOrder = await Order_js_1.Order.findOne({
+    const existingOrder = await Order.findOne({
         where: { shopify_order_id: shopifyOrder.id.toString() }
     });
     if (existingOrder) {
@@ -143,7 +140,7 @@ async function handleOrderCreated(job, shopifyOrder) {
     }
     await job.updateProgress(50);
     // Create order
-    const order = await Order_js_1.Order.create({
+    const order = await Order.create({
         shopify_order_id: shopifyOrder.id.toString(),
         order_number: shopifyOrder.order_number || shopifyOrder.number,
         customer_email: shopifyOrder.email,
@@ -194,11 +191,11 @@ async function handleOrderCreated(job, shopifyOrder) {
         // Try to find matching product in our database
         let product = null;
         if (lineItem.product_id) {
-            product = await Product_js_1.Product.findOne({
+            product = await Product.findOne({
                 where: { shopify_product_id: lineItem.product_id.toString() }
             });
         }
-        const orderItem = await OrderItem_js_1.OrderItem.create({
+        const orderItem = await OrderItem.create({
             order_id: order.id,
             product_id: product?.id || null,
             shopify_product_id: lineItem.product_id?.toString() || null,
@@ -247,7 +244,7 @@ async function handleOrderCreated(job, shopifyOrder) {
  */
 async function handleOrderUpdated(job, shopifyOrder) {
     console.log(`[Shopify Webhook] Updating order ${shopifyOrder.id}`);
-    const order = await Order_js_1.Order.findOne({
+    const order = await Order.findOne({
         where: { shopify_order_id: shopifyOrder.id.toString() }
     });
     if (!order) {
@@ -282,7 +279,7 @@ async function handleOrderUpdated(job, shopifyOrder) {
  */
 async function handleOrderCancelled(job, shopifyOrder) {
     console.log(`[Shopify Webhook] Cancelling order ${shopifyOrder.id}`);
-    const order = await Order_js_1.Order.findOne({
+    const order = await Order.findOne({
         where: { shopify_order_id: shopifyOrder.id.toString() }
     });
     if (!order) {
@@ -317,7 +314,7 @@ async function handleOrderCancelled(job, shopifyOrder) {
  * Handle Order Paid Webhook
  */
 async function handleOrderPaid(job, shopifyOrder) {
-    const order = await Order_js_1.Order.findOne({
+    const order = await Order.findOne({
         where: { shopify_order_id: shopifyOrder.id.toString() }
     });
     if (order) {
@@ -337,7 +334,7 @@ async function handleOrderPaid(job, shopifyOrder) {
  * Handle Order Fulfilled Webhook
  */
 async function handleOrderFulfilled(job, shopifyOrder) {
-    const order = await Order_js_1.Order.findOne({
+    const order = await Order.findOne({
         where: { shopify_order_id: shopifyOrder.id.toString() }
     });
     if (order) {

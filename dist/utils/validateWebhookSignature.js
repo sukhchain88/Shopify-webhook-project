@@ -1,17 +1,11 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateWebhookSignature = void 0;
-const crypto_1 = __importDefault(require("crypto"));
-const config_js_1 = require("../config/config.js");
-const validateWebhookSignature = (req) => {
+import crypto from "crypto";
+import { SHOPIFY_WEBHOOK_SECRET, NODE_ENV } from "../config/config.js";
+export const validateWebhookSignature = (req) => {
     try {
         // In development mode, be more flexible with validation
-        if (config_js_1.NODE_ENV === "development") {
+        if (NODE_ENV === "development") {
             // Skip validation if no secret is configured
-            if (!config_js_1.SHOPIFY_WEBHOOK_SECRET) {
+            if (!SHOPIFY_WEBHOOK_SECRET) {
                 console.log("⚠️ Skipping webhook signature validation in development mode (no secret configured)");
                 return true;
             }
@@ -28,19 +22,19 @@ const validateWebhookSignature = (req) => {
             console.log("Missing hmac header or body");
             return false;
         }
-        const webhookSecret = config_js_1.SHOPIFY_WEBHOOK_SECRET;
+        const webhookSecret = SHOPIFY_WEBHOOK_SECRET;
         if (!webhookSecret) {
             console.log("Missing webhook secret");
             return false;
         }
         // req.body is already a Buffer here because of express.raw()
         const rawBody = req.body;
-        const calculatedHmac = crypto_1.default
+        const calculatedHmac = crypto
             .createHmac("sha256", webhookSecret)
             .update(rawBody) // Ensure we're using a Buffer
             .digest("base64");
         console.log("Calculated HMAC:", calculatedHmac);
-        const isValid = crypto_1.default.timingSafeEqual(Buffer.from(hmacHeader, "utf8"), Buffer.from(calculatedHmac, "utf8"));
+        const isValid = crypto.timingSafeEqual(Buffer.from(hmacHeader, "utf8"), Buffer.from(calculatedHmac, "utf8"));
         console.log("Signature validation result:", isValid);
         return isValid;
     }
@@ -49,4 +43,3 @@ const validateWebhookSignature = (req) => {
         return false;
     }
 };
-exports.validateWebhookSignature = validateWebhookSignature;

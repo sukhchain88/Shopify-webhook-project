@@ -2,6 +2,7 @@
   "name": "shopify-webhook-project",
   "version": "1.0.0",
   "description": "A comprehensive Shopify webhook handler project with product management",
+  "type": "module",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",

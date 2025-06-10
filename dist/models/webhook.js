@@ -1,36 +1,30 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Webhook = void 0;
 // src/models/Webhook.ts
-const sequelize_1 = require("sequelize");
-const db_js_1 = __importDefault(require("../config/db.js"));
-exports.Webhook = db_js_1.default.define("webhooks", {
+import { DataTypes } from "sequelize";
+import sequelize from "../config/db.js";
+export const Webhook = sequelize.define("webhooks", {
     id: {
-        type: sequelize_1.DataTypes.INTEGER,
+        type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
     },
     topic: {
-        type: sequelize_1.DataTypes.STRING(255),
+        type: DataTypes.STRING(255),
         allowNull: false,
     },
     shop_domain: {
-        type: sequelize_1.DataTypes.STRING(255),
+        type: DataTypes.STRING(255),
         allowNull: false,
     },
     payload: {
-        type: sequelize_1.DataTypes.JSON,
+        type: DataTypes.JSON,
         allowNull: true,
     },
     processed: {
-        type: sequelize_1.DataTypes.BOOLEAN,
+        type: DataTypes.BOOLEAN,
         defaultValue: false,
     },
     processed_at: {
-        type: sequelize_1.DataTypes.DATE,
+        type: DataTypes.DATE,
         allowNull: true,
     }
 }, {

@@ -1,4 +1,3 @@
-"use strict";
 /**
  * Shopify Webhook Handler - Main Server Entry Point
  *
@@ -9,72 +8,35 @@
  * @author Your Name
  * @version 1.0.0
  */
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const cors_1 = __importDefault(require("cors"));
-const dotenv = __importStar(require("dotenv"));
+import express from "express";
+import cors from "cors";
+import * as dotenv from "dotenv";
 // Import route handlers
-const ProductRoutes_js_1 = __importDefault(require("./routes/ProductRoutes.js"));
-const WebhookRoutes_js_1 = __importDefault(require("./routes/WebhookRoutes.js"));
-const ShopifyRoutes_js_1 = __importDefault(require("./routes/ShopifyRoutes.js"));
-const ShopifyAdminRoutes_js_1 = __importDefault(require("./routes/ShopifyAdminRoutes.js"));
-const CustomerRoutes_js_1 = __importDefault(require("./routes/CustomerRoutes.js"));
-const OrderRoutes_js_1 = __importDefault(require("./routes/OrderRoutes.js"));
-const OrderItemRoutes_js_1 = __importDefault(require("./routes/OrderItemRoutes.js"));
-const HealthRoutes_js_1 = __importDefault(require("./routes/HealthRoutes.js"));
-const UserRoutes_js_1 = __importDefault(require("./routes/UserRoutes.js"));
+import productRoutes from "./routes/ProductRoutes.js";
+import webhookRoutes from "./routes/WebhookRoutes.js";
+import shopifyRoutes from "./routes/ShopifyRoutes.js";
+import shopifyAdminRoutes from "./routes/ShopifyAdminRoutes.js";
+import customerRoutes from "./routes/CustomerRoutes.js";
+import orderRoutes from "./routes/OrderRoutes.js";
+import orderItemsRoutes from "./routes/OrderItemRoutes.js";
+import healthRoutes from "./routes/HealthRoutes.js";
+import userRouter from "./routes/UserRoutes.js";
 // Import middleware
-const requestTiming_js_1 = require("./middleware/requestTiming.js");
-const errorHandler_js_1 = require("./middleware/errorHandler.js");
+import { requestTiming } from "./middleware/requestTiming.js";
+import { errorHandler } from "./middleware/errorHandler.js";
 // Import database connection
-require("./config/db"); // This initializes the database connection
+import "./config/db.js"; // This initializes the database connection
 // Load environment variables
 dotenv.config();
 /**
  * Initialize Express application
  */
-const app = (0, express_1.default)();
+const app = express();
 /**
  * CORS Configuration
  * Allow cross-origin requests for API access
  */
-app.use((0, cors_1.default)({
+app.use(cors({
     origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
     credentials: true
 }));
@@ -82,7 +44,7 @@ app.use((0, cors_1.default)({
  * Request Timing Middleware
  * Logs request duration for performance monitoring
  */
-app.use(requestTiming_js_1.requestTiming);
+app.use(requestTiming);
 /**
  * Body Parsing Middleware
  *
@@ -92,16 +54,16 @@ app.use(requestTiming_js_1.requestTiming);
  */
 // Raw body parser for webhook endpoints
 // Shopify sends webhooks as raw JSON that needs HMAC verification
-app.use("/api/webhooks", express_1.default.raw({
+app.use("/api/webhooks", express.raw({
     type: "application/json",
     limit: '10mb' // Increase limit for large webhook payloads
 }));
 // JSON parser for all other endpoints
-app.use(express_1.default.json({
+app.use(express.json({
     limit: '10mb' // Increase limit for large requests
 }));
 // URL-encoded parser for form data
-app.use(express_1.default.urlencoded({
+app.use(express.urlencoded({
     extended: true,
     limit: '10mb'
 }));
@@ -120,23 +82,23 @@ app.use(express_1.default.urlencoded({
  * - /users: User management
  */
 // Health check endpoint (should be first for monitoring)
-app.use("/health", HealthRoutes_js_1.default);
+app.use("/health", healthRoutes);
 // Product management routes
-app.use("/products", ProductRoutes_js_1.default);
+app.use("/products", productRoutes);
 // Webhook handling routes (with raw body parsing)
-app.use("/api/webhooks", WebhookRoutes_js_1.default);
+app.use("/api/webhooks", webhookRoutes);
 // Shopify integration routes
-app.use("/shopify", ShopifyRoutes_js_1.default);
+app.use("/shopify", shopifyRoutes);
 // Shopify Admin API routes
-app.use("/api/shopify-admin", ShopifyAdminRoutes_js_1.default);
+app.use("/api/shopify-admin", shopifyAdminRoutes);
 // Customer management routes
-app.use("/customers", CustomerRoutes_js_1.default);
+app.use("/customers", customerRoutes);
 // Order management routes
-app.use("/orders", OrderRoutes_js_1.default);
+app.use("/orders", orderRoutes);
 // Order items and product relationships routes
-app.use("/api/order-items", OrderItemRoutes_js_1.default);
+app.use("/api/order-items", orderItemsRoutes);
 // User management routes
-app.use("/users", UserRoutes_js_1.default);
+app.use("/users", userRouter);
 /**
  * Root endpoint - API information
  */
@@ -175,7 +137,7 @@ app.use("*", (req, res) => {
  * Global Error Handler
  * Catches all unhandled errors and returns consistent error responses
  */
-app.use(errorHandler_js_1.errorHandler);
+app.use(errorHandler);
 /**
  * Server Configuration
  */
@@ -238,4 +200,4 @@ process.on('uncaughtException', (error) => {
     console.error('❌ Uncaught Exception:', error);
     process.exit(1);
 });
-exports.default = app;
+export default app;

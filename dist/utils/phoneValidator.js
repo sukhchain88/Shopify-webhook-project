@@ -1,19 +1,13 @@
-"use strict";
 /**
  * Phone Number Validation and Formatting Utility
  * Ensures phone numbers meet Shopify's validation requirements
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.SHOPIFY_PHONE_EXAMPLES = void 0;
-exports.validateAndFormatPhone = validateAndFormatPhone;
-exports.isValidShopifyPhone = isValidShopifyPhone;
-exports.testPhoneFormatting = testPhoneFormatting;
 /**
  * Validates and formats a phone number for Shopify API
  * @param phone - Raw phone number input
  * @returns Formatted phone number or null if invalid
  */
-function validateAndFormatPhone(phone) {
+export function validateAndFormatPhone(phone) {
     if (!phone || typeof phone !== 'string') {
         return null;
     }
@@ -59,14 +53,14 @@ function validateAndFormatPhone(phone) {
  * @param phone - Phone number to validate
  * @returns true if valid, false otherwise
  */
-function isValidShopifyPhone(phone) {
+export function isValidShopifyPhone(phone) {
     const formatted = validateAndFormatPhone(phone);
     return formatted !== null;
 }
 /**
  * Common phone number patterns that Shopify accepts
  */
-exports.SHOPIFY_PHONE_EXAMPLES = [
+export const SHOPIFY_PHONE_EXAMPLES = [
     '+1234567890', // International format
     '+12345678901', // US/Canada with country code
     '+447123456789', // UK format
@@ -77,7 +71,7 @@ exports.SHOPIFY_PHONE_EXAMPLES = [
 /**
  * Test phone number formatting
  */
-function testPhoneFormatting() {
+export function testPhoneFormatting() {
     const testCases = [
         '+1234567890',
         '1234567890',

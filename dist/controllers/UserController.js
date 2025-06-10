@@ -1,11 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.viewUsers = exports.deleteUser = exports.updateUser = exports.createUser = exports.getUserById = exports.getAllUsers = void 0;
-const User_js_1 = require("../models/User.js");
+import { Users } from "../models/User.js";
 // Get all users
-const getAllUsers = async (req, res) => {
+export const getAllUsers = async (req, res) => {
     try {
-        const users = await User_js_1.Users.findAll({
+        const users = await Users.findAll({
             raw: true,
             logging: console.log
         });
@@ -24,12 +21,11 @@ const getAllUsers = async (req, res) => {
         });
     }
 };
-exports.getAllUsers = getAllUsers;
 // Get a single user by ID
-const getUserById = async (req, res) => {
+export const getUserById = async (req, res) => {
     try {
         const { id } = req.params;
-        const user = await User_js_1.Users.findByPk(id);
+        const user = await Users.findByPk(id);
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
@@ -46,16 +42,15 @@ const getUserById = async (req, res) => {
         });
     }
 };
-exports.getUserById = getUserById;
 // Create a new user
-const createUser = async (req, res) => {
+export const createUser = async (req, res) => {
     try {
         const userData = req.body;
         // Validate required fields
         if (!userData.name || !userData.email) {
             return res.status(400).json({ error: "Name and email are required" });
         }
-        const user = await User_js_1.Users.create(userData);
+        const user = await Users.create(userData);
         console.log("✅ User created:", user.toJSON());
         return res.status(201).json({
             message: "User created successfully",
@@ -70,13 +65,12 @@ const createUser = async (req, res) => {
         });
     }
 };
-exports.createUser = createUser;
 // Update a user
-const updateUser = async (req, res) => {
+export const updateUser = async (req, res) => {
     try {
         const { id } = req.params;
         const userData = req.body;
-        const user = await User_js_1.Users.findByPk(id);
+        const user = await Users.findByPk(id);
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
@@ -95,12 +89,11 @@ const updateUser = async (req, res) => {
         });
     }
 };
-exports.updateUser = updateUser;
 // Delete a user
-const deleteUser = async (req, res) => {
+export const deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
-        const user = await User_js_1.Users.findByPk(id);
+        const user = await Users.findByPk(id);
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
@@ -119,11 +112,10 @@ const deleteUser = async (req, res) => {
         });
     }
 };
-exports.deleteUser = deleteUser;
 // View users
-const viewUsers = async (req, res) => {
+export const viewUsers = async (req, res) => {
     try {
-        const users = await User_js_1.Users.findAll({
+        const users = await Users.findAll({
             raw: true,
             logging: console.log
         });
@@ -142,4 +134,3 @@ const viewUsers = async (req, res) => {
         });
     }
 };
-exports.viewUsers = viewUsers;

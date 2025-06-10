@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.requestTiming = void 0;
-const requestTiming = (req, res, next) => {
+export const requestTiming = (req, res, next) => {
     const startTime = Date.now();
     // Add timing to response object
     res.locals.startTime = startTime;
@@ -20,4 +17,3 @@ const requestTiming = (req, res, next) => {
     });
     next();
 };
-exports.requestTiming = requestTiming;

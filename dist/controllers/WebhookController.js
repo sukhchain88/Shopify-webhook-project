@@ -1,10 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteWebhook = exports.getWebhookById = exports.getWebhooks = exports.handleWebhook = void 0;
-const validateWebhookSignature_js_1 = require("../utils/validateWebhookSignature.js");
-const WebhookService_js_1 = require("../services/WebhookService.js");
-const webhook_validator_js_1 = require("../validators/webhook.validator.js");
-const handleWebhook = async (req, res) => {
+import { validateWebhookSignature } from "../utils/validateWebhookSignature.js";
+import { WebhookService } from "../services/WebhookService.js";
+import { validateWebhookPayload } from "../validators/webhook.validator.js";
+export const handleWebhook = async (req, res) => {
     try {
         const topic = req.headers["x-shopify-topic"];
         const shopDomain = req.headers["x-shopify-shop-domain"];
@@ -18,7 +15,7 @@ const handleWebhook = async (req, res) => {
             });
         }
         // 2. Validate signature
-        if (!(0, validateWebhookSignature_js_1.validateWebhookSignature)(req)) {
+        if (!validateWebhookSignature(req)) {
             console.log("Webhook signature validation failed");
             return res.status(401).json({
                 success: false,
@@ -47,7 +44,7 @@ const handleWebhook = async (req, res) => {
             });
         }
         // 4. Validate payload schema
-        const validationResult = (0, webhook_validator_js_1.validateWebhookPayload)(topic, payload);
+        const validationResult = validateWebhookPayload(topic, payload);
         if (!validationResult.success) {
             console.log("Webhook payload validation failed:", validationResult.error);
             return res.status(400).json({
@@ -59,7 +56,7 @@ const handleWebhook = async (req, res) => {
         }
         // 5. Process webhook
         console.log(`📥 Processing webhook: ${topic}`);
-        const webhook = await WebhookService_js_1.WebhookService.processWebhook(topic, payload, shopDomain);
+        const webhook = await WebhookService.processWebhook(topic, payload, shopDomain);
         return res.status(200).json({
             success: true,
             message: "Webhook processed successfully",
@@ -77,15 +74,14 @@ const handleWebhook = async (req, res) => {
         });
     }
 };
-exports.handleWebhook = handleWebhook;
 /**
  * Get all webhooks with pagination
  */
-const getWebhooks = async (req, res) => {
+export const getWebhooks = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
-        const webhooks = await WebhookService_js_1.WebhookService.getWebhooks(page, limit);
+        const webhooks = await WebhookService.getWebhooks(page, limit);
         return res.status(200).json({
             success: true,
             data: webhooks.rows,
@@ -106,13 +102,12 @@ const getWebhooks = async (req, res) => {
         });
     }
 };
-exports.getWebhooks = getWebhooks;
 /**
  * Get a single webhook by ID
  */
-const getWebhookById = async (req, res) => {
+export const getWebhookById = async (req, res) => {
     try {
-        const webhook = await WebhookService_js_1.WebhookService.getWebhookById(parseInt(req.params.id));
+        const webhook = await WebhookService.getWebhookById(parseInt(req.params.id));
         if (!webhook) {
             return res.status(404).json({
                 success: false,
@@ -134,13 +129,12 @@ const getWebhookById = async (req, res) => {
         });
     }
 };
-exports.getWebhookById = getWebhookById;
 /**
  * Delete a webhook
  */
-const deleteWebhook = async (req, res) => {
+export const deleteWebhook = async (req, res) => {
     try {
-        await WebhookService_js_1.WebhookService.deleteWebhook(parseInt(req.params.id));
+        await WebhookService.deleteWebhook(parseInt(req.params.id));
         return res.status(200).json({
             success: true,
             message: "Webhook deleted successfully"
@@ -155,4 +149,3 @@ const deleteWebhook = async (req, res) => {
         });
     }
 };
-exports.deleteWebhook = deleteWebhook;

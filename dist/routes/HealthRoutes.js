@@ -1,13 +1,8 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
 // src/routes/health.routes.ts
-const express_1 = __importDefault(require("express"));
-const Product_js_1 = require("../models/Product.js");
-const db_js_1 = __importDefault(require("../config/db.js"));
-const router = express_1.default.Router();
+import express from "express";
+import { Product } from "../models/Product.js";
+import sequelize from "../config/db.js";
+const router = express.Router();
 router.get("/", async (req, res) => {
     const startTime = Date.now();
     const healthcheck = {
@@ -19,10 +14,10 @@ router.get("/", async (req, res) => {
     };
     try {
         // Test database connection
-        await db_js_1.default.authenticate();
+        await sequelize.authenticate();
         healthcheck.database = "connected";
         // Get product count as a basic check
-        const count = await Product_js_1.Product.count();
+        const count = await Product.count();
         healthcheck.productCount = count;
         res.status(200).json({
             ...healthcheck,
@@ -40,4 +35,4 @@ router.get("/", async (req, res) => {
         });
     }
 });
-exports.default = router;
+export default router;

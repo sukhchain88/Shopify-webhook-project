@@ -1,9 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = require("express");
-const ShopifyAdminService_js_1 = require("../services/ShopifyAdminService.js");
-const ProductService_js_1 = require("../services/ProductService.js");
-const router = (0, express_1.Router)();
+import { Router } from "express";
+import { ShopifyAdminService } from "../services/ShopifyAdminService.js";
+import { ProductService } from "../services/ProductService.js";
+const router = Router();
 /**
  * POST /api/shopify-admin/products
  * Create a product in Shopify admin store
@@ -17,7 +15,7 @@ router.post("/products", async (req, res) => {
             });
             return;
         }
-        const result = await ProductService_js_1.ProductService.createProductInShopify(productData);
+        const result = await ProductService.createProductInShopify(productData);
         res.status(201).json({
             message: "Product created successfully in Shopify",
             data: result
@@ -39,7 +37,7 @@ router.put("/products/:id", async (req, res) => {
     try {
         const { id } = req.params;
         const productData = req.body;
-        const result = await ProductService_js_1.ProductService.updateProductInShopify(id, productData);
+        const result = await ProductService.updateProductInShopify(id, productData);
         res.json({
             message: "Product updated successfully in Shopify",
             data: result
@@ -66,7 +64,7 @@ router.post("/customers", async (req, res) => {
             });
             return;
         }
-        const result = await ShopifyAdminService_js_1.ShopifyAdminService.createCustomer(customerData);
+        const result = await ShopifyAdminService.createCustomer(customerData);
         res.status(201).json({
             message: "Customer created successfully in Shopify",
             data: result
@@ -88,7 +86,7 @@ router.put("/customers/:id", async (req, res) => {
     try {
         const { id } = req.params;
         const customerData = req.body;
-        const result = await ShopifyAdminService_js_1.ShopifyAdminService.updateCustomer(id, customerData);
+        const result = await ShopifyAdminService.updateCustomer(id, customerData);
         res.json({
             message: "Customer updated successfully in Shopify",
             data: result
@@ -115,7 +113,7 @@ router.post("/orders", async (req, res) => {
             });
             return;
         }
-        const result = await ShopifyAdminService_js_1.ShopifyAdminService.createOrder(orderData);
+        const result = await ShopifyAdminService.createOrder(orderData);
         res.status(201).json({
             message: "Order created successfully in Shopify",
             data: result
@@ -137,7 +135,7 @@ router.put("/orders/:id", async (req, res) => {
     try {
         const { id } = req.params;
         const orderData = req.body;
-        const result = await ShopifyAdminService_js_1.ShopifyAdminService.updateOrder(id, orderData);
+        const result = await ShopifyAdminService.updateOrder(id, orderData);
         res.json({
             message: "Order updated successfully in Shopify",
             data: result
@@ -159,7 +157,7 @@ router.post("/orders/:id/cancel", async (req, res) => {
     try {
         const { id } = req.params;
         const { reason } = req.body;
-        const result = await ShopifyAdminService_js_1.ShopifyAdminService.cancelOrder(id, reason);
+        const result = await ShopifyAdminService.cancelOrder(id, reason);
         res.json({
             message: "Order cancelled successfully in Shopify",
             data: result
@@ -181,7 +179,7 @@ router.get("/orders", async (req, res) => {
     try {
         const limit = parseInt(req.query.limit) || 50;
         const status = req.query.status || "any";
-        const result = await ShopifyAdminService_js_1.ShopifyAdminService.getAllOrders(limit, status);
+        const result = await ShopifyAdminService.getAllOrders(limit, status);
         res.json({
             message: "Orders retrieved successfully from Shopify",
             data: result
@@ -202,7 +200,7 @@ router.get("/orders", async (req, res) => {
 router.get("/customers", async (req, res) => {
     try {
         const limit = parseInt(req.query.limit) || 50;
-        const result = await ShopifyAdminService_js_1.ShopifyAdminService.getAllCustomers(limit);
+        const result = await ShopifyAdminService.getAllCustomers(limit);
         res.json({
             message: "Customers retrieved successfully from Shopify",
             data: result
@@ -223,7 +221,7 @@ router.get("/customers", async (req, res) => {
 router.post("/sync", async (req, res) => {
     try {
         const { products, customers, orders } = req.body;
-        const result = await ShopifyAdminService_js_1.ShopifyAdminService.syncDataToShopify({
+        const result = await ShopifyAdminService.syncDataToShopify({
             products,
             customers,
             orders
@@ -254,7 +252,7 @@ router.post("/sync-local-products", async (req, res) => {
         for (const product of localProducts) {
             try {
                 const productData = product.get({ plain: true });
-                const result = await ProductService_js_1.ProductService.syncProductToShopify(productData);
+                const result = await ProductService.syncProductToShopify(productData);
                 results.push(result);
             }
             catch (error) {
@@ -274,4 +272,4 @@ router.post("/sync-local-products", async (req, res) => {
         });
     }
 });
-exports.default = router;
+export default router;

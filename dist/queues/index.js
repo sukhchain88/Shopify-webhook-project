@@ -1,15 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.queueNames = exports.queues = exports.notificationQueue = exports.orderProcessingQueue = exports.backgroundQueue = exports.productSyncQueue = exports.webhookQueue = exports.emailQueue = void 0;
-exports.checkQueueHealth = checkQueueHealth;
-exports.getQueueStatistics = getQueueStatistics;
-exports.pauseAllQueues = pauseAllQueues;
-exports.resumeAllQueues = resumeAllQueues;
-exports.cleanAllQueues = cleanAllQueues;
-exports.shutdownQueues = shutdownQueues;
-const bullmq_1 = require("bullmq");
-const config_js_1 = require("./config.js");
-const types_js_1 = require("./types.js");
+import { Queue } from 'bullmq';
+import { redisConnection, queueConfigs } from './config.js';
+import { QUEUE_NAMES } from './types.js';
 /**
  * Queue Registry
  *
@@ -26,9 +17,9 @@ const types_js_1 = require("./types.js");
  * - Marketing emails
  * - System notifications
  */
-exports.emailQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.EMAIL, {
-    connection: config_js_1.redisConnection,
-    defaultJobOptions: config_js_1.queueConfigs.email,
+export const emailQueue = new Queue(QUEUE_NAMES.EMAIL, {
+    connection: redisConnection,
+    defaultJobOptions: queueConfigs.email,
 });
 /**
  * Webhook Processing Queue
@@ -38,9 +29,9 @@ exports.emailQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.EMAIL, {
  * - Payment gateway webhooks
  * - Third-party service notifications
  */
-exports.webhookQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.WEBHOOK, {
-    connection: config_js_1.redisConnection,
-    defaultJobOptions: config_js_1.queueConfigs.webhook,
+export const webhookQueue = new Queue(QUEUE_NAMES.WEBHOOK, {
+    connection: redisConnection,
+    defaultJobOptions: queueConfigs.webhook,
 });
 /**
  * Product Synchronization Queue
@@ -51,9 +42,9 @@ exports.webhookQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.WEBHOOK, {
  * - Price synchronization
  * - Product metadata updates
  */
-exports.productSyncQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.PRODUCT_SYNC, {
-    connection: config_js_1.redisConnection,
-    defaultJobOptions: config_js_1.queueConfigs.productSync,
+export const productSyncQueue = new Queue(QUEUE_NAMES.PRODUCT_SYNC, {
+    connection: redisConnection,
+    defaultJobOptions: queueConfigs.productSync,
 });
 /**
  * Background Tasks Queue
@@ -64,9 +55,9 @@ exports.productSyncQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.PRODUCT_SYN
  * - Bulk data exports
  * - System maintenance tasks
  */
-exports.backgroundQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.BACKGROUND, {
-    connection: config_js_1.redisConnection,
-    defaultJobOptions: config_js_1.queueConfigs.background,
+export const backgroundQueue = new Queue(QUEUE_NAMES.BACKGROUND, {
+    connection: redisConnection,
+    defaultJobOptions: queueConfigs.background,
 });
 /**
  * Order Processing Queue
@@ -77,9 +68,9 @@ exports.backgroundQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.BACKGROUND, 
  * - Inventory adjustments
  * - Customer notifications
  */
-exports.orderProcessingQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.ORDER_PROCESSING, {
-    connection: config_js_1.redisConnection,
-    defaultJobOptions: config_js_1.queueConfigs.webhook, // Use webhook config for high priority
+export const orderProcessingQueue = new Queue(QUEUE_NAMES.ORDER_PROCESSING, {
+    connection: redisConnection,
+    defaultJobOptions: queueConfigs.webhook, // Use webhook config for high priority
 });
 /**
  * Notifications Queue
@@ -90,9 +81,9 @@ exports.orderProcessingQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.ORDER_P
  * - Slack alerts
  * - Webhook notifications
  */
-exports.notificationQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.NOTIFICATIONS, {
-    connection: config_js_1.redisConnection,
-    defaultJobOptions: config_js_1.queueConfigs.email, // Use email config for moderate priority
+export const notificationQueue = new Queue(QUEUE_NAMES.NOTIFICATIONS, {
+    connection: redisConnection,
+    defaultJobOptions: queueConfigs.email, // Use email config for moderate priority
 });
 /**
  * Queues Registry Object
@@ -101,30 +92,30 @@ exports.notificationQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.NOTIFICATI
  * This object provides typed access to all queues and is used by the
  * QueueService for job scheduling.
  */
-exports.queues = {
-    email: exports.emailQueue,
-    webhook: exports.webhookQueue,
-    productSync: exports.productSyncQueue,
-    background: exports.backgroundQueue,
-    orderProcessing: exports.orderProcessingQueue,
-    notifications: exports.notificationQueue,
+export const queues = {
+    email: emailQueue,
+    webhook: webhookQueue,
+    productSync: productSyncQueue,
+    background: backgroundQueue,
+    orderProcessing: orderProcessingQueue,
+    notifications: notificationQueue,
 };
 /**
  * Queue Names Array
  *
  * Used for iterating over all queues for monitoring and management
  */
-exports.queueNames = Object.keys(exports.queues);
+export const queueNames = Object.keys(queues);
 /**
  * Queue Health Check Function
  *
  * Checks the health status of all queues by verifying Redis connection
  * and basic queue operations.
  */
-async function checkQueueHealth() {
+export async function checkQueueHealth() {
     const results = {};
     let allHealthy = true;
-    for (const [name, queue] of Object.entries(exports.queues)) {
+    for (const [name, queue] of Object.entries(queues)) {
         try {
             // Test basic queue operation
             await queue.getWaiting();
@@ -151,9 +142,9 @@ async function checkQueueHealth() {
  * - Processing rates
  * - Error rates
  */
-async function getQueueStatistics() {
+export async function getQueueStatistics() {
     const statistics = {};
-    for (const [name, queue] of Object.entries(exports.queues)) {
+    for (const [name, queue] of Object.entries(queues)) {
         try {
             const [waiting, active, completed, failed, delayed] = await Promise.all([
                 queue.getWaiting(),
@@ -184,8 +175,8 @@ async function getQueueStatistics() {
  *
  * Utility function to pause all queues - useful for maintenance
  */
-async function pauseAllQueues() {
-    const pausePromises = Object.values(exports.queues).map(queue => queue.pause());
+export async function pauseAllQueues() {
+    const pausePromises = Object.values(queues).map(queue => queue.pause());
     await Promise.all(pausePromises);
 }
 /**
@@ -193,8 +184,8 @@ async function pauseAllQueues() {
  *
  * Utility function to resume all queues after maintenance
  */
-async function resumeAllQueues() {
-    const resumePromises = Object.values(exports.queues).map(queue => queue.resume());
+export async function resumeAllQueues() {
+    const resumePromises = Object.values(queues).map(queue => queue.resume());
     await Promise.all(resumePromises);
 }
 /**
@@ -202,8 +193,8 @@ async function resumeAllQueues() {
  *
  * Removes old completed and failed jobs from all queues
  */
-async function cleanAllQueues(olderThan = 24 * 60 * 60 * 1000) {
-    const cleanPromises = Object.values(exports.queues).map(queue => Promise.all([
+export async function cleanAllQueues(olderThan = 24 * 60 * 60 * 1000) {
+    const cleanPromises = Object.values(queues).map(queue => Promise.all([
         queue.clean(olderThan, 10, 'completed'),
         queue.clean(olderThan, 50, 'failed'),
     ]));
@@ -214,9 +205,9 @@ async function cleanAllQueues(olderThan = 24 * 60 * 60 * 1000) {
  *
  * Properly closes all queue connections during application shutdown
  */
-async function shutdownQueues() {
+export async function shutdownQueues() {
     console.log('Shutting down queues...');
-    const closePromises = Object.entries(exports.queues).map(async ([name, queue]) => {
+    const closePromises = Object.entries(queues).map(async ([name, queue]) => {
         try {
             await queue.close();
             console.log(`Queue ${name} closed successfully`);

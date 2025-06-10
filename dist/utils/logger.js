@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Logger = void 0;
 // src\utils\logger.ts
-class Logger {
+export class Logger {
     static info(message, data) {
         if (data) {
             console.log(`ℹ️ ${message}:`, data);
@@ -56,4 +53,3 @@ class Logger {
         console.table(data);
     }
 }
-exports.Logger = Logger;

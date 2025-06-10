@@ -1,4 +1,3 @@
-"use strict";
 /**
  * Product Routes
  *
@@ -12,18 +11,14 @@
  *
  * @author Your Name
  */
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
 // src\routes\products.routes.ts
 // src\routes\products.routes.js
-const express_1 = __importDefault(require("express"));
-const ProductController_js_1 = require("../controllers/ProductController.js");
-const errorHandler_js_1 = require("../middleware/errorHandler.js");
-const productHandler_js_1 = require("../webhookHandlers/productHandler.js");
-const Product_js_1 = require("../models/Product.js");
-const router = express_1.default.Router();
+import express from "express";
+import { createProduct, getAllProducts, getProductById, updateProduct, deleteProduct, } from "../controllers/ProductController.js";
+import { asyncHandler } from "../middleware/errorHandler.js";
+import { handleProductWebhook } from "../webhookHandlers/productHandler.js";
+import { Product } from "../models/Product.js";
+const router = express.Router();
 /**
  * @route   GET /products
  * @desc    Get all products with optional pagination and filtering
@@ -33,14 +28,14 @@ const router = express_1.default.Router();
  * @query   search - Search term for product title
  * @query   status - Filter by product status (active, draft, archived)
  */
-router.get("/", (0, errorHandler_js_1.asyncHandler)(ProductController_js_1.getAllProducts));
+router.get("/", asyncHandler(getAllProducts));
 /**
  * @route   GET /products/:id
  * @desc    Get a specific product by ID
  * @access  Public
  * @param   id - Product ID
  */
-router.get("/:id", (0, errorHandler_js_1.asyncHandler)(ProductController_js_1.getProductById));
+router.get("/:id", asyncHandler(getProductById));
 /**
  * @route   POST /products
  * @desc    Create a new product
@@ -51,7 +46,7 @@ router.get("/:id", (0, errorHandler_js_1.asyncHandler)(ProductController_js_1.ge
  * @body    status - Product status (optional, default: active)
  * @body    metadata - Additional product metadata (optional)
  */
-router.post("/", (0, errorHandler_js_1.asyncHandler)(ProductController_js_1.createProduct));
+router.post("/", asyncHandler(createProduct));
 /**
  * @route   PUT /products/:id
  * @desc    Update an existing product
@@ -59,14 +54,14 @@ router.post("/", (0, errorHandler_js_1.asyncHandler)(ProductController_js_1.crea
  * @param   id - Product ID
  * @body    Any product fields to update
  */
-router.put("/:id", (0, errorHandler_js_1.asyncHandler)(ProductController_js_1.updateProduct));
+router.put("/:id", asyncHandler(updateProduct));
 /**
  * @route   DELETE /products/:id
  * @desc    Delete a product
  * @access  Public (should be protected in production)
  * @param   id - Product ID
  */
-router.delete("/:id", (0, errorHandler_js_1.asyncHandler)(ProductController_js_1.deleteProduct));
+router.delete("/:id", asyncHandler(deleteProduct));
 /**
  * @route   POST /products/test-webhook
  * @desc    Test product webhook processing without signature validation
@@ -91,9 +86,9 @@ router.post("/test-webhook", async (req, res) => {
         }
         try {
             // Process using the product webhook handler
-            await (0, productHandler_js_1.handleProductWebhook)(webhookPayload);
+            await handleProductWebhook(webhookPayload);
             // Check if product was created/updated
-            const product = await Product_js_1.Product.findOne({
+            const product = await Product.findOne({
                 where: { shopify_product_id: String(webhookPayload.id) }
             });
             return res.json({
@@ -148,8 +143,8 @@ router.post("/test-webhook", async (req, res) => {
  */
 router.get("/debug/count", async (req, res) => {
     try {
-        const count = await Product_js_1.Product.count();
-        const products = await Product_js_1.Product.findAll({
+        const count = await Product.count();
+        const products = await Product.findAll({
             limit: 5,
             order: [['id', 'DESC']]
         });
@@ -177,4 +172,4 @@ router.get("/debug/count", async (req, res) => {
         });
     }
 });
-exports.default = router;
+export default router;

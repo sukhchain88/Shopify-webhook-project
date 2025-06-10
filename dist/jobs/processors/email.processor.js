@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.processEmailJob = processEmailJob;
 /**
  * Email Job Processor
  *
@@ -19,7 +16,7 @@ exports.processEmailJob = processEmailJob;
  * This function is called by the BullMQ worker for each email job.
  * It processes the job data and sends the email using the appropriate method.
  */
-async function processEmailJob(job) {
+export async function processEmailJob(job) {
     const startTime = Date.now();
     const { to, subject, template, body, htmlBody, templateData, attachments, cc, bcc } = job.data;
     // Log job start

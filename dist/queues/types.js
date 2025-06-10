@@ -1,4 +1,3 @@
-"use strict";
 /**
  * Job Data Type Definitions
  *
@@ -6,14 +5,12 @@
  * that can be processed by our queue system. This ensures type safety and
  * makes it clear what data each job type expects.
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.JOB_NAMES = exports.QUEUE_NAMES = void 0;
 /**
  * Queue Names
  *
  * Centralized queue name constants to avoid typos and ensure consistency
  */
-exports.QUEUE_NAMES = {
+export const QUEUE_NAMES = {
     EMAIL: 'email',
     WEBHOOK: 'webhook-processing',
     PRODUCT_SYNC: 'product-sync',
@@ -26,7 +23,7 @@ exports.QUEUE_NAMES = {
  *
  * Centralized job name constants for each queue
  */
-exports.JOB_NAMES = {
+export const JOB_NAMES = {
     // Email jobs
     SEND_EMAIL: 'send-email',
     SEND_BULK_EMAIL: 'send-bulk-email',

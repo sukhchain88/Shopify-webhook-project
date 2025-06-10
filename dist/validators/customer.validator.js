@@ -1,75 +1,69 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateCustomerUpdateApiInput = exports.validateCustomerApiInput = exports.validateCustomerInput = exports.customerUpdateApiSchema = exports.customerApiSchema = exports.customerSchema = void 0;
-const zod_1 = require("zod");
+import { z } from "zod";
 // Schema for webhook data (includes shop_domain)
-exports.customerSchema = zod_1.z.object({
-    shop_domain: zod_1.z.string({
+export const customerSchema = z.object({
+    shop_domain: z.string({
         required_error: "Shop domain is required",
         invalid_type_error: "Shop domain must be a string"
     }),
-    first_name: zod_1.z.string().nullable().optional(),
-    last_name: zod_1.z.string().nullable().optional(),
-    email: zod_1.z.string().nullable().optional(), // Allow null/invalid emails for webhooks
-    phone: zod_1.z.string().nullable().optional(), // Allow null phone numbers
-    shopify_customer_id: zod_1.z.string().nullable().optional(),
-    address: zod_1.z.string().nullable().optional(),
-    city: zod_1.z.string().nullable().optional(),
-    province: zod_1.z.string().nullable().optional(),
-    country: zod_1.z.string().nullable().optional(),
-    zip: zod_1.z.string().nullable().optional()
+    first_name: z.string().nullable().optional(),
+    last_name: z.string().nullable().optional(),
+    email: z.string().nullable().optional(), // Allow null/invalid emails for webhooks
+    phone: z.string().nullable().optional(), // Allow null phone numbers
+    shopify_customer_id: z.string().nullable().optional(),
+    address: z.string().nullable().optional(),
+    city: z.string().nullable().optional(),
+    province: z.string().nullable().optional(),
+    country: z.string().nullable().optional(),
+    zip: z.string().nullable().optional()
 });
 // Schema for API endpoints (no shop_domain required, address as object)
-exports.customerApiSchema = zod_1.z.object({
-    first_name: zod_1.z.string().min(1, "First name is required").optional(),
-    last_name: zod_1.z.string().min(1, "Last name is required").optional(),
-    email: zod_1.z.string().email("Invalid email format").min(1, "Email is required"),
-    phone: zod_1.z.string().optional(),
-    shopify_customer_id: zod_1.z.string().optional(),
-    address: zod_1.z.object({
-        address1: zod_1.z.string().optional(),
-        address2: zod_1.z.string().optional(),
-        city: zod_1.z.string().optional(),
-        province: zod_1.z.string().optional(),
-        country: zod_1.z.string().optional(),
-        zip: zod_1.z.string().optional()
+export const customerApiSchema = z.object({
+    first_name: z.string().min(1, "First name is required").optional(),
+    last_name: z.string().min(1, "Last name is required").optional(),
+    email: z.string().email("Invalid email format").min(1, "Email is required"),
+    phone: z.string().optional(),
+    shopify_customer_id: z.string().optional(),
+    address: z.object({
+        address1: z.string().optional(),
+        address2: z.string().optional(),
+        city: z.string().optional(),
+        province: z.string().optional(),
+        country: z.string().optional(),
+        zip: z.string().optional()
     }).optional(),
-    metadata: zod_1.z.object({
-        customer_type: zod_1.z.string().optional(),
-        source: zod_1.z.string().optional(),
-        notes: zod_1.z.string().optional()
+    metadata: z.object({
+        customer_type: z.string().optional(),
+        source: z.string().optional(),
+        notes: z.string().optional()
     }).optional()
 });
 // Schema for updating customers (all fields optional except email validation when provided)
-exports.customerUpdateApiSchema = zod_1.z.object({
-    first_name: zod_1.z.string().min(1, "First name cannot be empty").optional(),
-    last_name: zod_1.z.string().min(1, "Last name cannot be empty").optional(),
-    email: zod_1.z.string().email("Invalid email format").optional(),
-    phone: zod_1.z.string().optional(),
-    shopify_customer_id: zod_1.z.string().optional(),
-    address: zod_1.z.object({
-        address1: zod_1.z.string().optional(),
-        address2: zod_1.z.string().optional(),
-        city: zod_1.z.string().optional(),
-        province: zod_1.z.string().optional(),
-        country: zod_1.z.string().optional(),
-        zip: zod_1.z.string().optional()
+export const customerUpdateApiSchema = z.object({
+    first_name: z.string().min(1, "First name cannot be empty").optional(),
+    last_name: z.string().min(1, "Last name cannot be empty").optional(),
+    email: z.string().email("Invalid email format").optional(),
+    phone: z.string().optional(),
+    shopify_customer_id: z.string().optional(),
+    address: z.object({
+        address1: z.string().optional(),
+        address2: z.string().optional(),
+        city: z.string().optional(),
+        province: z.string().optional(),
+        country: z.string().optional(),
+        zip: z.string().optional()
     }).optional(),
-    metadata: zod_1.z.object({
-        customer_type: zod_1.z.string().optional(),
-        source: zod_1.z.string().optional(),
-        notes: zod_1.z.string().optional()
+    metadata: z.object({
+        customer_type: z.string().optional(),
+        source: z.string().optional(),
+        notes: z.string().optional()
     }).optional()
 });
-const validateCustomerInput = (data) => {
-    return exports.customerSchema.safeParse(data);
+export const validateCustomerInput = (data) => {
+    return customerSchema.safeParse(data);
 };
-exports.validateCustomerInput = validateCustomerInput;
-const validateCustomerApiInput = (data) => {
-    return exports.customerApiSchema.safeParse(data);
+export const validateCustomerApiInput = (data) => {
+    return customerApiSchema.safeParse(data);
 };
-exports.validateCustomerApiInput = validateCustomerApiInput;
-const validateCustomerUpdateApiInput = (data) => {
-    return exports.customerUpdateApiSchema.safeParse(data);
+export const validateCustomerUpdateApiInput = (data) => {
+    return customerUpdateApiSchema.safeParse(data);
 };
-exports.validateCustomerUpdateApiInput = validateCustomerUpdateApiInput;

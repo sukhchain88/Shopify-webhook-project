@@ -1,4 +1,3 @@
-"use strict";
 /**
  * Product Controller
  *
@@ -9,16 +8,11 @@
  *
  * @author Your Name
  */
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.handleShopifyWebhook = exports.deleteProduct = exports.updateProduct = exports.getProductById = exports.getAllProducts = exports.createProduct = void 0;
-const Product_js_1 = require("../models/Product.js");
-const product_validator_js_1 = require("../validators/product.validator.js");
-const ProductService_js_1 = require("../services/ProductService.js");
-const sequelize_1 = require("sequelize");
-const db_js_1 = __importDefault(require("../config/db.js"));
+import { Product } from "../models/Product.js";
+import { validateProduct, validateWebhook } from "../validators/product.validator.js";
+import { ProductService } from "../services/ProductService.js";
+import { Op } from "sequelize";
+import sequelize from "../config/db.js";
 /**
  * Create a new product
  *
@@ -26,10 +20,10 @@ const db_js_1 = __importDefault(require("../config/db.js"));
  * @param req - Express request object
  * @param res - Express response object
  */
-const createProduct = async (req, res) => {
+export const createProduct = async (req, res) => {
     try {
         // Validate request data
-        const validation = (0, product_validator_js_1.validateProduct)(req.body);
+        const validation = validateProduct(req.body);
         if (!validation.success) {
             res.status(400).json({
                 success: false,
@@ -39,13 +33,13 @@ const createProduct = async (req, res) => {
             return;
         }
         // Create product locally using service
-        const localProduct = await ProductService_js_1.ProductService.createProduct(validation.data);
+        const localProduct = await ProductService.createProduct(validation.data);
         // Automatically sync to Shopify admin store
         let shopifyProduct = null;
         let shopifyError = null;
         try {
             const productData = localProduct.get({ plain: true });
-            shopifyProduct = await ProductService_js_1.ProductService.syncProductToShopify(productData);
+            shopifyProduct = await ProductService.syncProductToShopify(productData);
             console.log("✅ Product automatically synced to Shopify:", shopifyProduct.product.title);
         }
         catch (error) {
@@ -76,7 +70,6 @@ const createProduct = async (req, res) => {
         });
     }
 };
-exports.createProduct = createProduct;
 /**
  * Get all products with pagination and filtering
  *
@@ -84,7 +77,7 @@ exports.createProduct = createProduct;
  * @param req - Express request object
  * @param res - Express response object
  */
-const getAllProducts = async (req, res) => {
+export const getAllProducts = async (req, res) => {
     try {
         // Extract query parameters
         const page = parseInt(req.query.page) || 1;
@@ -97,13 +90,13 @@ const getAllProducts = async (req, res) => {
         const whereClause = {};
         if (search) {
             // Use database-agnostic case-insensitive search
-            whereClause.title = db_js_1.default.where(db_js_1.default.fn('LOWER', db_js_1.default.col('title')), sequelize_1.Op.like, `%${search.toLowerCase()}%`);
+            whereClause.title = sequelize.where(sequelize.fn('LOWER', sequelize.col('title')), Op.like, `%${search.toLowerCase()}%`);
         }
         if (status && ['active', 'draft', 'archived'].includes(status)) {
             whereClause.status = status;
         }
         // Get products with pagination
-        const { count, rows: products } = await Product_js_1.Product.findAndCountAll({
+        const { count, rows: products } = await Product.findAndCountAll({
             where: whereClause,
             limit,
             offset,
@@ -137,7 +130,6 @@ const getAllProducts = async (req, res) => {
         });
     }
 };
-exports.getAllProducts = getAllProducts;
 /**
  * Get a single product by ID
  *
@@ -145,7 +137,7 @@ exports.getAllProducts = getAllProducts;
  * @param req - Express request object
  * @param res - Express response object
  */
-const getProductById = async (req, res) => {
+export const getProductById = async (req, res) => {
     try {
         const { id } = req.params;
         // Validate ID format
@@ -158,7 +150,7 @@ const getProductById = async (req, res) => {
             return;
         }
         // Find product by ID
-        const product = await Product_js_1.Product.findByPk(id);
+        const product = await Product.findByPk(id);
         if (!product) {
             res.status(404).json({
                 success: false,
@@ -183,7 +175,6 @@ const getProductById = async (req, res) => {
         });
     }
 };
-exports.getProductById = getProductById;
 /**
  * Update an existing product
  *
@@ -191,7 +182,7 @@ exports.getProductById = getProductById;
  * @param req - Express request object
  * @param res - Express response object
  */
-const updateProduct = async (req, res) => {
+export const updateProduct = async (req, res) => {
     try {
         const { id } = req.params;
         // Validate ID format
@@ -204,7 +195,7 @@ const updateProduct = async (req, res) => {
             return;
         }
         // Find product by ID
-        const product = await Product_js_1.Product.findByPk(id);
+        const product = await Product.findByPk(id);
         if (!product) {
             res.status(404).json({
                 success: false,
@@ -239,7 +230,7 @@ const updateProduct = async (req, res) => {
         if (shopifyProductId) {
             try {
                 const productData = product.get({ plain: true });
-                shopifyProduct = await ProductService_js_1.ProductService.updateProductInShopify(shopifyProductId, {
+                shopifyProduct = await ProductService.updateProductInShopify(shopifyProductId, {
                     title: productData.title,
                     description: productData.description,
                     price: parseFloat(productData.price),
@@ -280,7 +271,6 @@ const updateProduct = async (req, res) => {
         });
     }
 };
-exports.updateProduct = updateProduct;
 /**
  * Delete a product
  *
@@ -288,7 +278,7 @@ exports.updateProduct = updateProduct;
  * @param req - Express request object
  * @param res - Express response object
  */
-const deleteProduct = async (req, res) => {
+export const deleteProduct = async (req, res) => {
     try {
         const { id } = req.params;
         // Validate ID format
@@ -301,7 +291,7 @@ const deleteProduct = async (req, res) => {
             return;
         }
         // Find product by ID
-        const product = await Product_js_1.Product.findByPk(id);
+        const product = await Product.findByPk(id);
         if (!product) {
             res.status(404).json({
                 success: false,
@@ -317,7 +307,7 @@ const deleteProduct = async (req, res) => {
         let shopifyError = null;
         if (shopifyProductId) {
             try {
-                await ProductService_js_1.ProductService.deleteProductFromShopify(shopifyProductId);
+                await ProductService.deleteProductFromShopify(shopifyProductId);
                 shopifyDeleted = true;
                 console.log(`✅ Product automatically deleted from Shopify: ${productTitle}`);
             }
@@ -349,7 +339,6 @@ const deleteProduct = async (req, res) => {
         });
     }
 };
-exports.deleteProduct = deleteProduct;
 /**
  * Handle Shopify webhook for product events
  *
@@ -357,7 +346,7 @@ exports.deleteProduct = deleteProduct;
  * @param req - Express request object
  * @param res - Express response object
  */
-const handleShopifyWebhook = async (req, res) => {
+export const handleShopifyWebhook = async (req, res) => {
     try {
         const topic = req.headers["x-shopify-topic"];
         // Validate webhook topic
@@ -370,7 +359,7 @@ const handleShopifyWebhook = async (req, res) => {
             return;
         }
         // Validate webhook payload
-        const validation = (0, product_validator_js_1.validateWebhook)(req.body);
+        const validation = validateWebhook(req.body);
         if (!validation.success) {
             res.status(400).json({
                 success: false,
@@ -380,7 +369,7 @@ const handleShopifyWebhook = async (req, res) => {
             return;
         }
         // Process webhook using service
-        const product = await ProductService_js_1.ProductService.handleWebhook(validation.data);
+        const product = await ProductService.handleWebhook(validation.data);
         console.log(`🔔 Webhook processed: ${topic} for product ${validation.data.title}`);
         res.status(200).json({
             success: true,
@@ -401,4 +390,3 @@ const handleShopifyWebhook = async (req, res) => {
         });
     }
 };
-exports.handleShopifyWebhook = handleShopifyWebhook;

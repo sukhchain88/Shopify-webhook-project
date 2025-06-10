@@ -1,70 +1,63 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.OrderItem = void 0;
-const sequelize_1 = require("sequelize");
-const db_js_1 = __importDefault(require("../config/db.js"));
-const Order_js_1 = require("./Order.js");
-const Product_js_1 = require("./Product.js");
+import { DataTypes, Model } from "sequelize";
+import sequelize from "../config/db.js";
+import { Order } from "./Order.js";
+import { Product } from "./Product.js";
 // Define the OrderItem model with proper TypeScript types
-class OrderItem extends sequelize_1.Model {
+export class OrderItem extends Model {
 }
-exports.OrderItem = OrderItem;
 OrderItem.init({
     id: {
-        type: sequelize_1.DataTypes.INTEGER,
+        type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
     },
     order_id: {
-        type: sequelize_1.DataTypes.INTEGER,
+        type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: Order_js_1.Order,
+            model: Order,
             key: 'id'
         },
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     },
     product_id: {
-        type: sequelize_1.DataTypes.INTEGER,
+        type: DataTypes.INTEGER,
         allowNull: true, // Can be null if product is deleted
         references: {
-            model: Product_js_1.Product,
+            model: Product,
             key: 'id'
         },
         onDelete: 'SET NULL',
         onUpdate: 'CASCADE'
     },
     shopify_product_id: {
-        type: sequelize_1.DataTypes.STRING(255),
+        type: DataTypes.STRING(255),
         allowNull: true,
         comment: 'Shopify product ID for reference'
     },
     shopify_variant_id: {
-        type: sequelize_1.DataTypes.STRING(255),
+        type: DataTypes.STRING(255),
         allowNull: true,
         comment: 'Shopify variant ID for specific product variant'
     },
     product_title: {
-        type: sequelize_1.DataTypes.STRING(500),
+        type: DataTypes.STRING(500),
         allowNull: false,
         comment: 'Product title at time of purchase (preserved even if product deleted)'
     },
     product_variant_title: {
-        type: sequelize_1.DataTypes.STRING(255),
+        type: DataTypes.STRING(255),
         allowNull: true,
         comment: 'Variant title (size, color, etc.)'
     },
     sku: {
-        type: sequelize_1.DataTypes.STRING(100),
+        type: DataTypes.STRING(100),
         allowNull: true,
         comment: 'Product SKU at time of purchase'
     },
     quantity: {
-        type: sequelize_1.DataTypes.INTEGER,
+        type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 1,
         validate: {
@@ -72,50 +65,50 @@ OrderItem.init({
         }
     },
     unit_price: {
-        type: sequelize_1.DataTypes.DECIMAL(10, 2),
+        type: DataTypes.DECIMAL(10, 2),
         allowNull: false,
         comment: 'Price per unit at time of purchase'
     },
     total_price: {
-        type: sequelize_1.DataTypes.DECIMAL(10, 2),
+        type: DataTypes.DECIMAL(10, 2),
         allowNull: false,
         comment: 'Total price for this line item (quantity × unit_price)'
     },
     currency: {
-        type: sequelize_1.DataTypes.STRING(10),
+        type: DataTypes.STRING(10),
         allowNull: true,
         defaultValue: 'USD'
     },
     discount_amount: {
-        type: sequelize_1.DataTypes.DECIMAL(10, 2),
+        type: DataTypes.DECIMAL(10, 2),
         allowNull: true,
         defaultValue: 0.00,
         comment: 'Discount applied to this line item'
     },
     tax_amount: {
-        type: sequelize_1.DataTypes.DECIMAL(10, 2),
+        type: DataTypes.DECIMAL(10, 2),
         allowNull: true,
         defaultValue: 0.00,
         comment: 'Tax amount for this line item'
     },
     product_metadata: {
-        type: sequelize_1.DataTypes.JSON,
+        type: DataTypes.JSON,
         allowNull: true,
         defaultValue: {},
         comment: 'Additional product data from Shopify (weight, vendor, etc.)'
     },
     created_at: {
-        type: sequelize_1.DataTypes.DATE,
+        type: DataTypes.DATE,
         allowNull: false,
-        defaultValue: sequelize_1.DataTypes.NOW,
+        defaultValue: DataTypes.NOW,
     },
     updated_at: {
-        type: sequelize_1.DataTypes.DATE,
+        type: DataTypes.DATE,
         allowNull: false,
-        defaultValue: sequelize_1.DataTypes.NOW,
+        defaultValue: DataTypes.NOW,
     }
 }, {
-    sequelize: db_js_1.default,
+    sequelize,
     tableName: "order_items",
     timestamps: true,
     underscored: true,
@@ -135,20 +128,20 @@ OrderItem.init({
     ]
 });
 // Define relationships
-OrderItem.belongsTo(Order_js_1.Order, {
+OrderItem.belongsTo(Order, {
     foreignKey: 'order_id',
     as: 'order'
 });
-OrderItem.belongsTo(Product_js_1.Product, {
+OrderItem.belongsTo(Product, {
     foreignKey: 'product_id',
     as: 'product'
 });
-Order_js_1.Order.hasMany(OrderItem, {
+Order.hasMany(OrderItem, {
     foreignKey: 'order_id',
     as: 'items'
 });
-Product_js_1.Product.hasMany(OrderItem, {
+Product.hasMany(OrderItem, {
     foreignKey: 'product_id',
     as: 'orderItems'
 });
-exports.default = OrderItem;
+export default OrderItem;

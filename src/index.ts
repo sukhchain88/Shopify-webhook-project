@@ -29,7 +29,7 @@ import { requestTiming } from "./middleware/requestTiming.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
 // Import database connection
-import "./config/db"; // This initializes the database connection
+import "./config/db.js"; // This initializes the database connection
 
 // Load environment variables
 dotenv.config();
