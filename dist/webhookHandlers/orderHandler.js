@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleOrderWebhook = handleOrderWebhook;
-const Customer_js_1 = require("../models/Customer.js");
-const Order_js_1 = require("../models/Order.js");
-const OrderItemService_js_1 = require("../services/OrderItemService.js");
+const Customer_1 = require("../models/Customer");
+const Order_1 = require("../models/Order");
+const OrderItemService_1 = require("../services/OrderItemService");
 async function handleOrderWebhook(payload) {
     try {
         const shopifyOrderId = String(payload.id);
@@ -35,7 +35,7 @@ async function handleOrderWebhook(payload) {
         let customer = null;
         if (customerData.email) {
             console.log('Processing customer with email:', customerData.email);
-            customer = await Customer_js_1.Customer.findOne({
+            customer = await Customer_1.Customer.findOne({
                 where: {
                     shopify_customer_id: customerData.shopify_customer_id,
                     shop_domain: shopDomain
@@ -47,7 +47,7 @@ async function handleOrderWebhook(payload) {
                 console.log(`✅ Updated customer in database: ${customerData.email}`);
             }
             else {
-                customer = await Customer_js_1.Customer.findOne({
+                customer = await Customer_1.Customer.findOne({
                     where: {
                         email: customerData.email,
                         shop_domain: shopDomain
@@ -60,7 +60,7 @@ async function handleOrderWebhook(payload) {
                 }
                 else {
                     console.log('Creating new customer with data:', customerData);
-                    customer = await Customer_js_1.Customer.create(customerData);
+                    customer = await Customer_1.Customer.create(customerData);
                     console.log(`✅ Created new customer in database: ${customerData.email}`);
                 }
             }
@@ -68,7 +68,7 @@ async function handleOrderWebhook(payload) {
         else {
             console.log('⚠️ No customer email provided - creating order without customer link');
         }
-        let order = await Order_js_1.Order.findOne({
+        let order = await Order_1.Order.findOne({
             where: {
                 shopify_order_id: shopifyOrderId,
                 shop_domain: shopDomain
@@ -82,7 +82,7 @@ async function handleOrderWebhook(payload) {
             console.log(`✅ Updated order in database: ${orderData.order_number} (ID: ${shopifyOrderId})`);
         }
         else {
-            order = await Order_js_1.Order.create({
+            order = await Order_1.Order.create({
                 ...orderData,
                 customer_id: customer?.id
             });
@@ -91,7 +91,7 @@ async function handleOrderWebhook(payload) {
         if (payload.line_items && Array.isArray(payload.line_items) && payload.line_items.length > 0) {
             console.log(`📦 Processing ${payload.line_items.length} line items for order ${order.id}`);
             try {
-                const orderItems = await OrderItemService_js_1.OrderItemService.createOrderItemsFromWebhook(order.id, payload.line_items);
+                const orderItems = await OrderItemService_1.OrderItemService.createOrderItemsFromWebhook(order.id, payload.line_items);
                 console.log(`✅ Successfully created ${orderItems.length} order items`);
                 const productSummary = orderItems.map(item => ({
                     title: item.product_title,

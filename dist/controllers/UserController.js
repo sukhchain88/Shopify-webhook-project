@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.viewUsers = exports.deleteUser = exports.updateUser = exports.createUser = exports.getUserById = exports.getAllUsers = void 0;
-const User_js_1 = require("../models/User.js");
+const User_1 = require("../models/User");
 const getAllUsers = async (req, res) => {
     try {
-        const users = await User_js_1.Users.findAll({
+        const users = await User_1.Users.findAll({
             raw: true,
             logging: console.log
         });
@@ -27,7 +27,7 @@ exports.getAllUsers = getAllUsers;
 const getUserById = async (req, res) => {
     try {
         const { id } = req.params;
-        const user = await User_js_1.Users.findByPk(id);
+        const user = await User_1.Users.findByPk(id);
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
@@ -51,7 +51,7 @@ const createUser = async (req, res) => {
         if (!userData.name || !userData.email) {
             return res.status(400).json({ error: "Name and email are required" });
         }
-        const user = await User_js_1.Users.create(userData);
+        const user = await User_1.Users.create(userData);
         console.log("✅ User created:", user.toJSON());
         return res.status(201).json({
             message: "User created successfully",
@@ -71,7 +71,7 @@ const updateUser = async (req, res) => {
     try {
         const { id } = req.params;
         const userData = req.body;
-        const user = await User_js_1.Users.findByPk(id);
+        const user = await User_1.Users.findByPk(id);
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
@@ -94,7 +94,7 @@ exports.updateUser = updateUser;
 const deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
-        const user = await User_js_1.Users.findByPk(id);
+        const user = await User_1.Users.findByPk(id);
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
@@ -116,7 +116,7 @@ const deleteUser = async (req, res) => {
 exports.deleteUser = deleteUser;
 const viewUsers = async (req, res) => {
     try {
-        const users = await User_js_1.Users.findAll({
+        const users = await User_1.Users.findAll({
             raw: true,
             logging: console.log
         });

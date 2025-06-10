@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleCustomerWebhook = void 0;
-const Customer_js_1 = require("../models/Customer.js");
+const Customer_1 = require("../models/Customer");
 const handleCustomerWebhook = async (payload) => {
     try {
         console.log("🔍 Received customer webhook topic:", payload.webhook_type);
@@ -35,7 +35,7 @@ const handleCustomerWebhook = async (payload) => {
         const action = payload.webhook_type.split('/')[1];
         console.log(`📝 Base topic: ${baseTopic}, Action: ${action}`);
         if (baseTopic === 'customers' || baseTopic === 'customers_marketing_consent') {
-            let existingCustomer = await Customer_js_1.Customer.findOne({
+            let existingCustomer = await Customer_1.Customer.findOne({
                 where: { shopify_customer_id: String(payload.id) }
             });
             if (action === 'create' || !existingCustomer) {
@@ -43,7 +43,7 @@ const handleCustomerWebhook = async (payload) => {
                     console.log(`⚠️ Customer already exists in database: ${payload.email} (Shopify ID: ${payload.id})`);
                     return;
                 }
-                const newCustomer = await Customer_js_1.Customer.create(customerData);
+                const newCustomer = await Customer_1.Customer.create(customerData);
                 console.log(`✅ Created new customer in database: ${newCustomer.email} (Shopify ID: ${newCustomer.shopify_customer_id})`);
             }
             else if (existingCustomer) {
