@@ -1,11 +1,9 @@
 import { OrderService } from "../services/OrderService.js";
 import { validateOrder } from "../validators/order.validator.js";
 import { ResponseHandler } from "../utils/responseHandler.js";
-// Create a new order
 export const createOrder = async (req, res) => {
     const startTime = Date.now();
     try {
-        // Validate order data using Zod schema
         const parsed = validateOrder(req.body);
         if (!parsed.success) {
             const formattedErrors = parsed.error.format();
@@ -36,16 +34,13 @@ export const createOrder = async (req, res) => {
         });
     }
 };
-// Get all orders
 export const getAllOrders = async (req, res) => {
     const startTime = Date.now();
     try {
-        // Extract query parameters for sorting and pagination (only sortOrder, always sort by ID)
         const sortOrder = req.query.sortOrder?.toUpperCase();
         const limit = req.query.limit ? parseInt(req.query.limit) : undefined;
         const offset = req.query.offset ? parseInt(req.query.offset) : undefined;
         const page = req.query.page ? parseInt(req.query.page) : undefined;
-        // Calculate offset from page if provided
         const calculatedOffset = page && limit ? (page - 1) * limit : offset;
         const result = await OrderService.getAllOrders({
             sortOrder,
@@ -54,7 +49,6 @@ export const getAllOrders = async (req, res) => {
         });
         console.log("📄 Orders Table Data:");
         console.table(result.orders);
-        // Add sorting info to response using validated values from service
         const responseData = {
             orders: result.orders,
             sorting: result.sorting,
@@ -78,7 +72,6 @@ export const getAllOrders = async (req, res) => {
         });
     }
 };
-// Get a single order by ID
 export const getOrderById = async (req, res) => {
     const startTime = Date.now();
     try {
@@ -105,7 +98,6 @@ export const getOrderById = async (req, res) => {
         });
     }
 };
-// Update an order
 export const updateOrder = async (req, res) => {
     const startTime = Date.now();
     try {
@@ -125,7 +117,6 @@ export const updateOrder = async (req, res) => {
         });
     }
 };
-// Delete an order
 export const deleteOrder = async (req, res) => {
     const startTime = Date.now();
     try {

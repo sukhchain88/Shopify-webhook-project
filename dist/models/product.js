@@ -1,4 +1,3 @@
-// src/models/Product.ts
 import { DataTypes } from "sequelize";
 import sequelize from "../config/db.js";
 export const Product = sequelize.define("products", {

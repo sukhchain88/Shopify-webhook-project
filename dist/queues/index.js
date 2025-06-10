@@ -1,97 +1,30 @@
 import { Queue } from 'bullmq';
 import { redisConnection, queueConfigs } from './config.js';
 import { QUEUE_NAMES } from './types.js';
-/**
- * Queue Registry
- *
- * This file creates and exports all the queues used in our application.
- * Each queue is typed with its specific job data interface and configured
- * with appropriate settings for its workload.
- */
-/**
- * Email Queue
- *
- * Handles all email-related jobs including:
- * - Order confirmations
- * - Password resets
- * - Marketing emails
- * - System notifications
- */
 export const emailQueue = new Queue(QUEUE_NAMES.EMAIL, {
     connection: redisConnection,
     defaultJobOptions: queueConfigs.email,
 });
-/**
- * Webhook Processing Queue
- *
- * Handles incoming webhooks from external services:
- * - Shopify webhooks (orders, products, customers)
- * - Payment gateway webhooks
- * - Third-party service notifications
- */
 export const webhookQueue = new Queue(QUEUE_NAMES.WEBHOOK, {
     connection: redisConnection,
     defaultJobOptions: queueConfigs.webhook,
 });
-/**
- * Product Synchronization Queue
- *
- * Manages product data synchronization:
- * - Shopify product imports
- * - Inventory updates
- * - Price synchronization
- * - Product metadata updates
- */
 export const productSyncQueue = new Queue(QUEUE_NAMES.PRODUCT_SYNC, {
     connection: redisConnection,
     defaultJobOptions: queueConfigs.productSync,
 });
-/**
- * Background Tasks Queue
- *
- * Handles long-running background operations:
- * - Data cleanup and maintenance
- * - Report generation
- * - Bulk data exports
- * - System maintenance tasks
- */
 export const backgroundQueue = new Queue(QUEUE_NAMES.BACKGROUND, {
     connection: redisConnection,
     defaultJobOptions: queueConfigs.background,
 });
-/**
- * Order Processing Queue
- *
- * Handles complex order-related operations:
- * - Order fulfillment
- * - Payment processing
- * - Inventory adjustments
- * - Customer notifications
- */
 export const orderProcessingQueue = new Queue(QUEUE_NAMES.ORDER_PROCESSING, {
     connection: redisConnection,
-    defaultJobOptions: queueConfigs.webhook, // Use webhook config for high priority
+    defaultJobOptions: queueConfigs.webhook,
 });
-/**
- * Notifications Queue
- *
- * Handles various notification types:
- * - SMS notifications
- * - Push notifications
- * - Slack alerts
- * - Webhook notifications
- */
 export const notificationQueue = new Queue(QUEUE_NAMES.NOTIFICATIONS, {
     connection: redisConnection,
-    defaultJobOptions: queueConfigs.email, // Use email config for moderate priority
+    defaultJobOptions: queueConfigs.email,
 });
-/**
- * Queues Registry Object
- *
- * Centralized access to all queues for easy management and monitoring.
- * This object provides typed access to all queues and is used by the
- * QueueService for job scheduling.
- */
 export const queues = {
     email: emailQueue,
     webhook: webhookQueue,
@@ -100,24 +33,12 @@ export const queues = {
     orderProcessing: orderProcessingQueue,
     notifications: notificationQueue,
 };
-/**
- * Queue Names Array
- *
- * Used for iterating over all queues for monitoring and management
- */
 export const queueNames = Object.keys(queues);
-/**
- * Queue Health Check Function
- *
- * Checks the health status of all queues by verifying Redis connection
- * and basic queue operations.
- */
 export async function checkQueueHealth() {
     const results = {};
     let allHealthy = true;
     for (const [name, queue] of Object.entries(queues)) {
         try {
-            // Test basic queue operation
             await queue.getWaiting();
             results[name] = { connected: true };
         }
@@ -134,14 +55,6 @@ export async function checkQueueHealth() {
         queues: results,
     };
 }
-/**
- * Get Queue Statistics
- *
- * Returns comprehensive statistics for all queues including:
- * - Job counts by status
- * - Processing rates
- * - Error rates
- */
 export async function getQueueStatistics() {
     const statistics = {};
     for (const [name, queue] of Object.entries(queues)) {
@@ -170,29 +83,14 @@ export async function getQueueStatistics() {
     }
     return statistics;
 }
-/**
- * Pause All Queues
- *
- * Utility function to pause all queues - useful for maintenance
- */
 export async function pauseAllQueues() {
     const pausePromises = Object.values(queues).map(queue => queue.pause());
     await Promise.all(pausePromises);
 }
-/**
- * Resume All Queues
- *
- * Utility function to resume all queues after maintenance
- */
 export async function resumeAllQueues() {
     const resumePromises = Object.values(queues).map(queue => queue.resume());
     await Promise.all(resumePromises);
 }
-/**
- * Clean All Queues
- *
- * Removes old completed and failed jobs from all queues
- */
 export async function cleanAllQueues(olderThan = 24 * 60 * 60 * 1000) {
     const cleanPromises = Object.values(queues).map(queue => Promise.all([
         queue.clean(olderThan, 10, 'completed'),
@@ -200,11 +98,6 @@ export async function cleanAllQueues(olderThan = 24 * 60 * 60 * 1000) {
     ]));
     await Promise.all(cleanPromises);
 }
-/**
- * Graceful Shutdown
- *
- * Properly closes all queue connections during application shutdown
- */
 export async function shutdownQueues() {
     console.log('Shutting down queues...');
     const closePromises = Object.entries(queues).map(async ([name, queue]) => {
@@ -219,6 +112,5 @@ export async function shutdownQueues() {
     await Promise.all(closePromises);
     console.log('All queues shut down');
 }
-// Handle graceful shutdown on process termination
 process.on('SIGTERM', shutdownQueues);
 process.on('SIGINT', shutdownQueues);

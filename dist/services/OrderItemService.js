@@ -5,14 +5,10 @@ import { Customer } from "../models/Customer.js";
 import { Op } from "sequelize";
 import sequelize from "../config/db.js";
 export class OrderItemService {
-    /**
-     * Create order items from Shopify webhook line_items
-     */
     static async createOrderItemsFromWebhook(orderId, lineItems) {
         try {
             const orderItems = [];
             for (const item of lineItems) {
-                // Try to find matching local product by shopify_product_id
                 let localProduct = null;
                 if (item.product_id) {
                     localProduct = await Product.findOne({
@@ -21,7 +17,6 @@ export class OrderItemService {
                         }
                     });
                 }
-                // Create order item
                 const orderItem = await OrderItem.create({
                     order_id: orderId,
                     product_id: localProduct ? localProduct.id : null,
@@ -33,7 +28,7 @@ export class OrderItemService {
                     quantity: parseInt(item.quantity) || 1,
                     unit_price: parseFloat(item.price) || 0,
                     total_price: parseFloat(item.price) * (parseInt(item.quantity) || 1),
-                    currency: 'USD', // You can extract this from the order
+                    currency: 'USD',
                     discount_amount: parseFloat(item.total_discount) || 0,
                     tax_amount: parseFloat(item.tax_lines?.reduce((sum, tax) => sum + parseFloat(tax.price || 0), 0)) || 0,
                     product_metadata: {
@@ -57,9 +52,6 @@ export class OrderItemService {
             throw error;
         }
     }
-    /**
-     * Get order items for a specific order
-     */
     static async getOrderItems(orderId) {
         try {
             const orderItems = await OrderItem.findAll({
@@ -68,7 +60,7 @@ export class OrderItemService {
                     {
                         model: Product,
                         as: 'product',
-                        required: false // LEFT JOIN - include even if product is deleted
+                        required: false
                     }
                 ],
                 order: [['created_at', 'ASC']]
@@ -80,16 +72,13 @@ export class OrderItemService {
             throw error;
         }
     }
-    /**
-     * Get all orders with their items and products
-     */
     static async getOrdersWithItems(limit = 50, offset = 0) {
         try {
             const orders = await Order.findAll({
                 include: [
                     {
                         model: Customer,
-                        required: false // LEFT JOIN - include even if customer is null
+                        required: false
                     },
                     {
                         model: OrderItem,
@@ -114,9 +103,6 @@ export class OrderItemService {
             throw error;
         }
     }
-    /**
-     * Get customer purchase history with products
-     */
     static async getCustomerPurchaseHistory(customerId) {
         try {
             const orders = await Order.findAll({
@@ -143,9 +129,6 @@ export class OrderItemService {
             throw error;
         }
     }
-    /**
-     * Get product sales analytics
-     */
     static async getProductSalesAnalytics(productId) {
         try {
             const whereClause = productId ? { product_id: productId } : {};
@@ -165,7 +148,6 @@ export class OrderItemService {
                 ],
                 order: [['created_at', 'DESC']]
             });
-            // Calculate analytics
             const analytics = {
                 total_items_sold: salesData.reduce((sum, item) => sum + item.quantity, 0),
                 total_revenue: salesData.reduce((sum, item) => sum + Number(item.total_price), 0),
@@ -177,9 +159,8 @@ export class OrderItemService {
             if (salesData.length > 0) {
                 analytics.average_order_quantity = analytics.total_items_sold / analytics.unique_orders;
                 analytics.average_unit_price = analytics.total_revenue / analytics.total_items_sold;
-                // Group by month
                 salesData.forEach(item => {
-                    const month = new Date(item.created_at).toISOString().substring(0, 7); // YYYY-MM
+                    const month = new Date(item.created_at).toISOString().substring(0, 7);
                     if (!analytics.sales_by_month[month]) {
                         analytics.sales_by_month[month] = {
                             quantity: 0,
@@ -191,7 +172,6 @@ export class OrderItemService {
                     analytics.sales_by_month[month].revenue += Number(item.total_price);
                     analytics.sales_by_month[month].orders.add(item.order_id);
                 });
-                // Convert sets to counts
                 Object.keys(analytics.sales_by_month).forEach(month => {
                     analytics.sales_by_month[month].unique_orders = analytics.sales_by_month[month].orders.size;
                     delete analytics.sales_by_month[month].orders;
@@ -207,16 +187,12 @@ export class OrderItemService {
             throw error;
         }
     }
-    /**
-     * Update order item
-     */
     static async updateOrderItem(itemId, updateData) {
         try {
             const orderItem = await OrderItem.findByPk(itemId);
             if (!orderItem) {
                 throw new Error('Order item not found');
             }
-            // Recalculate total_price if quantity or unit_price changed
             if (updateData.quantity || updateData.unit_price) {
                 const quantity = updateData.quantity || orderItem.quantity;
                 const unitPrice = updateData.unit_price || orderItem.unit_price;
@@ -230,9 +206,6 @@ export class OrderItemService {
             throw error;
         }
     }
-    /**
-     * Delete order item
-     */
     static async deleteOrderItem(itemId) {
         try {
             const orderItem = await OrderItem.findByPk(itemId);
@@ -247,14 +220,8 @@ export class OrderItemService {
             throw error;
         }
     }
-    /**
-     * Search order items by product name or SKU
-     */
     static async searchOrderItems(searchTerm, limit = 50) {
         try {
-            // Use database-agnostic case-insensitive search
-            // For SQLite: use LIKE with LOWER()
-            // For PostgreSQL: use ILIKE
             const searchPattern = `%${searchTerm.toLowerCase()}%`;
             const orderItems = await OrderItem.findAll({
                 where: {
@@ -286,13 +253,8 @@ export class OrderItemService {
             throw error;
         }
     }
-    /**
-     * Manually create order items for existing orders that don't have any
-     * This is useful for orders created before the order items feature was implemented
-     */
     static async createMissingOrderItems() {
         try {
-            // Find orders that don't have any order items
             const ordersWithoutItems = await Order.findAll({
                 include: [
                     {
@@ -302,7 +264,7 @@ export class OrderItemService {
                     }
                 ],
                 where: {
-                    '$items.id$': null // Orders with no order items
+                    '$items.id$': null
                 }
             });
             console.log(`Found ${ordersWithoutItems.length} orders without order items`);
@@ -312,7 +274,6 @@ export class OrderItemService {
             let createdCount = 0;
             for (const order of ordersWithoutItems) {
                 try {
-                    // Create a generic order item for orders without line items data
                     await OrderItem.create({
                         order_id: order.id,
                         product_id: null,

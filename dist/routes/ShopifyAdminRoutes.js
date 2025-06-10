@@ -2,10 +2,6 @@ import { Router } from "express";
 import { ShopifyAdminService } from "../services/ShopifyAdminService.js";
 import { ProductService } from "../services/ProductService.js";
 const router = Router();
-/**
- * POST /api/shopify-admin/products
- * Create a product in Shopify admin store
- */
 router.post("/products", async (req, res) => {
     try {
         const productData = req.body;
@@ -29,10 +25,6 @@ router.post("/products", async (req, res) => {
         });
     }
 });
-/**
- * PUT /api/shopify-admin/products/:id
- * Update a product in Shopify admin store
- */
 router.put("/products/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -51,10 +43,6 @@ router.put("/products/:id", async (req, res) => {
         });
     }
 });
-/**
- * POST /api/shopify-admin/customers
- * Create a customer in Shopify admin store
- */
 router.post("/customers", async (req, res) => {
     try {
         const customerData = req.body;
@@ -78,10 +66,6 @@ router.post("/customers", async (req, res) => {
         });
     }
 });
-/**
- * PUT /api/shopify-admin/customers/:id
- * Update a customer in Shopify admin store
- */
 router.put("/customers/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -100,10 +84,6 @@ router.put("/customers/:id", async (req, res) => {
         });
     }
 });
-/**
- * POST /api/shopify-admin/orders
- * Create an order in Shopify admin store
- */
 router.post("/orders", async (req, res) => {
     try {
         const orderData = req.body;
@@ -127,10 +107,6 @@ router.post("/orders", async (req, res) => {
         });
     }
 });
-/**
- * PUT /api/shopify-admin/orders/:id
- * Update an order in Shopify admin store
- */
 router.put("/orders/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -149,10 +125,6 @@ router.put("/orders/:id", async (req, res) => {
         });
     }
 });
-/**
- * POST /api/shopify-admin/orders/:id/cancel
- * Cancel an order in Shopify admin store
- */
 router.post("/orders/:id/cancel", async (req, res) => {
     try {
         const { id } = req.params;
@@ -171,10 +143,6 @@ router.post("/orders/:id/cancel", async (req, res) => {
         });
     }
 });
-/**
- * GET /api/shopify-admin/orders
- * Get all orders from Shopify admin store
- */
 router.get("/orders", async (req, res) => {
     try {
         const limit = parseInt(req.query.limit) || 50;
@@ -193,10 +161,6 @@ router.get("/orders", async (req, res) => {
         });
     }
 });
-/**
- * GET /api/shopify-admin/customers
- * Get all customers from Shopify admin store
- */
 router.get("/customers", async (req, res) => {
     try {
         const limit = parseInt(req.query.limit) || 50;
@@ -214,10 +178,6 @@ router.get("/customers", async (req, res) => {
         });
     }
 });
-/**
- * POST /api/shopify-admin/sync
- * Sync local data to Shopify admin store
- */
 router.post("/sync", async (req, res) => {
     try {
         const { products, customers, orders } = req.body;
@@ -239,13 +199,8 @@ router.post("/sync", async (req, res) => {
         });
     }
 });
-/**
- * POST /api/shopify-admin/sync-local-products
- * Sync all local products to Shopify admin store
- */
 router.post("/sync-local-products", async (req, res) => {
     try {
-        // Get all local products
         const { Product } = await import("../models/Product.js");
         const localProducts = await Product.findAll();
         const results = [];

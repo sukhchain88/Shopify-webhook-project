@@ -1,12 +1,11 @@
 import { z } from "zod";
-// Schema for Shopify order webhook data (real format from Shopify)
 export const shopifyOrderWebhookSchema = z.object({
     id: z.union([z.string(), z.number()]),
-    order_number: z.union([z.string(), z.number()]).transform(val => String(val)), // Convert to string
+    order_number: z.union([z.string(), z.number()]).transform(val => String(val)),
     total_price: z.union([z.string(), z.number()]).transform(val => {
         const num = typeof val === 'string' ? parseFloat(val) : val;
         return isNaN(num) ? 0 : num;
-    }), // Convert to number
+    }),
     currency: z.string().default("USD"),
     financial_status: z.string().optional(),
     fulfillment_status: z.string().nullable().optional(),
@@ -14,13 +13,12 @@ export const shopifyOrderWebhookSchema = z.object({
     created_at: z.string().optional(),
     updated_at: z.string().optional(),
     shop_domain: z.string().optional(),
-    // Customer can be null or an object
     customer: z.object({
         id: z.union([z.string(), z.number()]).optional(),
         email: z.string().nullable().optional(),
         first_name: z.string().nullable().optional(),
         last_name: z.string().nullable().optional(),
-        phone: z.string().nullable().optional(), // Can be null
+        phone: z.string().nullable().optional(),
         default_address: z.object({
             address1: z.string().nullable().optional(),
             address2: z.string().nullable().optional(),
@@ -30,12 +28,11 @@ export const shopifyOrderWebhookSchema = z.object({
             zip: z.string().nullable().optional(),
         }).nullable().optional()
     }).nullable().optional(),
-    // Line items array
     line_items: z.array(z.object({
         id: z.union([z.string(), z.number()]).nullable().optional(),
-        product_id: z.union([z.string(), z.number()]).nullable().optional(), // Allow null product_id
+        product_id: z.union([z.string(), z.number()]).nullable().optional(),
         variant_id: z.union([z.string(), z.number()]).nullable().optional(),
-        title: z.string().nullable().optional(), // Allow null title
+        title: z.string().nullable().optional(),
         quantity: z.number().optional(),
         price: z.union([z.string(), z.number()]).nullable().transform(val => {
             if (val === null || val === undefined)
@@ -45,7 +42,6 @@ export const shopifyOrderWebhookSchema = z.object({
         }),
         sku: z.string().nullable().optional(),
     })).optional(),
-    // Billing and shipping addresses
     billing_address: z.object({
         address1: z.string().nullable().optional(),
         address2: z.string().nullable().optional(),
@@ -62,15 +58,12 @@ export const shopifyOrderWebhookSchema = z.object({
         country: z.string().nullable().optional(),
         zip: z.string().nullable().optional(),
     }).nullable().optional(),
-    // Additional Shopify fields that might be present
     subtotal_price: z.union([z.string(), z.number()]).optional(),
     total_tax: z.union([z.string(), z.number()]).optional(),
     taxes_included: z.boolean().optional(),
     total_discounts: z.union([z.string(), z.number()]).optional(),
     total_line_items_price: z.union([z.string(), z.number()]).optional(),
-    // Allow additional fields that Shopify might send
-}).passthrough(); // Allow additional fields
-// Original schema for API endpoints (stricter validation)
+}).passthrough();
 export const orderSchema = z.object({
     shop_domain: z.string({
         required_error: "Shop domain is required",

@@ -1,14 +1,8 @@
 import { createShopifyWebhook, listShopifyWebhooks, deleteShopifyWebhook, } from "../services/WebhookService.js";
-/**
- * Create a new webhook
- * POST /create-webhook
- * Body: { webhook: { topic: string, address: string, format?: string } }
- */
 export const createWebhookHandler = async (req, res) => {
     try {
         const { webhook } = req.body;
         console.log("📦 Webhook:", webhook);
-        // Validate request body
         if (!webhook || !webhook.topic || !webhook.address) {
             res.status(400).json({
                 error: "Missing required fields",
@@ -16,15 +10,12 @@ export const createWebhookHandler = async (req, res) => {
             });
             return;
         }
-        // Log the webhook request
         console.log(`Attempting to create webhook for topic: ${webhook.topic}`);
         console.log(`Webhook address: ${webhook.address}`);
-        // c Create the webhook
         const result = await createShopifyWebhook({
             topic: webhook.topic,
             address: webhook.address
         });
-        // Check if this is a new webhook or an existing one
         const isExistingWebhook = result.webhook && result.webhook.id;
         res.status(isExistingWebhook ? 200 : 201).json({
             message: isExistingWebhook
@@ -41,10 +32,6 @@ export const createWebhookHandler = async (req, res) => {
         });
     }
 };
-/**
- * List all webhooks
- * GET /webhooks
- */
 export const listWebhooksHandler = async (req, res) => {
     try {
         const webhooks = await listShopifyWebhooks();
@@ -61,10 +48,6 @@ export const listWebhooksHandler = async (req, res) => {
         });
     }
 };
-/**
- * Delete a webhook by ID
- * DELETE /webhooks/:id
- */
 export const deleteWebhookHandler = async (req, res) => {
     try {
         const webhookId = parseInt(req.params.id, 10);

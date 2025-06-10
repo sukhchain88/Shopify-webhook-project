@@ -1,5 +1,4 @@
 import { z } from "zod";
-// Schema for webhook data (includes shop_domain)
 export const customerSchema = z.object({
     shop_domain: z.string({
         required_error: "Shop domain is required",
@@ -7,8 +6,8 @@ export const customerSchema = z.object({
     }),
     first_name: z.string().nullable().optional(),
     last_name: z.string().nullable().optional(),
-    email: z.string().nullable().optional(), // Allow null/invalid emails for webhooks
-    phone: z.string().nullable().optional(), // Allow null phone numbers
+    email: z.string().nullable().optional(),
+    phone: z.string().nullable().optional(),
     shopify_customer_id: z.string().nullable().optional(),
     address: z.string().nullable().optional(),
     city: z.string().nullable().optional(),
@@ -16,7 +15,6 @@ export const customerSchema = z.object({
     country: z.string().nullable().optional(),
     zip: z.string().nullable().optional()
 });
-// Schema for API endpoints (no shop_domain required, address as object)
 export const customerApiSchema = z.object({
     first_name: z.string().min(1, "First name is required").optional(),
     last_name: z.string().min(1, "Last name is required").optional(),
@@ -37,7 +35,6 @@ export const customerApiSchema = z.object({
         notes: z.string().optional()
     }).optional()
 });
-// Schema for updating customers (all fields optional except email validation when provided)
 export const customerUpdateApiSchema = z.object({
     first_name: z.string().min(1, "First name cannot be empty").optional(),
     last_name: z.string().min(1, "Last name cannot be empty").optional(),

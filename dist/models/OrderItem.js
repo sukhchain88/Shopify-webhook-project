@@ -2,7 +2,6 @@ import { DataTypes, Model } from "sequelize";
 import sequelize from "../config/db.js";
 import { Order } from "./Order.js";
 import { Product } from "./Product.js";
-// Define the OrderItem model with proper TypeScript types
 export class OrderItem extends Model {
 }
 OrderItem.init({
@@ -23,7 +22,7 @@ OrderItem.init({
     },
     product_id: {
         type: DataTypes.INTEGER,
-        allowNull: true, // Can be null if product is deleted
+        allowNull: true,
         references: {
             model: Product,
             key: 'id'
@@ -127,7 +126,6 @@ OrderItem.init({
         }
     ]
 });
-// Define relationships
 OrderItem.belongsTo(Order, {
     foreignKey: 'order_id',
     as: 'order'

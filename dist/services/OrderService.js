@@ -3,15 +3,9 @@ import { Customer } from "../models/Customer.js";
 import { shopifyApiService } from "./ShopifyService.js";
 import { Logger } from "../utils/logger.js";
 export class OrderService {
-    /**
-     * Create an order in both local database and Shopify
-     */
     static async createOrder(orderData) {
-        // First create in local database
         const localOrder = await this.createLocalOrder(orderData);
-        // Then create in Shopify
         const shopifyOrder = await this.createShopifyOrder(orderData);
-        // Update local order with Shopify ID
         if (shopifyOrder?.order?.id) {
             await this.updateLocalOrderWithShopifyId(localOrder, shopifyOrder.order.id);
         }
@@ -20,18 +14,13 @@ export class OrderService {
             shopify: shopifyOrder?.order,
         };
     }
-    /**
-     * Get all orders with customer information and sorting options
-     */
     static async getAllOrders(options = {}) {
         const { sortOrder = 'DESC', limit, offset } = options;
-        // Only allow sorting by ID
         const validSortOrder = ['ASC', 'DESC'].includes(sortOrder) ? sortOrder : 'DESC';
         const queryOptions = {
             include: [this.CUSTOMER_INCLUDE],
             order: [['id', validSortOrder]],
         };
-        // Add pagination if provided
         if (limit !== undefined) {
             queryOptions.limit = limit;
         }
@@ -39,7 +28,6 @@ export class OrderService {
             queryOptions.offset = offset;
         }
         const ordersResult = await Order.findAll(queryOptions);
-        // Convert to plain objects for consistent response format
         const orders = ordersResult.map((order) => {
             const orderData = order.toJSON();
             return orderData;
@@ -53,9 +41,6 @@ export class OrderService {
             }
         };
     }
-    /**
-     * Get a single order by ID with customer information
-     */
     static async getOrderById(id) {
         const order = await Order.findByPk(id, {
             include: [this.CUSTOMER_INCLUDE],
@@ -68,9 +53,6 @@ export class OrderService {
         }
         return order;
     }
-    /**
-     * Update an order by ID
-     */
     static async updateOrder(id, orderData) {
         const order = await Order.findByPk(id);
         if (!order) {
@@ -81,9 +63,6 @@ export class OrderService {
         Logger.success("Order updated", updatedOrder.toJSON());
         return updatedOrder;
     }
-    /**
-     * Delete an order by ID from both local database and Shopify
-     */
     static async deleteOrder(id) {
         const order = await Order.findByPk(id);
         if (!order) {
@@ -92,16 +71,13 @@ export class OrderService {
         }
         const orderData = order.toJSON();
         let shopifyDeleted = false;
-        // Try to delete from Shopify first if it has a Shopify order ID
         if (orderData.shopify_order_id && !orderData.shopify_order_id.startsWith('local-')) {
             try {
                 Logger.info(`Attempting to delete order from Shopify: ${orderData.shopify_order_id}`);
-                // Note: Shopify doesn't allow direct order deletion via API
-                // Instead, we'll cancel the order which is the closest equivalent
                 await shopifyApiService("POST", `orders/${orderData.shopify_order_id}/cancel.json`, {
                     reason: "other",
-                    email: true, // Send cancellation email
-                    refund: false // Don't automatically refund
+                    email: true,
+                    refund: false
                 });
                 shopifyDeleted = true;
                 Logger.success(`Order cancelled in Shopify: ${orderData.shopify_order_id}`);
@@ -117,7 +93,6 @@ export class OrderService {
         else {
             Logger.info("Order has no Shopify ID (no Shopify sync needed)");
         }
-        // Delete from local database
         await order.destroy();
         Logger.success(`Order deleted from local database`, { id, shopify_order_id: orderData.shopify_order_id });
         return {
@@ -128,9 +103,6 @@ export class OrderService {
             order_data: orderData
         };
     }
-    /**
-     * Create order in local database
-     */
     static async createLocalOrder(orderData) {
         Logger.info("Creating order in local database", orderData);
         const order = await Order.create({
@@ -145,9 +117,6 @@ export class OrderService {
         Logger.success("Order created in local database", order.toJSON());
         return order;
     }
-    /**
-     * Create order in Shopify
-     */
     static async createShopifyOrder(orderData) {
         Logger.info("Creating order in Shopify...");
         const shopifyOrderPayload = {
@@ -166,9 +135,6 @@ export class OrderService {
         Logger.success("Order created in Shopify", shopifyOrder);
         return shopifyOrder;
     }
-    /**
-     * Update local order with Shopify ID
-     */
     static async updateLocalOrderWithShopifyId(order, shopifyId) {
         await order.update({
             shopify_order_id: String(shopifyId),

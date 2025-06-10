@@ -3,7 +3,6 @@ import { Order } from "../models/Order.js";
 import { OrderItemService } from "../services/OrderItemService.js";
 export async function handleOrderWebhook(payload) {
     try {
-        // Convert Shopify order ID to string
         const shopifyOrderId = String(payload.id);
         console.log(`Processing order webhook for Shopify ID: ${shopifyOrderId}`);
         console.log('Full webhook payload:', JSON.stringify(payload, null, 2));
@@ -12,17 +11,15 @@ export async function handleOrderWebhook(payload) {
         if (!shopDomain) {
             throw new Error("shop_domain is required in the webhook payload");
         }
-        // Extract customer data from the webhook payload
         const customerData = {
             first_name: payload.customer?.first_name,
             last_name: payload.customer?.last_name,
             email: payload.customer?.email,
             phone: payload.customer?.phone,
             shopify_customer_id: String(payload.customer?.id),
-            shop_domain: shopDomain // Always include shop_domain
+            shop_domain: shopDomain
         };
         console.log('Customer data to create/update:', customerData);
-        // Extract order data from the webhook payload
         const orderData = {
             shop_domain: shopDomain,
             order_number: payload.order_number || payload.name,
@@ -32,39 +29,33 @@ export async function handleOrderWebhook(payload) {
             shopify_order_id: shopifyOrderId,
         };
         console.log('Order data to create/update:', orderData);
-        // Handle customer creation/update only if email is provided
         let customer = null;
         if (customerData.email) {
             console.log('Processing customer with email:', customerData.email);
-            // Find customer by Shopify ID and shop domain
             customer = await Customer.findOne({
                 where: {
                     shopify_customer_id: customerData.shopify_customer_id,
                     shop_domain: shopDomain
                 }
-            }); // Type assertion to avoid linter errors
+            });
             console.log('Found existing customer by Shopify ID:', customer ? true : false);
             if (customer) {
-                // Update existing customer with latest data
                 await customer.update(customerData);
                 console.log(`✅ Updated customer in database: ${customerData.email}`);
             }
             else {
-                // Try to find customer by email and shop domain
                 customer = await Customer.findOne({
                     where: {
                         email: customerData.email,
                         shop_domain: shopDomain
                     }
-                }); // Type assertion to avoid linter errors
+                });
                 console.log('Found existing customer by email:', customer ? true : false);
                 if (customer) {
-                    // Update existing customer with Shopify ID and other data
                     await customer.update(customerData);
                     console.log(`✅ Updated existing customer with Shopify ID: ${customerData.email}`);
                 }
                 else {
-                    // Create new customer
                     console.log('Creating new customer with data:', customerData);
                     customer = await Customer.create(customerData);
                     console.log(`✅ Created new customer in database: ${customerData.email}`);
@@ -74,15 +65,13 @@ export async function handleOrderWebhook(payload) {
         else {
             console.log('⚠️ No customer email provided - creating order without customer link');
         }
-        // Check if order exists
         let order = await Order.findOne({
             where: {
                 shopify_order_id: shopifyOrderId,
                 shop_domain: shopDomain
             }
-        }); // Type assertion to avoid linter errors
+        });
         if (order) {
-            // Update existing order
             await order.update({
                 ...orderData,
                 customer_id: customer?.id
@@ -90,23 +79,17 @@ export async function handleOrderWebhook(payload) {
             console.log(`✅ Updated order in database: ${orderData.order_number} (ID: ${shopifyOrderId})`);
         }
         else {
-            // Create new order
             order = await Order.create({
                 ...orderData,
                 customer_id: customer?.id
-            }); // Type assertion to avoid linter errors
+            });
             console.log(`✅ Created new order in database: ${orderData.order_number} (ID: ${shopifyOrderId})`);
         }
-        // ========================================
-        // NEW: Process Line Items (Order-Product Relationships)
-        // ========================================
         if (payload.line_items && Array.isArray(payload.line_items) && payload.line_items.length > 0) {
             console.log(`📦 Processing ${payload.line_items.length} line items for order ${order.id}`);
             try {
-                // Create order items from webhook line items
                 const orderItems = await OrderItemService.createOrderItemsFromWebhook(order.id, payload.line_items);
                 console.log(`✅ Successfully created ${orderItems.length} order items`);
-                // Log summary of products in this order
                 const productSummary = orderItems.map(item => ({
                     title: item.product_title,
                     quantity: item.quantity,
@@ -117,7 +100,6 @@ export async function handleOrderWebhook(payload) {
             }
             catch (lineItemError) {
                 console.error('❌ Error processing line items:', lineItemError);
-                // Don't throw error - order was created successfully, just line items failed
                 console.log('⚠️ Order created but line items processing failed');
             }
         }

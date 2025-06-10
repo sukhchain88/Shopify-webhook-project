@@ -5,7 +5,6 @@ export const handleWebhook = async (req, res) => {
     try {
         const topic = req.headers["x-shopify-topic"];
         const shopDomain = req.headers["x-shopify-shop-domain"];
-        // 1. Check required headers
         if (!topic || !shopDomain) {
             console.log("Missing required headers", { topic, shopDomain });
             return res.status(400).json({
@@ -14,7 +13,6 @@ export const handleWebhook = async (req, res) => {
                 message: "Both x-shopify-topic and x-shopify-shop-domain headers are required",
             });
         }
-        // 2. Validate signature
         if (!validateWebhookSignature(req)) {
             console.log("Webhook signature validation failed");
             return res.status(401).json({
@@ -23,14 +21,11 @@ export const handleWebhook = async (req, res) => {
                 message: "Webhook signature mismatch",
             });
         }
-        // 3. Parse payload
         let payload;
         try {
-            // req.body is a Buffer from express.raw() middleware
             const rawBodyBuffer = req.body;
             const rawBodyString = rawBodyBuffer.toString('utf8');
             payload = JSON.parse(rawBodyString);
-            // Ensure shop_domain is set
             if (!payload.shop_domain) {
                 payload.shop_domain = shopDomain;
             }
@@ -43,7 +38,6 @@ export const handleWebhook = async (req, res) => {
                 message: "Failed to parse webhook payload",
             });
         }
-        // 4. Validate payload schema
         const validationResult = validateWebhookPayload(topic, payload);
         if (!validationResult.success) {
             console.log("Webhook payload validation failed:", validationResult.error);
@@ -54,7 +48,6 @@ export const handleWebhook = async (req, res) => {
                 details: validationResult.error.errors
             });
         }
-        // 5. Process webhook
         console.log(`📥 Processing webhook: ${topic}`);
         const webhook = await WebhookService.processWebhook(topic, payload, shopDomain);
         return res.status(200).json({
@@ -74,9 +67,6 @@ export const handleWebhook = async (req, res) => {
         });
     }
 };
-/**
- * Get all webhooks with pagination
- */
 export const getWebhooks = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -102,9 +92,6 @@ export const getWebhooks = async (req, res) => {
         });
     }
 };
-/**
- * Get a single webhook by ID
- */
 export const getWebhookById = async (req, res) => {
     try {
         const webhook = await WebhookService.getWebhookById(parseInt(req.params.id));
@@ -129,9 +116,6 @@ export const getWebhookById = async (req, res) => {
         });
     }
 };
-/**
- * Delete a webhook
- */
 export const deleteWebhook = async (req, res) => {
     try {
         await WebhookService.deleteWebhook(parseInt(req.params.id));

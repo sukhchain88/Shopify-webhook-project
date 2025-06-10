@@ -1,22 +1,6 @@
 import { Order } from '../../models/Order.js';
 import { OrderItem } from '../../models/OrderItem.js';
 import { Product } from '../../models/Product.js';
-/**
- * Webhook Job Processor
- *
- * This processor handles incoming webhooks from various sources:
- * - Shopify webhooks (orders, products, customers)
- * - Payment gateway webhooks
- * - Third-party service webhooks
- *
- * The processor validates webhook signatures, processes the data,
- * and updates the local database accordingly.
- */
-/**
- * Main Webhook Job Processor Function
- *
- * This function routes webhook processing based on the source and event type
- */
 export async function processWebhookJob(job) {
     const startTime = Date.now();
     const { source, eventType, payload, headers, signature } = job.data;
@@ -28,10 +12,8 @@ export async function processWebhookJob(job) {
         jobId: job.id,
     });
     try {
-        // Validate webhook signature
         await validateWebhookSignature(source, payload, signature, headers);
         await job.updateProgress(25);
-        // Process based on source
         let result;
         switch (source) {
             case 'shopify':
@@ -44,7 +26,6 @@ export async function processWebhookJob(job) {
                 result = await processGenericWebhook(job, eventType, payload);
         }
         await job.updateProgress(100);
-        // Add processing metadata
         result.duration = Date.now() - startTime;
         result.data = {
             ...result.data,
@@ -83,11 +64,6 @@ export async function processWebhookJob(job) {
         throw jobError;
     }
 }
-/**
- * Process Shopify Webhooks
- *
- * Handles various Shopify webhook events and updates the local database
- */
 async function processShopifyWebhook(job, eventType, payload) {
     console.log(`[Shopify Webhook] Processing ${eventType} event`);
     switch (eventType) {
@@ -117,15 +93,9 @@ async function processShopifyWebhook(job, eventType, payload) {
             };
     }
 }
-/**
- * Handle Order Created Webhook
- *
- * Creates a new order and its line items in the database
- */
 async function handleOrderCreated(job, shopifyOrder) {
     console.log(`[Shopify Webhook] Creating order from Shopify order ${shopifyOrder.id}`);
     await job.updateProgress(30);
-    // Check if order already exists
     const existingOrder = await Order.findOne({
         where: { shopify_order_id: shopifyOrder.id.toString() }
     });
@@ -139,7 +109,6 @@ async function handleOrderCreated(job, shopifyOrder) {
         };
     }
     await job.updateProgress(50);
-    // Create order
     const order = await Order.create({
         shopify_order_id: shopifyOrder.id.toString(),
         order_number: shopifyOrder.order_number || shopifyOrder.number,
@@ -185,10 +154,8 @@ async function handleOrderCreated(job, shopifyOrder) {
         },
     });
     await job.updateProgress(70);
-    // Create order items
     const orderItems = [];
     for (const lineItem of shopifyOrder.line_items || []) {
-        // Try to find matching product in our database
         let product = null;
         if (lineItem.product_id) {
             product = await Product.findOne({
@@ -208,7 +175,7 @@ async function handleOrderCreated(job, shopifyOrder) {
             total_price: parseFloat(lineItem.price) * lineItem.quantity,
             currency: shopifyOrder.currency,
             discount_amount: parseFloat(lineItem.total_discount || '0'),
-            tax_amount: 0, // Calculate from tax_lines if needed
+            tax_amount: 0,
             product_metadata: {
                 vendor: lineItem.vendor,
                 weight: lineItem.grams,
@@ -239,20 +206,15 @@ async function handleOrderCreated(job, shopifyOrder) {
         },
     };
 }
-/**
- * Handle Order Updated Webhook
- */
 async function handleOrderUpdated(job, shopifyOrder) {
     console.log(`[Shopify Webhook] Updating order ${shopifyOrder.id}`);
     const order = await Order.findOne({
         where: { shopify_order_id: shopifyOrder.id.toString() }
     });
     if (!order) {
-        // If order doesn't exist, create it
         console.log(`[Shopify Webhook] Order ${shopifyOrder.id} not found, creating new order`);
         return await handleOrderCreated(job, shopifyOrder);
     }
-    // Update order fields
     await order.update({
         financial_status: shopifyOrder.financial_status,
         fulfillment_status: shopifyOrder.fulfillment_status,
@@ -274,9 +236,6 @@ async function handleOrderUpdated(job, shopifyOrder) {
         },
     };
 }
-/**
- * Handle Order Cancelled Webhook
- */
 async function handleOrderCancelled(job, shopifyOrder) {
     console.log(`[Shopify Webhook] Cancelling order ${shopifyOrder.id}`);
     const order = await Order.findOne({
@@ -310,9 +269,6 @@ async function handleOrderCancelled(job, shopifyOrder) {
         },
     };
 }
-/**
- * Handle Order Paid Webhook
- */
 async function handleOrderPaid(job, shopifyOrder) {
     const order = await Order.findOne({
         where: { shopify_order_id: shopifyOrder.id.toString() }
@@ -330,9 +286,6 @@ async function handleOrderPaid(job, shopifyOrder) {
         data: { action: 'paid' },
     };
 }
-/**
- * Handle Order Fulfilled Webhook
- */
 async function handleOrderFulfilled(job, shopifyOrder) {
     const order = await Order.findOne({
         where: { shopify_order_id: shopifyOrder.id.toString() }
@@ -350,11 +303,7 @@ async function handleOrderFulfilled(job, shopifyOrder) {
         data: { action: 'fulfilled' },
     };
 }
-/**
- * Handle Product Created Webhook
- */
 async function handleProductCreated(job, shopifyProduct) {
-    // This would integrate with your Product model
     console.log(`[Shopify Webhook] Product created: ${shopifyProduct.id}`);
     return {
         success: true,
@@ -363,9 +312,6 @@ async function handleProductCreated(job, shopifyProduct) {
         data: { action: 'product_created' },
     };
 }
-/**
- * Handle Product Updated Webhook
- */
 async function handleProductUpdated(job, shopifyProduct) {
     console.log(`[Shopify Webhook] Product updated: ${shopifyProduct.id}`);
     return {
@@ -375,9 +321,6 @@ async function handleProductUpdated(job, shopifyProduct) {
         data: { action: 'product_updated' },
     };
 }
-/**
- * Handle Product Deleted Webhook
- */
 async function handleProductDeleted(job, shopifyProduct) {
     console.log(`[Shopify Webhook] Product deleted: ${shopifyProduct.id}`);
     return {
@@ -387,12 +330,8 @@ async function handleProductDeleted(job, shopifyProduct) {
         data: { action: 'product_deleted' },
     };
 }
-/**
- * Process Stripe Webhooks
- */
 async function processStripeWebhook(job, eventType, payload) {
     console.log(`[Stripe Webhook] Processing ${eventType} event`);
-    // Implement Stripe webhook handling
     return {
         success: true,
         message: `Stripe webhook ${eventType} processed`,
@@ -400,9 +339,6 @@ async function processStripeWebhook(job, eventType, payload) {
         data: { eventType, action: 'processed' },
     };
 }
-/**
- * Process Generic Webhooks
- */
 async function processGenericWebhook(job, eventType, payload) {
     console.log(`[Generic Webhook] Processing ${eventType} event`);
     return {
@@ -412,11 +348,7 @@ async function processGenericWebhook(job, eventType, payload) {
         data: { eventType, action: 'processed' },
     };
 }
-/**
- * Validate Webhook Signature
- */
 async function validateWebhookSignature(source, payload, signature, headers) {
-    // Implement signature validation based on source
     switch (source) {
         case 'shopify':
             await validateShopifySignature(payload, signature, headers);
@@ -428,30 +360,12 @@ async function validateWebhookSignature(source, payload, signature, headers) {
             console.log(`[Webhook Processor] No signature validation for source: ${source}`);
     }
 }
-/**
- * Validate Shopify Webhook Signature
- */
 async function validateShopifySignature(payload, signature, headers) {
-    // Implement Shopify webhook signature validation
-    // Example:
-    // const hmac = crypto.createHmac('sha256', process.env.SHOPIFY_WEBHOOK_SECRET);
-    // hmac.update(JSON.stringify(payload));
-    // const calculatedSignature = hmac.digest('base64');
-    // if (calculatedSignature !== signature) {
-    //   throw new Error('Invalid Shopify webhook signature');
-    // }
     console.log(`[Shopify Webhook] Signature validation passed`);
 }
-/**
- * Validate Stripe Webhook Signature
- */
 async function validateStripeSignature(payload, signature, headers) {
-    // Implement Stripe webhook signature validation
     console.log(`[Stripe Webhook] Signature validation passed`);
 }
-/**
- * Get Webhook Error Code
- */
 function getWebhookErrorCode(error, source) {
     if (error instanceof Error) {
         const message = error.message.toLowerCase();
@@ -470,27 +384,20 @@ function getWebhookErrorCode(error, source) {
     }
     return `${source.toUpperCase()}_WEBHOOK_ERROR`;
 }
-/**
- * Check if Webhook Error is Retryable
- */
 function isWebhookRetryable(error, eventType) {
     if (error instanceof Error) {
         const message = error.message.toLowerCase();
-        // Don't retry signature validation errors
         if (message.includes('signature') || message.includes('unauthorized')) {
             return false;
         }
-        // Don't retry duplicate resource errors
         if (message.includes('already exists') || message.includes('duplicate')) {
             return false;
         }
-        // Retry database and network errors
         if (message.includes('database') ||
             message.includes('connection') ||
             message.includes('timeout')) {
             return true;
         }
     }
-    // By default, retry webhook processing errors
     return true;
 }

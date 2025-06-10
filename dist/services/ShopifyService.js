@@ -1,6 +1,6 @@
 import axios from "axios";
 import { SHOPIFY_STORE_URL, SHOPIFY_ACCESS_TOKEN, WEBHOOK_BASE_URL, } from "../config/config.js";
-import { VALID_WEBHOOK_TOPICS } from "./WebhookService.js";
+import { VALID_WEBHOOK_TOPICS } from "../config/webhookConstants.js";
 export const shopifyApiService = async (method, endpoint, data) => {
     if (!SHOPIFY_STORE_URL || !SHOPIFY_ACCESS_TOKEN) {
         throw new Error("Shopify API credentials are not configured. Please check your .env file.");
@@ -34,7 +34,6 @@ export const verifyAndRegisterWebhooks = async () => {
             try {
                 const existingWebhook = existingWebhooks.find((webhook) => webhook.topic === topic);
                 if (existingWebhook) {
-                    // If the webhook exists but with a different URL, update it
                     if (normalizeUrl(existingWebhook.address) !== normalizeUrl(webhookUrl)) {
                         await shopifyApiService("PUT", `webhooks/${existingWebhook.id}.json`, {
                             webhook: { id: existingWebhook.id, address: webhookUrl },
@@ -46,7 +45,6 @@ export const verifyAndRegisterWebhooks = async () => {
                     }
                 }
                 else {
-                    // Create a new webhook if it doesn't exist
                     await shopifyApiService("POST", "webhooks.json", {
                         webhook: {
                             topic,
@@ -69,7 +67,6 @@ export const verifyAndRegisterWebhooks = async () => {
         throw error;
     }
 };
-// Helper function to normalize URLs for comparison
 const normalizeUrl = (url) => {
     return url.trim().toLowerCase().replace(/\/+$/, "");
 };

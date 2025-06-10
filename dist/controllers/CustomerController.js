@@ -1,6 +1,5 @@
 import { CustomerService } from "../services/CustomerService.js";
 import { validateCustomerApiInput, validateCustomerUpdateApiInput } from "../validators/customer.validator.js";
-// Create a new customer
 export const createCustomer = async (req, res) => {
     try {
         const validationResult = validateCustomerApiInput(req.body);
@@ -12,20 +11,17 @@ export const createCustomer = async (req, res) => {
             });
             return;
         }
-        // Transform the API data to database format
         const customerData = {
             first_name: validationResult.data.first_name || null,
             last_name: validationResult.data.last_name || null,
             email: validationResult.data.email,
             phone: validationResult.data.phone || null,
             shopify_customer_id: validationResult.data.shopify_customer_id || null,
-            // Flatten address object to individual fields
             address: validationResult.data.address?.address1 || null,
             city: validationResult.data.address?.city || null,
             province: validationResult.data.address?.province || null,
             country: validationResult.data.address?.country || null,
             zip: validationResult.data.address?.zip || null,
-            // Add default shop_domain for API-created customers
             shop_domain: process.env.SHOPIFY_STORE_URL || "api-created.myshopify.com"
         };
         const customer = await CustomerService.createCustomer(customerData);
@@ -44,7 +40,6 @@ export const createCustomer = async (req, res) => {
         });
     }
 };
-// Get all customers with pagination
 export const getAllCustomers = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -72,7 +67,6 @@ export const getAllCustomers = async (req, res) => {
         });
     }
 };
-// Get a single customer by ID
 export const getCustomerById = async (req, res) => {
     try {
         const customer = await CustomerService.getCustomerById(parseInt(req.params.id));
@@ -91,7 +85,6 @@ export const getCustomerById = async (req, res) => {
         });
     }
 };
-// Update a customer
 export const updateCustomer = async (req, res) => {
     try {
         const validationResult = validateCustomerUpdateApiInput(req.body);
@@ -103,7 +96,6 @@ export const updateCustomer = async (req, res) => {
             });
             return;
         }
-        // Transform the API data to database format
         const updateData = {};
         if (validationResult.data.first_name !== undefined) {
             updateData.first_name = validationResult.data.first_name;
@@ -120,7 +112,6 @@ export const updateCustomer = async (req, res) => {
         if (validationResult.data.shopify_customer_id !== undefined) {
             updateData.shopify_customer_id = validationResult.data.shopify_customer_id;
         }
-        // Handle address object
         if (validationResult.data.address) {
             if (validationResult.data.address.address1 !== undefined) {
                 updateData.address = validationResult.data.address.address1;
@@ -154,7 +145,6 @@ export const updateCustomer = async (req, res) => {
         });
     }
 };
-// Delete a customer
 export const deleteCustomer = async (req, res) => {
     try {
         await CustomerService.deleteCustomer(parseInt(req.params.id));
@@ -172,7 +162,6 @@ export const deleteCustomer = async (req, res) => {
         });
     }
 };
-// Sync customers from Shopify
 export const syncCustomers = async (req, res) => {
     try {
         const count = await CustomerService.syncCustomersFromShopify();

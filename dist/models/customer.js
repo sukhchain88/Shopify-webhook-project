@@ -1,7 +1,5 @@
-// src/models/Customer.ts
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../config/db.js";
-// Define the Customer model with proper TypeScript types
 export class Customer extends Model {
 }
 Customer.init({
@@ -24,8 +22,7 @@ Customer.init({
     },
     email: {
         type: DataTypes.STRING,
-        allowNull: true, // Allow null emails for guest orders
-        // Remove strict email validation for webhook compatibility
+        allowNull: true,
     },
     phone: {
         type: DataTypes.STRING,

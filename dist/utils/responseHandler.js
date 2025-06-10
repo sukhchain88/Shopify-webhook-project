@@ -14,7 +14,6 @@ export class ResponseHandler {
         return res.status(statusCode).json(response);
     }
     static error(res, { statusCode = 500, message = "Internal Server Error", error, details = null, startTime, }) {
-        // Log the error for debugging
         console.error(`❌ ${message}:`, error);
         const response = {
             success: false,

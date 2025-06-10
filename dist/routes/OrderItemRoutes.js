@@ -1,13 +1,8 @@
-// @ts-nocheck
 import express from "express";
 import { OrderItemService } from "../services/OrderItemService.js";
 import { Order } from "../models/Order.js";
 import { OrderItem } from "../models/OrderItem.js";
 const router = express.Router();
-/**
- * GET /api/order-items/order/:orderId
- * Get all items for a specific order
- */
 router.get("/order/:orderId", async (req, res) => {
     try {
         const orderId = parseInt(req.params.orderId);
@@ -33,10 +28,6 @@ router.get("/order/:orderId", async (req, res) => {
         });
     }
 });
-/**
- * GET /api/order-items/orders-with-items
- * Get all orders with their items and products
- */
 router.get("/orders-with-items", async (req, res) => {
     try {
         const limit = parseInt(req.query.limit) || 50;
@@ -62,10 +53,6 @@ router.get("/orders-with-items", async (req, res) => {
         });
     }
 });
-/**
- * GET /api/order-items/customer/:customerId/history
- * Get customer purchase history with products
- */
 router.get("/customer/:customerId/history", async (req, res) => {
     try {
         const customerId = parseInt(req.params.customerId);
@@ -91,10 +78,6 @@ router.get("/customer/:customerId/history", async (req, res) => {
         });
     }
 });
-/**
- * GET /api/order-items/analytics/product/:productId?
- * Get product sales analytics
- */
 router.get("/analytics/product/:productId?", async (req, res) => {
     try {
         const productId = req.params.productId ? parseInt(req.params.productId) : undefined;
@@ -119,10 +102,6 @@ router.get("/analytics/product/:productId?", async (req, res) => {
         });
     }
 });
-/**
- * GET /api/order-items/search
- * Search order items by product name or SKU
- */
 router.get("/search", async (req, res) => {
     try {
         const searchTerm = req.query.q;
@@ -150,10 +129,6 @@ router.get("/search", async (req, res) => {
         });
     }
 });
-/**
- * PUT /api/order-items/:itemId
- * Update an order item
- */
 router.put("/:itemId", async (req, res) => {
     try {
         const itemId = parseInt(req.params.itemId);
@@ -180,10 +155,6 @@ router.put("/:itemId", async (req, res) => {
         });
     }
 });
-/**
- * DELETE /api/order-items/:itemId
- * Delete an order item
- */
 router.delete("/:itemId", async (req, res) => {
     try {
         const itemId = parseInt(req.params.itemId);
@@ -208,10 +179,6 @@ router.delete("/:itemId", async (req, res) => {
         });
     }
 });
-/**
- * POST /api/order-items/debug-webhook
- * Debug webhook processing for order items
- */
 router.post("/debug-webhook", async (req, res) => {
     try {
         const { orderId } = req.body;
@@ -221,7 +188,6 @@ router.post("/debug-webhook", async (req, res) => {
                 message: "orderId is required"
             });
         }
-        // Check if order exists
         const order = await Order.findByPk(orderId);
         if (!order) {
             return res.status(404).json({
@@ -229,11 +195,9 @@ router.post("/debug-webhook", async (req, res) => {
                 message: `Order ${orderId} not found`
             });
         }
-        // Check if order already has order items
         const existingItems = await OrderItem.findAll({
             where: { order_id: orderId }
         });
-        // Simulate webhook line items creation
         const mockLineItems = [
             {
                 id: 1,
@@ -267,11 +231,6 @@ router.post("/debug-webhook", async (req, res) => {
         });
     }
 });
-/**
- * POST /api/order-items/create-missing
- * Create order items for existing orders that don't have any
- * This is useful for orders created before the order items feature was implemented
- */
 router.post("/create-missing", async (req, res) => {
     try {
         const result = await OrderItemService.createMissingOrderItems();
@@ -293,18 +252,12 @@ router.post("/create-missing", async (req, res) => {
         });
     }
 });
-/**
- * POST /api/order-items/test-webhook
- * Test webhook processing with a complete order payload
- */
 router.post("/test-webhook", async (req, res) => {
     try {
         const webhookPayload = req.body;
-        // Add debugging to see what we actually received
         console.log("🧪 Raw request body:", JSON.stringify(req.body, null, 2));
         console.log("🧪 Request headers:", req.headers);
         console.log("🧪 Content-Type:", req.headers['content-type']);
-        // Check if body is empty
         if (!webhookPayload || typeof webhookPayload !== 'object') {
             return res.status(400).json({
                 success: false,
@@ -313,11 +266,9 @@ router.post("/test-webhook", async (req, res) => {
                 body_type: typeof webhookPayload
             });
         }
-        // More detailed validation
         console.log("🧪 Payload fields:", Object.keys(webhookPayload));
         console.log("🧪 ID field:", webhookPayload.id, "Type:", typeof webhookPayload.id);
         console.log("🧪 Order number field:", webhookPayload.order_number, "Type:", typeof webhookPayload.order_number);
-        // Validate required fields
         if (!webhookPayload.id || !webhookPayload.order_number) {
             return res.status(400).json({
                 success: false,
@@ -329,17 +280,13 @@ router.post("/test-webhook", async (req, res) => {
                 }
             });
         }
-        // Add shop_domain if missing (required for our system)
         if (!webhookPayload.shop_domain) {
             webhookPayload.shop_domain = "test-shop.myshopify.com";
         }
         console.log("🧪 Testing webhook payload:", JSON.stringify(webhookPayload, null, 2));
         try {
-            // Import the order webhook handler
             const { handleOrderWebhook } = await import("../webhookHandlers/orderHandler");
-            // Process the webhook using the actual handler
             await handleOrderWebhook(webhookPayload);
-            // Check what was created
             const createdOrder = await Order.findOne({
                 where: {
                     shopify_order_id: webhookPayload.id.toString(),
@@ -408,10 +355,6 @@ router.post("/test-webhook", async (req, res) => {
         });
     }
 });
-/**
- * POST /api/order-items/echo
- * Simple endpoint to echo back the request body for debugging
- */
 router.post("/echo", async (req, res) => {
     try {
         console.log("🔍 ECHO - Raw request body:", req.body);

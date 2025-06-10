@@ -1,5 +1,4 @@
 import { Users } from "../models/User.js";
-// Get all users
 export const getAllUsers = async (req, res) => {
     try {
         const users = await Users.findAll({
@@ -21,7 +20,6 @@ export const getAllUsers = async (req, res) => {
         });
     }
 };
-// Get a single user by ID
 export const getUserById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -42,11 +40,9 @@ export const getUserById = async (req, res) => {
         });
     }
 };
-// Create a new user
 export const createUser = async (req, res) => {
     try {
         const userData = req.body;
-        // Validate required fields
         if (!userData.name || !userData.email) {
             return res.status(400).json({ error: "Name and email are required" });
         }
@@ -65,7 +61,6 @@ export const createUser = async (req, res) => {
         });
     }
 };
-// Update a user
 export const updateUser = async (req, res) => {
     try {
         const { id } = req.params;
@@ -89,7 +84,6 @@ export const updateUser = async (req, res) => {
         });
     }
 };
-// Delete a user
 export const deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
@@ -112,7 +106,6 @@ export const deleteUser = async (req, res) => {
         });
     }
 };
-// View users
 export const viewUsers = async (req, res) => {
     try {
         const users = await Users.findAll({

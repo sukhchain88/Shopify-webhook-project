@@ -1,78 +1,18 @@
-/**
- * Product Routes
- *
- * Handles all product-related API endpoints including:
- * - GET /products - Get all products with pagination
- * - GET /products/:id - Get a specific product by ID
- * - POST /products - Create a new product
- * - PUT /products/:id - Update an existing product
- * - DELETE /products/:id - Delete a product
- * - POST /products/test-webhook - Test product webhook processing
- *
- * @author Your Name
- */
-// src\routes\products.routes.ts
-// src\routes\products.routes.js
 import express from "express";
 import { createProduct, getAllProducts, getProductById, updateProduct, deleteProduct, } from "../controllers/ProductController.js";
 import { asyncHandler } from "../middleware/errorHandler.js";
 import { handleProductWebhook } from "../webhookHandlers/productHandler.js";
 import { Product } from "../models/Product.js";
 const router = express.Router();
-/**
- * @route   GET /products
- * @desc    Get all products with optional pagination and filtering
- * @access  Public
- * @query   page - Page number (default: 1)
- * @query   limit - Items per page (default: 10)
- * @query   search - Search term for product title
- * @query   status - Filter by product status (active, draft, archived)
- */
 router.get("/", asyncHandler(getAllProducts));
-/**
- * @route   GET /products/:id
- * @desc    Get a specific product by ID
- * @access  Public
- * @param   id - Product ID
- */
 router.get("/:id", asyncHandler(getProductById));
-/**
- * @route   POST /products
- * @desc    Create a new product
- * @access  Public (should be protected in production)
- * @body    title - Product title (required)
- * @body    price - Product price (required)
- * @body    description - Product description (optional)
- * @body    status - Product status (optional, default: active)
- * @body    metadata - Additional product metadata (optional)
- */
 router.post("/", asyncHandler(createProduct));
-/**
- * @route   PUT /products/:id
- * @desc    Update an existing product
- * @access  Public (should be protected in production)
- * @param   id - Product ID
- * @body    Any product fields to update
- */
 router.put("/:id", asyncHandler(updateProduct));
-/**
- * @route   DELETE /products/:id
- * @desc    Delete a product
- * @access  Public (should be protected in production)
- * @param   id - Product ID
- */
 router.delete("/:id", asyncHandler(deleteProduct));
-/**
- * @route   POST /products/test-webhook
- * @desc    Test product webhook processing without signature validation
- * @access  Public
- * @body    Shopify product webhook payload
- */
 router.post("/test-webhook", async (req, res) => {
     try {
         const webhookPayload = req.body;
         console.log("🧪 Testing product webhook:", JSON.stringify(webhookPayload, null, 2));
-        // Validate basic required fields
         if (!webhookPayload || !webhookPayload.id) {
             return res.status(400).json({
                 success: false,
@@ -80,14 +20,11 @@ router.post("/test-webhook", async (req, res) => {
                 received: webhookPayload
             });
         }
-        // Add webhook_type if not present
         if (!webhookPayload.webhook_type) {
-            webhookPayload.webhook_type = 'products/create'; // Default for testing
+            webhookPayload.webhook_type = 'products/create';
         }
         try {
-            // Process using the product webhook handler
             await handleProductWebhook(webhookPayload);
-            // Check if product was created/updated
             const product = await Product.findOne({
                 where: { shopify_product_id: String(webhookPayload.id) }
             });
@@ -136,11 +73,6 @@ router.post("/test-webhook", async (req, res) => {
         });
     }
 });
-/**
- * @route   GET /products/debug/count
- * @desc    Get count of products in database for debugging
- * @access  Public
- */
 router.get("/debug/count", async (req, res) => {
     try {
         const count = await Product.count();

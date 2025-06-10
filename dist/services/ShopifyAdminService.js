@@ -1,8 +1,5 @@
 import { shopifyApiService } from "./ShopifyService.js";
 export class ShopifyAdminService {
-    /**
-     * Create a new customer in Shopify admin store
-     */
     static async createCustomer(customerData) {
         const shopifyPayload = {
             customer: {
@@ -35,9 +32,6 @@ export class ShopifyAdminService {
             throw error;
         }
     }
-    /**
-     * Update an existing customer in Shopify admin store
-     */
     static async updateCustomer(customerId, customerData) {
         const shopifyPayload = {
             customer: customerData
@@ -52,9 +46,6 @@ export class ShopifyAdminService {
             throw error;
         }
     }
-    /**
-     * Get a customer from Shopify admin store
-     */
     static async getCustomer(customerId) {
         try {
             const response = await shopifyApiService("GET", `customers/${customerId}.json`);
@@ -66,9 +57,6 @@ export class ShopifyAdminService {
             throw error;
         }
     }
-    /**
-     * Create a new order in Shopify admin store
-     */
     static async createOrder(orderData) {
         const shopifyPayload = {
             order: {
@@ -93,9 +81,6 @@ export class ShopifyAdminService {
             throw error;
         }
     }
-    /**
-     * Update an existing order in Shopify admin store
-     */
     static async updateOrder(orderId, orderData) {
         const shopifyPayload = {
             order: orderData
@@ -110,9 +95,6 @@ export class ShopifyAdminService {
             throw error;
         }
     }
-    /**
-     * Get an order from Shopify admin store
-     */
     static async getOrder(orderId) {
         try {
             const response = await shopifyApiService("GET", `orders/${orderId}.json`);
@@ -124,9 +106,6 @@ export class ShopifyAdminService {
             throw error;
         }
     }
-    /**
-     * Cancel an order in Shopify admin store
-     */
     static async cancelOrder(orderId, reason) {
         const shopifyPayload = {
             reason: reason || "customer"
@@ -141,9 +120,6 @@ export class ShopifyAdminService {
             throw error;
         }
     }
-    /**
-     * Get all orders from Shopify admin store
-     */
     static async getAllOrders(limit = 50, status = "any") {
         try {
             const response = await shopifyApiService("GET", `orders.json?limit=${limit}&status=${status}`);
@@ -155,9 +131,6 @@ export class ShopifyAdminService {
             throw error;
         }
     }
-    /**
-     * Get all customers from Shopify admin store
-     */
     static async getAllCustomers(limit = 50) {
         try {
             const response = await shopifyApiService("GET", `customers.json?limit=${limit}`);
@@ -169,9 +142,6 @@ export class ShopifyAdminService {
             throw error;
         }
     }
-    /**
-     * Sync local data to Shopify admin store
-     */
     static async syncDataToShopify(data) {
         const results = {
             products: [],
@@ -179,7 +149,6 @@ export class ShopifyAdminService {
             orders: []
         };
         try {
-            // Sync products
             if (data.products && data.products.length > 0) {
                 console.log(`🔄 Syncing ${data.products.length} products to Shopify...`);
                 for (const product of data.products) {
@@ -192,7 +161,6 @@ export class ShopifyAdminService {
                     }
                 }
             }
-            // Sync customers
             if (data.customers && data.customers.length > 0) {
                 console.log(`🔄 Syncing ${data.customers.length} customers to Shopify...`);
                 for (const customer of data.customers) {
@@ -205,7 +173,6 @@ export class ShopifyAdminService {
                     }
                 }
             }
-            // Sync orders
             if (data.orders && data.orders.length > 0) {
                 console.log(`🔄 Syncing ${data.orders.length} orders to Shopify...`);
                 for (const order of data.orders) {
@@ -226,9 +193,6 @@ export class ShopifyAdminService {
             throw error;
         }
     }
-    /**
-     * Create a product in Shopify (helper method)
-     */
     static async createProductInShopify(productData) {
         const shopifyPayload = {
             product: {

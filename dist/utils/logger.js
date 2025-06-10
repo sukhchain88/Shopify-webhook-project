@@ -1,4 +1,3 @@
-// src\utils\logger.ts
 export class Logger {
     static info(message, data) {
         if (data) {

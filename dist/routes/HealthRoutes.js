@@ -1,4 +1,3 @@
-// src/routes/health.routes.ts
 import express from "express";
 import { Product } from "../models/Product.js";
 import sequelize from "../config/db.js";
@@ -13,10 +12,8 @@ router.get("/", async (req, res) => {
         productCount: 0
     };
     try {
-        // Test database connection
         await sequelize.authenticate();
         healthcheck.database = "connected";
-        // Get product count as a basic check
         const count = await Product.count();
         healthcheck.productCount = count;
         res.status(200).json({

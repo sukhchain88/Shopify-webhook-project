@@ -10,19 +10,9 @@ import {
   WebhooksListResponse,
 } from "../types/webhookInterface.js";
 
-export const VALID_WEBHOOK_TOPICS = [
-  "customers/create",
-  "customers/update",
-  "customers/delete",
-  "customers_marketing_consent/update",
-  "orders/create",
+import { VALID_WEBHOOK_TOPICS } from "../config/webhookConstants.js";
 
-  // Products
-  "products/create",
-  "products/update",
-  "products/delete",
-
-];
+export { VALID_WEBHOOK_TOPICS };
 
 const normalizeAddress = (address: string): string => {
   return address.trim().toLowerCase();

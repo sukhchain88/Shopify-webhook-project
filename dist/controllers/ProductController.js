@@ -1,28 +1,10 @@
-/**
- * Product Controller
- *
- * Handles all product-related business logic including:
- * - CRUD operations for products
- * - Shopify webhook processing
- * - Data validation and transformation
- *
- * @author Your Name
- */
 import { Product } from "../models/Product.js";
 import { validateProduct, validateWebhook } from "../validators/product.validator.js";
 import { ProductService } from "../services/ProductService.js";
 import { Op } from "sequelize";
 import sequelize from "../config/db.js";
-/**
- * Create a new product
- *
- * @route POST /products
- * @param req - Express request object
- * @param res - Express response object
- */
 export const createProduct = async (req, res) => {
     try {
-        // Validate request data
         const validation = validateProduct(req.body);
         if (!validation.success) {
             res.status(400).json({
@@ -32,9 +14,7 @@ export const createProduct = async (req, res) => {
             });
             return;
         }
-        // Create product locally using service
         const localProduct = await ProductService.createProduct(validation.data);
-        // Automatically sync to Shopify admin store
         let shopifyProduct = null;
         let shopifyError = null;
         try {
@@ -70,39 +50,26 @@ export const createProduct = async (req, res) => {
         });
     }
 };
-/**
- * Get all products with pagination and filtering
- *
- * @route GET /products
- * @param req - Express request object
- * @param res - Express response object
- */
 export const getAllProducts = async (req, res) => {
     try {
-        // Extract query parameters
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const search = req.query.search;
         const status = req.query.status;
-        // Calculate offset for pagination
         const offset = (page - 1) * limit;
-        // Build where clause for filtering
         const whereClause = {};
         if (search) {
-            // Use database-agnostic case-insensitive search
             whereClause.title = sequelize.where(sequelize.fn('LOWER', sequelize.col('title')), Op.like, `%${search.toLowerCase()}%`);
         }
         if (status && ['active', 'draft', 'archived'].includes(status)) {
             whereClause.status = status;
         }
-        // Get products with pagination
         const { count, rows: products } = await Product.findAndCountAll({
             where: whereClause,
             limit,
             offset,
-            order: [['id', 'DESC']] // Most recent first
+            order: [['id', 'DESC']]
         });
-        // Calculate pagination metadata
         const totalPages = Math.ceil(count / limit);
         const hasNextPage = page < totalPages;
         const hasPrevPage = page > 1;
@@ -130,17 +97,9 @@ export const getAllProducts = async (req, res) => {
         });
     }
 };
-/**
- * Get a single product by ID
- *
- * @route GET /products/:id
- * @param req - Express request object
- * @param res - Express response object
- */
 export const getProductById = async (req, res) => {
     try {
         const { id } = req.params;
-        // Validate ID format
         if (!id || isNaN(Number(id))) {
             res.status(400).json({
                 success: false,
@@ -149,7 +108,6 @@ export const getProductById = async (req, res) => {
             });
             return;
         }
-        // Find product by ID
         const product = await Product.findByPk(id);
         if (!product) {
             res.status(404).json({
@@ -175,17 +133,9 @@ export const getProductById = async (req, res) => {
         });
     }
 };
-/**
- * Update an existing product
- *
- * @route PUT /products/:id
- * @param req - Express request object
- * @param res - Express response object
- */
 export const updateProduct = async (req, res) => {
     try {
         const { id } = req.params;
-        // Validate ID format
         if (!id || isNaN(Number(id))) {
             res.status(400).json({
                 success: false,
@@ -194,7 +144,6 @@ export const updateProduct = async (req, res) => {
             });
             return;
         }
-        // Find product by ID
         const product = await Product.findByPk(id);
         if (!product) {
             res.status(404).json({
@@ -204,7 +153,6 @@ export const updateProduct = async (req, res) => {
             });
             return;
         }
-        // Validate update data (partial validation)
         const allowedFields = ['title', 'description', 'price', 'status', 'metadata', 'shopify_product_id'];
         const updateData = {};
         for (const field of allowedFields) {
@@ -220,10 +168,8 @@ export const updateProduct = async (req, res) => {
             });
             return;
         }
-        // Update product locally
         await product.update(updateData);
         console.log(`✅ Product updated locally: ${product.getDataValue('title')} (ID: ${id})`);
-        // Automatically sync to Shopify admin store if product has Shopify ID
         let shopifyProduct = null;
         let shopifyError = null;
         const shopifyProductId = product.getDataValue('shopify_product_id');
@@ -271,17 +217,9 @@ export const updateProduct = async (req, res) => {
         });
     }
 };
-/**
- * Delete a product
- *
- * @route DELETE /products/:id
- * @param req - Express request object
- * @param res - Express response object
- */
 export const deleteProduct = async (req, res) => {
     try {
         const { id } = req.params;
-        // Validate ID format
         if (!id || isNaN(Number(id))) {
             res.status(400).json({
                 success: false,
@@ -290,7 +228,6 @@ export const deleteProduct = async (req, res) => {
             });
             return;
         }
-        // Find product by ID
         const product = await Product.findByPk(id);
         if (!product) {
             res.status(404).json({
@@ -302,7 +239,6 @@ export const deleteProduct = async (req, res) => {
         }
         const productTitle = product.getDataValue('title');
         const shopifyProductId = product.getDataValue('shopify_product_id');
-        // Automatically delete from Shopify admin store if product has Shopify ID
         let shopifyDeleted = false;
         let shopifyError = null;
         if (shopifyProductId) {
@@ -316,7 +252,6 @@ export const deleteProduct = async (req, res) => {
                 shopifyError = error instanceof Error ? error.message : "Unknown Shopify deletion error";
             }
         }
-        // Delete product locally
         await product.destroy();
         console.log(`🗑️ Product deleted locally: ${productTitle} (ID: ${id})`);
         res.status(200).json({
@@ -339,17 +274,9 @@ export const deleteProduct = async (req, res) => {
         });
     }
 };
-/**
- * Handle Shopify webhook for product events
- *
- * @route POST /products/webhook
- * @param req - Express request object
- * @param res - Express response object
- */
 export const handleShopifyWebhook = async (req, res) => {
     try {
         const topic = req.headers["x-shopify-topic"];
-        // Validate webhook topic
         if (!topic?.startsWith("products/")) {
             res.status(400).json({
                 success: false,
@@ -358,7 +285,6 @@ export const handleShopifyWebhook = async (req, res) => {
             });
             return;
         }
-        // Validate webhook payload
         const validation = validateWebhook(req.body);
         if (!validation.success) {
             res.status(400).json({
@@ -368,7 +294,6 @@ export const handleShopifyWebhook = async (req, res) => {
             });
             return;
         }
-        // Process webhook using service
         const product = await ProductService.handleWebhook(validation.data);
         console.log(`🔔 Webhook processed: ${topic} for product ${validation.data.title}`);
         res.status(200).json({

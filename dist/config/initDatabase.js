@@ -1,23 +1,16 @@
 import sequelize from "./db.js";
 import { Product } from "../models/Product.js";
 import { Customer } from "../models/Customer.js";
-/**
- * Initialize database and create all tables
- */
 export const initDatabase = async () => {
     try {
         console.log("🔧 Initializing database...");
-        // Test connection first
         await sequelize.authenticate();
         console.log("✅ Database connection established");
-        // Sync all models (create tables if they don't exist)
-        // In production, consider using migrations instead
         await sequelize.sync({
             force: false,
             alter: process.env.NODE_ENV === 'development'
         });
         console.log("✅ Database tables synchronized");
-        // Log which tables were created/verified
         const tables = [
             "products",
             "customers",
@@ -27,36 +20,28 @@ export const initDatabase = async () => {
             "users",
         ];
         console.log("📋 Verified tables:", tables.join(", "));
-        // Optionally seed data in development
         if (process.env.NODE_ENV === 'development' && process.env.SEED_DATABASE === 'true') {
             await seedDevelopmentData();
         }
     }
     catch (error) {
         console.error("❌ Database initialization failed:", error);
-        // In development, continue without database
         if (process.env.NODE_ENV === "development") {
             console.log("⚠️ Continuing in development mode without database");
         }
         else {
-            // In production, this is a critical error
             throw error;
         }
     }
 };
-/**
- * Seed development data (optional)
- */
 async function seedDevelopmentData() {
     try {
         console.log("🌱 Seeding development data...");
-        // Check if data already exists
         const productCount = await Product.count();
         if (productCount > 0) {
             console.log("📋 Development data already exists, skipping seed");
             return;
         }
-        // Create sample products
         const sampleProducts = [
             {
                 title: "Sample Product 1",
@@ -77,7 +62,6 @@ async function seedDevelopmentData() {
         ];
         await Product.bulkCreate(sampleProducts);
         console.log("✅ Sample products created");
-        // Create sample customer
         const sampleCustomer = await Customer.create({
             shop_domain: "dev-store.myshopify.com",
             first_name: "John",
@@ -95,12 +79,8 @@ async function seedDevelopmentData() {
     }
     catch (error) {
         console.error("❌ Failed to seed development data:", error);
-        // Don't throw error for seeding failure
     }
 }
-/**
- * Close database connection gracefully
- */
 export const closeDatabase = async () => {
     try {
         await sequelize.close();

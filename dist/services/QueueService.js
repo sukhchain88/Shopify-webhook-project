@@ -1,31 +1,6 @@
 import { queues } from '../queues/index.js';
 import { JOB_NAMES } from '../queues/types.js';
-/**
- * Queue Service
- *
- * This service provides a clean, type-safe API for interacting with job queues.
- * It abstracts the complexity of BullMQ and provides convenient methods for
- * scheduling different types of jobs.
- *
- * Key Benefits:
- * - Type safety for all job data
- * - Consistent error handling
- * - Easy job scheduling and management
- * - Batch operations support
- * - Queue monitoring utilities
- */
 export class QueueService {
-    // ===========================================
-    // EMAIL QUEUE OPERATIONS
-    // ===========================================
-    /**
-     * Send Email Job
-     *
-     * Schedules an email to be sent asynchronously
-     *
-     * @param data Email job data
-     * @param options Optional job configuration
-     */
     static async sendEmail(data, options) {
         console.log(`[Queue Service] Scheduling email job for ${data.to}`);
         try {
@@ -45,11 +20,6 @@ export class QueueService {
             throw new Error(`Failed to schedule email: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
-    /**
-     * Send Bulk Emails
-     *
-     * Schedules multiple emails to be sent with staggered timing to avoid rate limits
-     */
     static async sendBulkEmails(emails, options) {
         console.log(`[Queue Service] Scheduling ${emails.length} bulk email jobs`);
         try {
@@ -71,11 +41,6 @@ export class QueueService {
             throw new Error(`Failed to schedule bulk emails: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
-    /**
-     * Schedule Email for Later
-     *
-     * Schedules an email to be sent at a specific time
-     */
     static async scheduleEmail(data, scheduleTime, options) {
         const delay = scheduleTime.getTime() - Date.now();
         if (delay <= 0) {
@@ -87,14 +52,6 @@ export class QueueService {
             ...options
         });
     }
-    // ===========================================
-    // WEBHOOK QUEUE OPERATIONS
-    // ===========================================
-    /**
-     * Process Webhook Job
-     *
-     * Schedules a webhook to be processed asynchronously
-     */
     static async processWebhook(data, options) {
         console.log(`[Queue Service] Scheduling webhook job:`, {
             source: data.source,
@@ -102,7 +59,7 @@ export class QueueService {
         });
         try {
             const job = await queues.webhook.add(JOB_NAMES.PROCESS_WEBHOOK, data, {
-                priority: 10, // High priority for webhooks
+                priority: 10,
                 ...options,
             });
             console.log(`[Queue Service] Webhook job scheduled successfully:`, {
@@ -117,11 +74,6 @@ export class QueueService {
             throw new Error(`Failed to schedule webhook: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
-    /**
-     * Process Shopify Webhook
-     *
-     * Convenience method for Shopify webhooks with proper typing
-     */
     static async processShopifyWebhook(data, options) {
         const webhookData = {
             source: 'shopify',
@@ -131,14 +83,6 @@ export class QueueService {
         };
         return await this.processWebhook(webhookData, options);
     }
-    // ===========================================
-    // PRODUCT SYNC QUEUE OPERATIONS
-    // ===========================================
-    /**
-     * Sync Product
-     *
-     * Schedules a product synchronization job
-     */
     static async syncProduct(data, options) {
         console.log(`[Queue Service] Scheduling product sync job:`, {
             shopifyProductId: data.shopifyProductId,
@@ -160,11 +104,6 @@ export class QueueService {
             throw new Error(`Failed to schedule product sync: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
-    /**
-     * Sync All Products
-     *
-     * Schedules a full product catalog synchronization
-     */
     static async syncAllProducts(shopDomain, options) {
         console.log(`[Queue Service] Scheduling full product sync for shop: ${shopDomain || 'default'}`);
         const data = {
@@ -178,21 +117,13 @@ export class QueueService {
             ...options,
         });
     }
-    // ===========================================
-    // BACKGROUND TASKS QUEUE OPERATIONS
-    // ===========================================
-    /**
-     * Schedule Background Task
-     *
-     * Schedules a general background task
-     */
     static async scheduleBackgroundTask(data, options) {
         console.log(`[Queue Service] Scheduling background task:`, {
             taskType: data.taskType,
         });
         try {
             const job = await queues.background.add(`background-${data.taskType}`, data, {
-                priority: 0, // Low priority
+                priority: 0,
                 ...options,
             });
             console.log(`[Queue Service] Background task scheduled successfully:`, {
@@ -206,30 +137,17 @@ export class QueueService {
             throw new Error(`Failed to schedule background task: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
-    /**
-     * Schedule Data Cleanup
-     *
-     * Schedules a data cleanup task
-     */
     static async scheduleDataCleanup(parameters = {}, options) {
         const data = {
             taskType: 'cleanup',
             parameters: {
-                olderThan: 30, // days
+                olderThan: 30,
                 tables: ['orders', 'order_items', 'logs'],
                 ...parameters,
             },
         };
         return await this.scheduleBackgroundTask(data, options);
     }
-    // ===========================================
-    // ORDER PROCESSING QUEUE OPERATIONS
-    // ===========================================
-    /**
-     * Process Order
-     *
-     * Schedules order processing job
-     */
     static async processOrder(data, options) {
         console.log(`[Queue Service] Scheduling order processing job:`, {
             orderId: data.orderId,
@@ -237,7 +155,7 @@ export class QueueService {
         });
         try {
             const job = await queues.orderProcessing.add(JOB_NAMES.PROCESS_ORDER, data, {
-                priority: 8, // High priority for order processing
+                priority: 8,
                 ...options,
             });
             console.log(`[Queue Service] Order processing job scheduled successfully:`, {
@@ -251,14 +169,6 @@ export class QueueService {
             throw new Error(`Failed to schedule order processing: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
-    // ===========================================
-    // NOTIFICATION QUEUE OPERATIONS
-    // ===========================================
-    /**
-     * Send Notification
-     *
-     * Schedules a notification to be sent
-     */
     static async sendNotification(data, options) {
         console.log(`[Queue Service] Scheduling notification job:`, {
             type: data.type,
@@ -281,14 +191,6 @@ export class QueueService {
             throw new Error(`Failed to schedule notification: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
-    // ===========================================
-    // QUEUE MONITORING AND MANAGEMENT
-    // ===========================================
-    /**
-     * Get Queue Statistics
-     *
-     * Returns comprehensive statistics for all queues
-     */
     static async getQueueStatistics() {
         console.log(`[Queue Service] Fetching queue statistics`);
         try {
@@ -317,11 +219,6 @@ export class QueueService {
             throw new Error(`Failed to fetch queue statistics: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
-    /**
-     * Get Job by ID
-     *
-     * Retrieves a specific job from any queue
-     */
     static async getJob(queueName, jobId) {
         try {
             const queue = queues[queueName];
@@ -336,11 +233,6 @@ export class QueueService {
             throw new Error(`Failed to get job: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
-    /**
-     * Retry Failed Job
-     *
-     * Retries a specific failed job
-     */
     static async retryFailedJob(queueName, jobId) {
         try {
             const job = await this.getJob(queueName, jobId);
@@ -356,11 +248,6 @@ export class QueueService {
             throw new Error(`Failed to retry job: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
-    /**
-     * Clean Completed Jobs
-     *
-     * Removes old completed jobs from all queues
-     */
     static async cleanCompletedJobs(olderThan = 24 * 60 * 60 * 1000) {
         console.log(`[Queue Service] Cleaning completed jobs older than ${olderThan}ms`);
         try {
@@ -377,11 +264,6 @@ export class QueueService {
             throw new Error(`Failed to clean completed jobs: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
-    /**
-     * Pause Queue
-     *
-     * Pauses job processing for a specific queue
-     */
     static async pauseQueue(queueName) {
         try {
             const queue = queues[queueName];
@@ -393,11 +275,6 @@ export class QueueService {
             throw new Error(`Failed to pause queue: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
-    /**
-     * Resume Queue
-     *
-     * Resumes job processing for a specific queue
-     */
     static async resumeQueue(queueName) {
         try {
             const queue = queues[queueName];
@@ -409,14 +286,6 @@ export class QueueService {
             throw new Error(`Failed to resume queue: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
-    // ===========================================
-    // HELPER METHODS
-    // ===========================================
-    /**
-     * Get Notification Priority
-     *
-     * Maps notification urgency to queue priority
-     */
     static getNotificationPriority(urgency) {
         switch (urgency) {
             case 'critical': return 10;
@@ -426,22 +295,12 @@ export class QueueService {
             default: return 5;
         }
     }
-    /**
-     * Add Correlation ID
-     *
-     * Adds a correlation ID to job data for tracking
-     */
     static addCorrelationId(data) {
         if (!data.correlationId) {
             data.correlationId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         }
         return data;
     }
-    /**
-     * Create Job Options
-     *
-     * Creates standardized job options with defaults
-     */
     static createJobOptions(priority, delay, attempts) {
         return {
             priority: priority || 5,

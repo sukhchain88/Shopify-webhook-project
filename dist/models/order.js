@@ -1,4 +1,3 @@
-// src/models/Order.ts
 import { DataTypes } from "sequelize";
 import sequelize from "../config/db.js";
 import { Customer } from "./Customer.js";
@@ -46,6 +45,5 @@ export const Order = sequelize.define("orders", {
     timestamps: true,
     underscored: true,
 });
-// Define the relationship between Order and Customer
 Order.belongsTo(Customer, { foreignKey: 'customer_id' });
 Customer.hasMany(Order, { foreignKey: 'customer_id' });

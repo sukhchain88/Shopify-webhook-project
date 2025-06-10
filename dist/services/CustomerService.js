@@ -3,27 +3,17 @@ import { shopifyApiService } from "./ShopifyService.js";
 import { Op } from "sequelize";
 import { validateAndFormatPhone } from "../utils/phoneValidator.js";
 export class CustomerService {
-    /**
-     * Find a customer by Shopify ID
-     */
     static async findByShopifyId(shopifyId) {
         return await Customer.findOne({
             where: { shopify_customer_id: shopifyId }
         });
     }
-    /**
-     * Create a customer in both local database and Shopify
-     */
     static async createCustomer(customerData) {
         try {
-            // First create in local database
             const localCustomer = await Customer.create(customerData);
-            // Try to create in Shopify (optional - don't fail if this fails)
             let shopifyCustomer = null;
             try {
-                // Validate and format phone number for Shopify
                 const formattedPhone = validateAndFormatPhone(customerData.phone);
-                // Prepare Shopify customer data
                 const shopifyCustomerData = {
                     first_name: customerData.first_name,
                     last_name: customerData.last_name,
@@ -36,7 +26,6 @@ export class CustomerService {
                             zip: customerData.zip
                         }] : []
                 };
-                // Only include phone if it's valid
                 if (formattedPhone) {
                     shopifyCustomerData.phone = formattedPhone;
                     console.log(`📞 Using formatted phone for Shopify: ${formattedPhone}`);
@@ -47,7 +36,6 @@ export class CustomerService {
                 const shopifyResponse = await shopifyApiService("POST", "customers.json", {
                     customer: shopifyCustomerData
                 });
-                // Update local customer with Shopify ID
                 await localCustomer.update({
                     shopify_customer_id: String(shopifyResponse.customer.id)
                 });
@@ -68,25 +56,18 @@ export class CustomerService {
             throw error;
         }
     }
-    /**
-     * Update a customer in both local database and Shopify
-     */
     static async updateCustomer(id, customerData) {
         try {
             const customer = await Customer.findByPk(id);
             if (!customer) {
                 throw new Error("Customer not found");
             }
-            // Update local database first
             await customer.update(customerData);
-            // Try to update in Shopify (optional - don't fail if this fails)
             let shopifyUpdated = false;
             const shopifyCustomerId = customer.get('shopify_customer_id');
             if (shopifyCustomerId) {
                 try {
-                    // Validate and format phone number for Shopify
                     const formattedPhone = validateAndFormatPhone(customerData.phone);
-                    // Prepare Shopify customer data
                     const shopifyCustomerData = {
                         first_name: customerData.first_name,
                         last_name: customerData.last_name,
@@ -99,7 +80,6 @@ export class CustomerService {
                                 zip: customerData.zip
                             }] : undefined
                     };
-                    // Only include phone if it's valid
                     if (formattedPhone) {
                         shopifyCustomerData.phone = formattedPhone;
                         console.log(`📞 Using formatted phone for Shopify update: ${formattedPhone}`);
@@ -130,16 +110,12 @@ export class CustomerService {
             throw error;
         }
     }
-    /**
-     * Delete a customer from both local database and Shopify
-     */
     static async deleteCustomer(id) {
         try {
             const customer = await Customer.findByPk(id);
             if (!customer) {
                 throw new Error("Customer not found");
             }
-            // Try to delete from Shopify first (optional - don't fail if this fails)
             let shopifyDeleted = false;
             const shopifyCustomerId = customer.get('shopify_customer_id');
             if (shopifyCustomerId) {
@@ -155,7 +131,6 @@ export class CustomerService {
             else {
                 console.log("ℹ️ Customer deleted locally (no Shopify ID to sync)");
             }
-            // Delete from local database
             await customer.destroy();
             return {
                 deleted: true,
@@ -167,9 +142,6 @@ export class CustomerService {
             throw error;
         }
     }
-    /**
-     * Get all customers with pagination
-     */
     static async getCustomers(page = 1, limit = 10) {
         try {
             const offset = (page - 1) * limit;
@@ -193,9 +165,6 @@ export class CustomerService {
             throw error;
         }
     }
-    /**
-     * Get a single customer by ID
-     */
     static async getCustomerById(id) {
         try {
             const customer = await Customer.findByPk(id);
@@ -209,15 +178,10 @@ export class CustomerService {
             throw error;
         }
     }
-    /**
-     * Sync customers from Shopify to local database
-     */
     static async syncCustomersFromShopify() {
         try {
-            // Get customers from Shopify
             const response = await shopifyApiService("GET", "customers.json");
             const shopifyCustomers = response.customers;
-            // Update or create each customer in local database
             for (const shopifyCustomer of shopifyCustomers) {
                 await Customer.findOrCreate({
                     where: { shopify_customer_id: String(shopifyCustomer.id) },
@@ -238,9 +202,6 @@ export class CustomerService {
             throw error;
         }
     }
-    /**
-     * Search customers by email or name
-     */
     static async searchCustomers(query, page = 1, limit = 10) {
         try {
             const offset = (page - 1) * limit;

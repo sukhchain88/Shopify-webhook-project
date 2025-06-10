@@ -1,4 +1,3 @@
-// src\services\product.service.ts
 import { Product } from "../models/Product.js";
 import { shopifyApiService } from "./ShopifyService.js";
 import { formatShopifyProduct } from "../utils/shopifyFormatter.js";
@@ -10,9 +9,6 @@ export class ProductService {
         const productData = formatShopifyProduct(webhookData);
         return await Product.create(productData);
     }
-    /**
-     * Create a new product in Shopify admin store
-     */
     static async createProductInShopify(productData) {
         const shopifyPayload = {
             product: {
@@ -25,7 +21,7 @@ export class ProductService {
                 variants: [
                     {
                         price: productData.price.toString(),
-                        inventory_quantity: 100, // Default inventory
+                        inventory_quantity: 100,
                     }
                 ]
             }
@@ -40,9 +36,6 @@ export class ProductService {
             throw error;
         }
     }
-    /**
-     * Update an existing product in Shopify admin store
-     */
     static async updateProductInShopify(shopifyProductId, productData) {
         const shopifyPayload = {
             product: {}
@@ -69,9 +62,6 @@ export class ProductService {
             throw error;
         }
     }
-    /**
-     * Get a product from Shopify admin store
-     */
     static async getProductFromShopify(shopifyProductId) {
         try {
             const response = await shopifyApiService("GET", `products/${shopifyProductId}.json`);
@@ -83,9 +73,6 @@ export class ProductService {
             throw error;
         }
     }
-    /**
-     * Delete a product from Shopify admin store
-     */
     static async deleteProductFromShopify(shopifyProductId) {
         try {
             await shopifyApiService("DELETE", `products/${shopifyProductId}.json`);
@@ -96,9 +83,6 @@ export class ProductService {
             throw error;
         }
     }
-    /**
-     * Sync local product to Shopify admin store
-     */
     static async syncProductToShopify(localProduct) {
         const productData = {
             title: localProduct.title,
@@ -112,13 +96,10 @@ export class ProductService {
             }
         };
         if (localProduct.shopify_product_id) {
-            // Update existing product
             return await this.updateProductInShopify(localProduct.shopify_product_id, productData);
         }
         else {
-            // Create new product
             const response = await this.createProductInShopify(productData);
-            // Update local product with Shopify ID
             await Product.update({ shopify_product_id: response.product.id.toString() }, { where: { id: localProduct.id } });
             return response;
         }

@@ -1,6 +1,4 @@
-// src\validators\product.validator.ts
 import { z } from "zod";
-// Base schema for product data
 const productSchema = z.object({
     title: z.string().min(1, "Title is required"),
     description: z.string().nullable().optional(),
@@ -13,7 +11,6 @@ const productSchema = z.object({
         tags: z.string().nullable().optional()
     }).optional()
 });
-// Schema for incoming Shopify webhook data
 export const webhookSchema = z.object({
     id: z.union([z.string(), z.number()]),
     title: z.string(),

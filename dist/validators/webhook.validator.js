@@ -2,16 +2,14 @@ import { z } from "zod";
 import { validateShopifyOrderWebhook } from "./order.validator.js";
 import { customerSchema } from "./customer.validator.js";
 import { webhookSchema } from "./product.validator.js";
-// Base webhook schema with common fields
 const webhookBaseSchema = z.object({
     id: z.number().or(z.string()),
     shop_domain: z.string().min(1, "Shop domain is required")
 });
-// Product delete webhook schema (minimal fields)
 const productDeleteWebhookSchema = z.object({
     id: z.union([z.string(), z.number()]),
     shop_domain: z.string().min(1, "Shop domain is required"),
-    title: z.string().optional(), // Optional for delete webhooks
+    title: z.string().optional(),
     handle: z.string().optional(),
     vendor: z.string().nullable().optional(),
     product_type: z.string().nullable().optional(),
@@ -20,7 +18,6 @@ const productDeleteWebhookSchema = z.object({
     created_at: z.string().optional(),
     updated_at: z.string().optional()
 });
-// Customer delete webhook schema (minimal fields)
 const customerDeleteWebhookSchema = z.object({
     id: z.union([z.string(), z.number()]),
     shop_domain: z.string().min(1, "Shop domain is required"),
@@ -31,7 +28,6 @@ const customerDeleteWebhookSchema = z.object({
     created_at: z.string().optional(),
     updated_at: z.string().optional()
 });
-// Order delete webhook schema (minimal fields)
 const orderDeleteWebhookSchema = z.object({
     id: z.union([z.string(), z.number()]),
     shop_domain: z.string().min(1, "Shop domain is required"),
@@ -42,7 +38,6 @@ const orderDeleteWebhookSchema = z.object({
     updated_at: z.string().optional(),
     cancelled_at: z.string().nullable().optional()
 });
-// Webhook types
 const WebhookType = z.enum([
     "customers/create",
     "customers/update",
@@ -54,18 +49,14 @@ const WebhookType = z.enum([
     "products/update",
     "products/delete"
 ]);
-// Enhanced webhook payload validator
 export const validateWebhookPayload = (topic, data) => {
     console.log(`🔍 Validating webhook payload for topic: ${topic}`);
-    // First validate the base schema
     const baseResult = webhookBaseSchema.safeParse(data);
     if (!baseResult.success) {
         console.log("❌ Base webhook validation failed:", baseResult.error.errors);
         return baseResult;
     }
-    // Then validate based on specific topic
     switch (topic) {
-        // Customer webhooks
         case 'customers/create':
         case 'customers/update':
             console.log("✅ Using customer schema for create/update");
@@ -73,7 +64,6 @@ export const validateWebhookPayload = (topic, data) => {
         case 'customers/delete':
             console.log("✅ Using customer delete schema");
             return customerDeleteWebhookSchema.safeParse(data);
-        // Product webhooks  
         case 'products/create':
         case 'products/update':
             console.log("✅ Using product schema for create/update");
@@ -81,7 +71,6 @@ export const validateWebhookPayload = (topic, data) => {
         case 'products/delete':
             console.log("✅ Using product delete schema");
             return productDeleteWebhookSchema.safeParse(data);
-        // Order webhooks
         case 'orders/create':
         case 'orders/update':
             console.log("✅ Using order schema for create/update");
@@ -89,7 +78,6 @@ export const validateWebhookPayload = (topic, data) => {
         case 'orders/delete':
             console.log("✅ Using order delete schema");
             return orderDeleteWebhookSchema.safeParse(data);
-        // Fallback for other topics
         default:
             console.log(`⚠️ Using base schema for unknown topic: ${topic}`);
             return baseResult;
