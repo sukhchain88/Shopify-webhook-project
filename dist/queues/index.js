@@ -1,43 +1,52 @@
-import { Queue } from 'bullmq';
-import { redisConnection, queueConfigs } from './config.js';
-import { QUEUE_NAMES } from './types.js';
-export const emailQueue = new Queue(QUEUE_NAMES.EMAIL, {
-    connection: redisConnection,
-    defaultJobOptions: queueConfigs.email,
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.queueNames = exports.queues = exports.notificationQueue = exports.orderProcessingQueue = exports.backgroundQueue = exports.productSyncQueue = exports.webhookQueue = exports.emailQueue = void 0;
+exports.checkQueueHealth = checkQueueHealth;
+exports.getQueueStatistics = getQueueStatistics;
+exports.pauseAllQueues = pauseAllQueues;
+exports.resumeAllQueues = resumeAllQueues;
+exports.cleanAllQueues = cleanAllQueues;
+exports.shutdownQueues = shutdownQueues;
+const bullmq_1 = require("bullmq");
+const config_js_1 = require("./config.js");
+const types_js_1 = require("./types.js");
+exports.emailQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.EMAIL, {
+    connection: config_js_1.redisConnection,
+    defaultJobOptions: config_js_1.queueConfigs.email,
 });
-export const webhookQueue = new Queue(QUEUE_NAMES.WEBHOOK, {
-    connection: redisConnection,
-    defaultJobOptions: queueConfigs.webhook,
+exports.webhookQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.WEBHOOK, {
+    connection: config_js_1.redisConnection,
+    defaultJobOptions: config_js_1.queueConfigs.webhook,
 });
-export const productSyncQueue = new Queue(QUEUE_NAMES.PRODUCT_SYNC, {
-    connection: redisConnection,
-    defaultJobOptions: queueConfigs.productSync,
+exports.productSyncQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.PRODUCT_SYNC, {
+    connection: config_js_1.redisConnection,
+    defaultJobOptions: config_js_1.queueConfigs.productSync,
 });
-export const backgroundQueue = new Queue(QUEUE_NAMES.BACKGROUND, {
-    connection: redisConnection,
-    defaultJobOptions: queueConfigs.background,
+exports.backgroundQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.BACKGROUND, {
+    connection: config_js_1.redisConnection,
+    defaultJobOptions: config_js_1.queueConfigs.background,
 });
-export const orderProcessingQueue = new Queue(QUEUE_NAMES.ORDER_PROCESSING, {
-    connection: redisConnection,
-    defaultJobOptions: queueConfigs.webhook,
+exports.orderProcessingQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.ORDER_PROCESSING, {
+    connection: config_js_1.redisConnection,
+    defaultJobOptions: config_js_1.queueConfigs.webhook,
 });
-export const notificationQueue = new Queue(QUEUE_NAMES.NOTIFICATIONS, {
-    connection: redisConnection,
-    defaultJobOptions: queueConfigs.email,
+exports.notificationQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.NOTIFICATIONS, {
+    connection: config_js_1.redisConnection,
+    defaultJobOptions: config_js_1.queueConfigs.email,
 });
-export const queues = {
-    email: emailQueue,
-    webhook: webhookQueue,
-    productSync: productSyncQueue,
-    background: backgroundQueue,
-    orderProcessing: orderProcessingQueue,
-    notifications: notificationQueue,
+exports.queues = {
+    email: exports.emailQueue,
+    webhook: exports.webhookQueue,
+    productSync: exports.productSyncQueue,
+    background: exports.backgroundQueue,
+    orderProcessing: exports.orderProcessingQueue,
+    notifications: exports.notificationQueue,
 };
-export const queueNames = Object.keys(queues);
-export async function checkQueueHealth() {
+exports.queueNames = Object.keys(exports.queues);
+async function checkQueueHealth() {
     const results = {};
     let allHealthy = true;
-    for (const [name, queue] of Object.entries(queues)) {
+    for (const [name, queue] of Object.entries(exports.queues)) {
         try {
             await queue.getWaiting();
             results[name] = { connected: true };
@@ -55,9 +64,9 @@ export async function checkQueueHealth() {
         queues: results,
     };
 }
-export async function getQueueStatistics() {
+async function getQueueStatistics() {
     const statistics = {};
-    for (const [name, queue] of Object.entries(queues)) {
+    for (const [name, queue] of Object.entries(exports.queues)) {
         try {
             const [waiting, active, completed, failed, delayed] = await Promise.all([
                 queue.getWaiting(),
@@ -83,24 +92,24 @@ export async function getQueueStatistics() {
     }
     return statistics;
 }
-export async function pauseAllQueues() {
-    const pausePromises = Object.values(queues).map(queue => queue.pause());
+async function pauseAllQueues() {
+    const pausePromises = Object.values(exports.queues).map(queue => queue.pause());
     await Promise.all(pausePromises);
 }
-export async function resumeAllQueues() {
-    const resumePromises = Object.values(queues).map(queue => queue.resume());
+async function resumeAllQueues() {
+    const resumePromises = Object.values(exports.queues).map(queue => queue.resume());
     await Promise.all(resumePromises);
 }
-export async function cleanAllQueues(olderThan = 24 * 60 * 60 * 1000) {
-    const cleanPromises = Object.values(queues).map(queue => Promise.all([
+async function cleanAllQueues(olderThan = 24 * 60 * 60 * 1000) {
+    const cleanPromises = Object.values(exports.queues).map(queue => Promise.all([
         queue.clean(olderThan, 10, 'completed'),
         queue.clean(olderThan, 50, 'failed'),
     ]));
     await Promise.all(cleanPromises);
 }
-export async function shutdownQueues() {
+async function shutdownQueues() {
     console.log('Shutting down queues...');
-    const closePromises = Object.entries(queues).map(async ([name, queue]) => {
+    const closePromises = Object.entries(exports.queues).map(async ([name, queue]) => {
         try {
             await queue.close();
             console.log(`Queue ${name} closed successfully`);

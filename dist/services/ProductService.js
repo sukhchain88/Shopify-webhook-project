@@ -1,13 +1,16 @@
-import { Product } from "../models/Product.js";
-import { shopifyApiService } from "./ShopifyService.js";
-import { formatShopifyProduct } from "../utils/shopifyFormatter.js";
-export class ProductService {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.fetchAllProductsService = exports.ProductService = void 0;
+const Product_js_1 = require("../models/Product.js");
+const ShopifyService_js_1 = require("./ShopifyService.js");
+const shopifyFormatter_js_1 = require("../utils/shopifyFormatter.js");
+class ProductService {
     static async createProduct(data) {
-        return await Product.create(data);
+        return await Product_js_1.Product.create(data);
     }
     static async handleWebhook(webhookData) {
-        const productData = formatShopifyProduct(webhookData);
-        return await Product.create(productData);
+        const productData = (0, shopifyFormatter_js_1.formatShopifyProduct)(webhookData);
+        return await Product_js_1.Product.create(productData);
     }
     static async createProductInShopify(productData) {
         const shopifyPayload = {
@@ -27,7 +30,7 @@ export class ProductService {
             }
         };
         try {
-            const response = await shopifyApiService("POST", "products.json", shopifyPayload);
+            const response = await (0, ShopifyService_js_1.shopifyApiService)("POST", "products.json", shopifyPayload);
             console.log(`✅ Product created in Shopify: ${response.product.title} (ID: ${response.product.id})`);
             return response;
         }
@@ -53,7 +56,7 @@ export class ProductService {
         if (productData.metadata?.tags)
             shopifyPayload.product.tags = productData.metadata.tags;
         try {
-            const response = await shopifyApiService("PUT", `products/${shopifyProductId}.json`, shopifyPayload);
+            const response = await (0, ShopifyService_js_1.shopifyApiService)("PUT", `products/${shopifyProductId}.json`, shopifyPayload);
             console.log(`✅ Product updated in Shopify: ${response.product.title} (ID: ${response.product.id})`);
             return response;
         }
@@ -64,7 +67,7 @@ export class ProductService {
     }
     static async getProductFromShopify(shopifyProductId) {
         try {
-            const response = await shopifyApiService("GET", `products/${shopifyProductId}.json`);
+            const response = await (0, ShopifyService_js_1.shopifyApiService)("GET", `products/${shopifyProductId}.json`);
             console.log(`✅ Product retrieved from Shopify: ${response.product.title}`);
             return response;
         }
@@ -75,7 +78,7 @@ export class ProductService {
     }
     static async deleteProductFromShopify(shopifyProductId) {
         try {
-            await shopifyApiService("DELETE", `products/${shopifyProductId}.json`);
+            await (0, ShopifyService_js_1.shopifyApiService)("DELETE", `products/${shopifyProductId}.json`);
             console.log(`✅ Product deleted from Shopify (ID: ${shopifyProductId})`);
         }
         catch (error) {
@@ -100,11 +103,13 @@ export class ProductService {
         }
         else {
             const response = await this.createProductInShopify(productData);
-            await Product.update({ shopify_product_id: response.product.id.toString() }, { where: { id: localProduct.id } });
+            await Product_js_1.Product.update({ shopify_product_id: response.product.id.toString() }, { where: { id: localProduct.id } });
             return response;
         }
     }
 }
-export const fetchAllProductsService = async () => {
-    return await Product.findAll({ raw: true });
+exports.ProductService = ProductService;
+const fetchAllProductsService = async () => {
+    return await Product_js_1.Product.findAll({ raw: true });
 };
+exports.fetchAllProductsService = fetchAllProductsService;

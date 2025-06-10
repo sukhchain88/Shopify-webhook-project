@@ -1,11 +1,17 @@
-import { Product } from "../models/Product.js";
-import { validateProduct, validateWebhook } from "../validators/product.validator.js";
-import { ProductService } from "../services/ProductService.js";
-import { Op } from "sequelize";
-import sequelize from "../config/db.js";
-export const createProduct = async (req, res) => {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.handleShopifyWebhook = exports.deleteProduct = exports.updateProduct = exports.getProductById = exports.getAllProducts = exports.createProduct = void 0;
+const Product_js_1 = require("../models/Product.js");
+const product_validator_js_1 = require("../validators/product.validator.js");
+const ProductService_js_1 = require("../services/ProductService.js");
+const sequelize_1 = require("sequelize");
+const db_js_1 = __importDefault(require("../config/db.js"));
+const createProduct = async (req, res) => {
     try {
-        const validation = validateProduct(req.body);
+        const validation = (0, product_validator_js_1.validateProduct)(req.body);
         if (!validation.success) {
             res.status(400).json({
                 success: false,
@@ -14,12 +20,12 @@ export const createProduct = async (req, res) => {
             });
             return;
         }
-        const localProduct = await ProductService.createProduct(validation.data);
+        const localProduct = await ProductService_js_1.ProductService.createProduct(validation.data);
         let shopifyProduct = null;
         let shopifyError = null;
         try {
             const productData = localProduct.get({ plain: true });
-            shopifyProduct = await ProductService.syncProductToShopify(productData);
+            shopifyProduct = await ProductService_js_1.ProductService.syncProductToShopify(productData);
             console.log("✅ Product automatically synced to Shopify:", shopifyProduct.product.title);
         }
         catch (error) {
@@ -50,7 +56,8 @@ export const createProduct = async (req, res) => {
         });
     }
 };
-export const getAllProducts = async (req, res) => {
+exports.createProduct = createProduct;
+const getAllProducts = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
@@ -59,12 +66,12 @@ export const getAllProducts = async (req, res) => {
         const offset = (page - 1) * limit;
         const whereClause = {};
         if (search) {
-            whereClause.title = sequelize.where(sequelize.fn('LOWER', sequelize.col('title')), Op.like, `%${search.toLowerCase()}%`);
+            whereClause.title = db_js_1.default.where(db_js_1.default.fn('LOWER', db_js_1.default.col('title')), sequelize_1.Op.like, `%${search.toLowerCase()}%`);
         }
         if (status && ['active', 'draft', 'archived'].includes(status)) {
             whereClause.status = status;
         }
-        const { count, rows: products } = await Product.findAndCountAll({
+        const { count, rows: products } = await Product_js_1.Product.findAndCountAll({
             where: whereClause,
             limit,
             offset,
@@ -97,7 +104,8 @@ export const getAllProducts = async (req, res) => {
         });
     }
 };
-export const getProductById = async (req, res) => {
+exports.getAllProducts = getAllProducts;
+const getProductById = async (req, res) => {
     try {
         const { id } = req.params;
         if (!id || isNaN(Number(id))) {
@@ -108,7 +116,7 @@ export const getProductById = async (req, res) => {
             });
             return;
         }
-        const product = await Product.findByPk(id);
+        const product = await Product_js_1.Product.findByPk(id);
         if (!product) {
             res.status(404).json({
                 success: false,
@@ -133,7 +141,8 @@ export const getProductById = async (req, res) => {
         });
     }
 };
-export const updateProduct = async (req, res) => {
+exports.getProductById = getProductById;
+const updateProduct = async (req, res) => {
     try {
         const { id } = req.params;
         if (!id || isNaN(Number(id))) {
@@ -144,7 +153,7 @@ export const updateProduct = async (req, res) => {
             });
             return;
         }
-        const product = await Product.findByPk(id);
+        const product = await Product_js_1.Product.findByPk(id);
         if (!product) {
             res.status(404).json({
                 success: false,
@@ -176,7 +185,7 @@ export const updateProduct = async (req, res) => {
         if (shopifyProductId) {
             try {
                 const productData = product.get({ plain: true });
-                shopifyProduct = await ProductService.updateProductInShopify(shopifyProductId, {
+                shopifyProduct = await ProductService_js_1.ProductService.updateProductInShopify(shopifyProductId, {
                     title: productData.title,
                     description: productData.description,
                     price: parseFloat(productData.price),
@@ -217,7 +226,8 @@ export const updateProduct = async (req, res) => {
         });
     }
 };
-export const deleteProduct = async (req, res) => {
+exports.updateProduct = updateProduct;
+const deleteProduct = async (req, res) => {
     try {
         const { id } = req.params;
         if (!id || isNaN(Number(id))) {
@@ -228,7 +238,7 @@ export const deleteProduct = async (req, res) => {
             });
             return;
         }
-        const product = await Product.findByPk(id);
+        const product = await Product_js_1.Product.findByPk(id);
         if (!product) {
             res.status(404).json({
                 success: false,
@@ -243,7 +253,7 @@ export const deleteProduct = async (req, res) => {
         let shopifyError = null;
         if (shopifyProductId) {
             try {
-                await ProductService.deleteProductFromShopify(shopifyProductId);
+                await ProductService_js_1.ProductService.deleteProductFromShopify(shopifyProductId);
                 shopifyDeleted = true;
                 console.log(`✅ Product automatically deleted from Shopify: ${productTitle}`);
             }
@@ -274,7 +284,8 @@ export const deleteProduct = async (req, res) => {
         });
     }
 };
-export const handleShopifyWebhook = async (req, res) => {
+exports.deleteProduct = deleteProduct;
+const handleShopifyWebhook = async (req, res) => {
     try {
         const topic = req.headers["x-shopify-topic"];
         if (!topic?.startsWith("products/")) {
@@ -285,7 +296,7 @@ export const handleShopifyWebhook = async (req, res) => {
             });
             return;
         }
-        const validation = validateWebhook(req.body);
+        const validation = (0, product_validator_js_1.validateWebhook)(req.body);
         if (!validation.success) {
             res.status(400).json({
                 success: false,
@@ -294,7 +305,7 @@ export const handleShopifyWebhook = async (req, res) => {
             });
             return;
         }
-        const product = await ProductService.handleWebhook(validation.data);
+        const product = await ProductService_js_1.ProductService.handleWebhook(validation.data);
         console.log(`🔔 Webhook processed: ${topic} for product ${validation.data.title}`);
         res.status(200).json({
             success: true,
@@ -315,3 +326,4 @@ export const handleShopifyWebhook = async (req, res) => {
         });
     }
 };
+exports.handleShopifyWebhook = handleShopifyWebhook;

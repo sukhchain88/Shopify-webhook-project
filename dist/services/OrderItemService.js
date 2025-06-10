@@ -1,23 +1,29 @@
-import { OrderItem } from "../models/OrderItem.js";
-import { Product } from "../models/Product.js";
-import { Order } from "../models/Order.js";
-import { Customer } from "../models/Customer.js";
-import { Op } from "sequelize";
-import sequelize from "../config/db.js";
-export class OrderItemService {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.OrderItemService = void 0;
+const OrderItem_js_1 = require("../models/OrderItem.js");
+const Product_js_1 = require("../models/Product.js");
+const Order_js_1 = require("../models/Order.js");
+const Customer_js_1 = require("../models/Customer.js");
+const sequelize_1 = require("sequelize");
+const db_js_1 = __importDefault(require("../config/db.js"));
+class OrderItemService {
     static async createOrderItemsFromWebhook(orderId, lineItems) {
         try {
             const orderItems = [];
             for (const item of lineItems) {
                 let localProduct = null;
                 if (item.product_id) {
-                    localProduct = await Product.findOne({
+                    localProduct = await Product_js_1.Product.findOne({
                         where: {
                             shopify_product_id: item.product_id.toString()
                         }
                     });
                 }
-                const orderItem = await OrderItem.create({
+                const orderItem = await OrderItem_js_1.OrderItem.create({
                     order_id: orderId,
                     product_id: localProduct ? localProduct.id : null,
                     shopify_product_id: item.product_id?.toString(),
@@ -54,11 +60,11 @@ export class OrderItemService {
     }
     static async getOrderItems(orderId) {
         try {
-            const orderItems = await OrderItem.findAll({
+            const orderItems = await OrderItem_js_1.OrderItem.findAll({
                 where: { order_id: orderId },
                 include: [
                     {
-                        model: Product,
+                        model: Product_js_1.Product,
                         as: 'product',
                         required: false
                     }
@@ -74,18 +80,18 @@ export class OrderItemService {
     }
     static async getOrdersWithItems(limit = 50, offset = 0) {
         try {
-            const orders = await Order.findAll({
+            const orders = await Order_js_1.Order.findAll({
                 include: [
                     {
-                        model: Customer,
+                        model: Customer_js_1.Customer,
                         required: false
                     },
                     {
-                        model: OrderItem,
+                        model: OrderItem_js_1.OrderItem,
                         as: 'items',
                         include: [
                             {
-                                model: Product,
+                                model: Product_js_1.Product,
                                 as: 'product',
                                 required: false
                             }
@@ -105,15 +111,15 @@ export class OrderItemService {
     }
     static async getCustomerPurchaseHistory(customerId) {
         try {
-            const orders = await Order.findAll({
+            const orders = await Order_js_1.Order.findAll({
                 where: { customer_id: customerId },
                 include: [
                     {
-                        model: OrderItem,
+                        model: OrderItem_js_1.OrderItem,
                         as: 'items',
                         include: [
                             {
-                                model: Product,
+                                model: Product_js_1.Product,
                                 as: 'product',
                                 required: false
                             }
@@ -132,16 +138,16 @@ export class OrderItemService {
     static async getProductSalesAnalytics(productId) {
         try {
             const whereClause = productId ? { product_id: productId } : {};
-            const salesData = await OrderItem.findAll({
+            const salesData = await OrderItem_js_1.OrderItem.findAll({
                 where: whereClause,
                 include: [
                     {
-                        model: Product,
+                        model: Product_js_1.Product,
                         as: 'product',
                         required: false
                     },
                     {
-                        model: Order,
+                        model: Order_js_1.Order,
                         as: 'order',
                         required: true
                     }
@@ -189,7 +195,7 @@ export class OrderItemService {
     }
     static async updateOrderItem(itemId, updateData) {
         try {
-            const orderItem = await OrderItem.findByPk(itemId);
+            const orderItem = await OrderItem_js_1.OrderItem.findByPk(itemId);
             if (!orderItem) {
                 throw new Error('Order item not found');
             }
@@ -208,7 +214,7 @@ export class OrderItemService {
     }
     static async deleteOrderItem(itemId) {
         try {
-            const orderItem = await OrderItem.findByPk(itemId);
+            const orderItem = await OrderItem_js_1.OrderItem.findByPk(itemId);
             if (!orderItem) {
                 throw new Error('Order item not found');
             }
@@ -223,22 +229,22 @@ export class OrderItemService {
     static async searchOrderItems(searchTerm, limit = 50) {
         try {
             const searchPattern = `%${searchTerm.toLowerCase()}%`;
-            const orderItems = await OrderItem.findAll({
+            const orderItems = await OrderItem_js_1.OrderItem.findAll({
                 where: {
-                    [Op.or]: [
-                        sequelize.where(sequelize.fn('LOWER', sequelize.col('product_title')), Op.like, searchPattern),
-                        sequelize.where(sequelize.fn('LOWER', sequelize.col('sku')), Op.like, searchPattern),
-                        sequelize.where(sequelize.fn('LOWER', sequelize.col('product_variant_title')), Op.like, searchPattern)
+                    [sequelize_1.Op.or]: [
+                        db_js_1.default.where(db_js_1.default.fn('LOWER', db_js_1.default.col('product_title')), sequelize_1.Op.like, searchPattern),
+                        db_js_1.default.where(db_js_1.default.fn('LOWER', db_js_1.default.col('sku')), sequelize_1.Op.like, searchPattern),
+                        db_js_1.default.where(db_js_1.default.fn('LOWER', db_js_1.default.col('product_variant_title')), sequelize_1.Op.like, searchPattern)
                     ]
                 },
                 include: [
                     {
-                        model: Product,
+                        model: Product_js_1.Product,
                         as: 'product',
                         required: false
                     },
                     {
-                        model: Order,
+                        model: Order_js_1.Order,
                         as: 'order',
                         required: true
                     }
@@ -255,10 +261,10 @@ export class OrderItemService {
     }
     static async createMissingOrderItems() {
         try {
-            const ordersWithoutItems = await Order.findAll({
+            const ordersWithoutItems = await Order_js_1.Order.findAll({
                 include: [
                     {
-                        model: OrderItem,
+                        model: OrderItem_js_1.OrderItem,
                         as: 'items',
                         required: false
                     }
@@ -274,7 +280,7 @@ export class OrderItemService {
             let createdCount = 0;
             for (const order of ordersWithoutItems) {
                 try {
-                    await OrderItem.create({
+                    await OrderItem_js_1.OrderItem.create({
                         order_id: order.id,
                         product_id: null,
                         shopify_product_id: null,
@@ -311,3 +317,4 @@ export class OrderItemService {
         }
     }
 }
+exports.OrderItemService = OrderItemService;

@@ -1,4 +1,7 @@
-export const errorHandler = (error, req, res, next) => {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.notFoundHandler = exports.asyncHandler = exports.errorHandler = void 0;
+const errorHandler = (error, req, res, next) => {
     console.error('❌ Error occurred:', {
         message: error.message,
         stack: error.stack,
@@ -74,13 +77,16 @@ export const errorHandler = (error, req, res, next) => {
     }
     res.status(statusCode).json(errorResponse);
 };
-export const asyncHandler = (fn) => {
+exports.errorHandler = errorHandler;
+const asyncHandler = (fn) => {
     return (req, res, next) => {
         Promise.resolve(fn(req, res, next)).catch(next);
     };
 };
-export const notFoundHandler = (req, res, next) => {
+exports.asyncHandler = asyncHandler;
+const notFoundHandler = (req, res, next) => {
     const error = new Error(`Route ${req.originalUrl} not found`);
     error.statusCode = 404;
     next(error);
 };
+exports.notFoundHandler = notFoundHandler;

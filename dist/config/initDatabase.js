@@ -1,12 +1,18 @@
-import sequelize from "./db";
-import { Product } from "../models/Product.js";
-import { Customer } from "../models/Customer.js";
-export const initDatabase = async () => {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.closeDatabase = exports.initDatabase = void 0;
+const db_1 = __importDefault(require("./db"));
+const Product_1 = require("../models/Product");
+const Customer_1 = require("../models/Customer");
+const initDatabase = async () => {
     try {
         console.log("🔧 Initializing database...");
-        await sequelize.authenticate();
+        await db_1.default.authenticate();
         console.log("✅ Database connection established");
-        await sequelize.sync({
+        await db_1.default.sync({
             force: false,
             alter: process.env.NODE_ENV === 'development'
         });
@@ -34,10 +40,11 @@ export const initDatabase = async () => {
         }
     }
 };
+exports.initDatabase = initDatabase;
 async function seedDevelopmentData() {
     try {
         console.log("🌱 Seeding development data...");
-        const productCount = await Product.count();
+        const productCount = await Product_1.Product.count();
         if (productCount > 0) {
             console.log("📋 Development data already exists, skipping seed");
             return;
@@ -60,9 +67,9 @@ async function seedDevelopmentData() {
                 metadata: { category: "clothing", featured: false }
             }
         ];
-        await Product.bulkCreate(sampleProducts);
+        await Product_1.Product.bulkCreate(sampleProducts);
         console.log("✅ Sample products created");
-        const sampleCustomer = await Customer.create({
+        const sampleCustomer = await Customer_1.Customer.create({
             shop_domain: "dev-store.myshopify.com",
             first_name: "John",
             last_name: "Doe",
@@ -81,13 +88,14 @@ async function seedDevelopmentData() {
         console.error("❌ Failed to seed development data:", error);
     }
 }
-export const closeDatabase = async () => {
+const closeDatabase = async () => {
     try {
-        await sequelize.close();
+        await db_1.default.close();
         console.log("✅ Database connection closed");
     }
     catch (error) {
         console.error("❌ Error closing database:", error);
     }
 };
-export default initDatabase;
+exports.closeDatabase = closeDatabase;
+exports.default = exports.initDatabase;

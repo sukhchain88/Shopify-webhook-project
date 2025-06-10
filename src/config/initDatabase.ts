@@ -1,10 +1,10 @@
 import sequelize from "./db";
-import { Product } from "../models/Product.js";
-import { Customer } from "../models/Customer.js";
-import { Order } from "../models/Order.js";
-import { OrderItem } from "../models/OrderItem.js";
-import { Webhook } from "../models/Webhook.js";
-import { Users } from "../models/User.js";
+import { Product } from "../models/Product";
+import { Customer } from "../models/Customer";
+import { Order } from "../models/Order";
+import { OrderItem } from "../models/OrderItem";
+import { Webhook } from "../models/Webhook";
+import { Users } from "../models/User";
 
 /**
  * Initialize database and create all tables

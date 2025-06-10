@@ -1,27 +1,34 @@
-import { Worker } from 'bullmq';
-import { redisConnection, workerConfig } from '../queues/config.js';
-import { QUEUE_NAMES } from '../queues/types.js';
-import { processEmailJob } from '../jobs/processors/email.processor.js';
-import { processWebhookJob } from '../jobs/processors/webhook.processor.js';
-export const emailWorker = new Worker(QUEUE_NAMES.EMAIL, async (job) => {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.allWorkers = exports.notificationWorker = exports.orderProcessingWorker = exports.backgroundWorker = exports.productSyncWorker = exports.webhookWorker = exports.emailWorker = void 0;
+exports.shutdownWorkers = shutdownWorkers;
+exports.getWorkerStatus = getWorkerStatus;
+exports.pauseAllWorkers = pauseAllWorkers;
+exports.resumeAllWorkers = resumeAllWorkers;
+const bullmq_1 = require("bullmq");
+const config_js_1 = require("../queues/config.js");
+const types_js_1 = require("../queues/types.js");
+const email_processor_js_1 = require("../jobs/processors/email.processor.js");
+const webhook_processor_js_1 = require("../jobs/processors/webhook.processor.js");
+exports.emailWorker = new bullmq_1.Worker(types_js_1.QUEUE_NAMES.EMAIL, async (job) => {
     console.log(`[Email Worker] Processing job ${job.id}: ${job.name}`);
-    return await processEmailJob(job);
+    return await (0, email_processor_js_1.processEmailJob)(job);
 }, {
-    connection: redisConnection,
-    concurrency: workerConfig.concurrency.email,
-    stalledInterval: workerConfig.stalledInterval,
-    maxStalledCount: workerConfig.maxStalledCount,
+    connection: config_js_1.redisConnection,
+    concurrency: config_js_1.workerConfig.concurrency.email,
+    stalledInterval: config_js_1.workerConfig.stalledInterval,
+    maxStalledCount: config_js_1.workerConfig.maxStalledCount,
 });
-export const webhookWorker = new Worker(QUEUE_NAMES.WEBHOOK, async (job) => {
+exports.webhookWorker = new bullmq_1.Worker(types_js_1.QUEUE_NAMES.WEBHOOK, async (job) => {
     console.log(`[Webhook Worker] Processing job ${job.id}: ${job.name}`);
-    return await processWebhookJob(job);
+    return await (0, webhook_processor_js_1.processWebhookJob)(job);
 }, {
-    connection: redisConnection,
-    concurrency: workerConfig.concurrency.webhook,
-    stalledInterval: workerConfig.stalledInterval,
-    maxStalledCount: workerConfig.maxStalledCount,
+    connection: config_js_1.redisConnection,
+    concurrency: config_js_1.workerConfig.concurrency.webhook,
+    stalledInterval: config_js_1.workerConfig.stalledInterval,
+    maxStalledCount: config_js_1.workerConfig.maxStalledCount,
 });
-export const productSyncWorker = new Worker(QUEUE_NAMES.PRODUCT_SYNC, async (job) => {
+exports.productSyncWorker = new bullmq_1.Worker(types_js_1.QUEUE_NAMES.PRODUCT_SYNC, async (job) => {
     console.log(`[Product Sync Worker] Processing job ${job.id}: ${job.name}`);
     console.log(`[Product Sync Worker] Product sync job completed: ${job.id}`);
     return {
@@ -31,12 +38,12 @@ export const productSyncWorker = new Worker(QUEUE_NAMES.PRODUCT_SYNC, async (job
         data: { jobId: job.id },
     };
 }, {
-    connection: redisConnection,
-    concurrency: workerConfig.concurrency.productSync,
-    stalledInterval: workerConfig.stalledInterval,
-    maxStalledCount: workerConfig.maxStalledCount,
+    connection: config_js_1.redisConnection,
+    concurrency: config_js_1.workerConfig.concurrency.productSync,
+    stalledInterval: config_js_1.workerConfig.stalledInterval,
+    maxStalledCount: config_js_1.workerConfig.maxStalledCount,
 });
-export const backgroundWorker = new Worker(QUEUE_NAMES.BACKGROUND, async (job) => {
+exports.backgroundWorker = new bullmq_1.Worker(types_js_1.QUEUE_NAMES.BACKGROUND, async (job) => {
     console.log(`[Background Worker] Processing job ${job.id}: ${job.name}`);
     const { taskType, parameters } = job.data;
     switch (taskType) {
@@ -56,12 +63,12 @@ export const backgroundWorker = new Worker(QUEUE_NAMES.BACKGROUND, async (job) =
         data: { jobId: job.id, taskType },
     };
 }, {
-    connection: redisConnection,
-    concurrency: workerConfig.concurrency.background,
-    stalledInterval: workerConfig.stalledInterval,
-    maxStalledCount: workerConfig.maxStalledCount,
+    connection: config_js_1.redisConnection,
+    concurrency: config_js_1.workerConfig.concurrency.background,
+    stalledInterval: config_js_1.workerConfig.stalledInterval,
+    maxStalledCount: config_js_1.workerConfig.maxStalledCount,
 });
-export const orderProcessingWorker = new Worker(QUEUE_NAMES.ORDER_PROCESSING, async (job) => {
+exports.orderProcessingWorker = new bullmq_1.Worker(types_js_1.QUEUE_NAMES.ORDER_PROCESSING, async (job) => {
     console.log(`[Order Processing Worker] Processing job ${job.id}: ${job.name}`);
     const { orderId, action, orderData } = job.data;
     console.log(`[Order Processing Worker] Processing ${action} for order ${orderId}`);
@@ -72,12 +79,12 @@ export const orderProcessingWorker = new Worker(QUEUE_NAMES.ORDER_PROCESSING, as
         data: { jobId: job.id, orderId, action },
     };
 }, {
-    connection: redisConnection,
-    concurrency: workerConfig.concurrency.webhook,
-    stalledInterval: workerConfig.stalledInterval,
-    maxStalledCount: workerConfig.maxStalledCount,
+    connection: config_js_1.redisConnection,
+    concurrency: config_js_1.workerConfig.concurrency.webhook,
+    stalledInterval: config_js_1.workerConfig.stalledInterval,
+    maxStalledCount: config_js_1.workerConfig.maxStalledCount,
 });
-export const notificationWorker = new Worker(QUEUE_NAMES.NOTIFICATIONS, async (job) => {
+exports.notificationWorker = new bullmq_1.Worker(types_js_1.QUEUE_NAMES.NOTIFICATIONS, async (job) => {
     console.log(`[Notification Worker] Processing job ${job.id}: ${job.name}`);
     const { type, message, recipient, urgency } = job.data;
     console.log(`[Notification Worker] Sending ${type} notification with urgency ${urgency}`);
@@ -88,19 +95,19 @@ export const notificationWorker = new Worker(QUEUE_NAMES.NOTIFICATIONS, async (j
         data: { jobId: job.id, type, urgency },
     };
 }, {
-    connection: redisConnection,
-    concurrency: workerConfig.concurrency.email,
-    stalledInterval: workerConfig.stalledInterval,
-    maxStalledCount: workerConfig.maxStalledCount,
+    connection: config_js_1.redisConnection,
+    concurrency: config_js_1.workerConfig.concurrency.email,
+    stalledInterval: config_js_1.workerConfig.stalledInterval,
+    maxStalledCount: config_js_1.workerConfig.maxStalledCount,
 });
 function setupWorkerEventHandlers() {
     const workers = [
-        { worker: emailWorker, name: 'Email' },
-        { worker: webhookWorker, name: 'Webhook' },
-        { worker: productSyncWorker, name: 'ProductSync' },
-        { worker: backgroundWorker, name: 'Background' },
-        { worker: orderProcessingWorker, name: 'OrderProcessing' },
-        { worker: notificationWorker, name: 'Notification' },
+        { worker: exports.emailWorker, name: 'Email' },
+        { worker: exports.webhookWorker, name: 'Webhook' },
+        { worker: exports.productSyncWorker, name: 'ProductSync' },
+        { worker: exports.backgroundWorker, name: 'Background' },
+        { worker: exports.orderProcessingWorker, name: 'OrderProcessing' },
+        { worker: exports.notificationWorker, name: 'Notification' },
     ];
     workers.forEach(({ worker, name }) => {
         worker.on('completed', (job, result) => {
@@ -173,19 +180,19 @@ async function processReportGeneration(job, parameters) {
     console.log(`[Background Worker] Report generation completed`);
     await job.updateProgress(100);
 }
-export const allWorkers = [
-    emailWorker,
-    webhookWorker,
-    productSyncWorker,
-    backgroundWorker,
-    orderProcessingWorker,
-    notificationWorker,
+exports.allWorkers = [
+    exports.emailWorker,
+    exports.webhookWorker,
+    exports.productSyncWorker,
+    exports.backgroundWorker,
+    exports.orderProcessingWorker,
+    exports.notificationWorker,
 ];
-export async function shutdownWorkers() {
+async function shutdownWorkers() {
     console.log('🔽 Shutting down all workers...');
-    const shutdownPromises = allWorkers.map(async (worker, index) => {
+    const shutdownPromises = exports.allWorkers.map(async (worker, index) => {
         try {
-            console.log(`🔽 Closing worker ${index + 1}/${allWorkers.length}...`);
+            console.log(`🔽 Closing worker ${index + 1}/${exports.allWorkers.length}...`);
             await worker.close();
             console.log(`✅ Worker ${index + 1} closed successfully`);
         }
@@ -196,23 +203,23 @@ export async function shutdownWorkers() {
     await Promise.all(shutdownPromises);
     console.log('🔒 All workers shut down');
 }
-export function getWorkerStatus() {
-    return allWorkers.map((worker, index) => ({
+function getWorkerStatus() {
+    return exports.allWorkers.map((worker, index) => ({
         index: index + 1,
         name: worker.name,
         isRunning: worker.isRunning(),
         isPaused: worker.isPaused(),
     }));
 }
-export async function pauseAllWorkers() {
+async function pauseAllWorkers() {
     console.log('⏸️ Pausing all workers...');
-    const pausePromises = allWorkers.map(worker => worker.pause());
+    const pausePromises = exports.allWorkers.map(worker => worker.pause());
     await Promise.all(pausePromises);
     console.log('⏸️ All workers paused');
 }
-export async function resumeAllWorkers() {
+async function resumeAllWorkers() {
     console.log('▶️ Resuming all workers...');
-    const resumePromises = allWorkers.map(worker => worker.resume());
+    const resumePromises = exports.allWorkers.map(worker => worker.resume());
     await Promise.all(resumePromises);
     console.log('▶️ All workers resumed');
 }

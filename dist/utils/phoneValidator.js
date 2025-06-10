@@ -1,4 +1,10 @@
-export function validateAndFormatPhone(phone) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SHOPIFY_PHONE_EXAMPLES = void 0;
+exports.validateAndFormatPhone = validateAndFormatPhone;
+exports.isValidShopifyPhone = isValidShopifyPhone;
+exports.testPhoneFormatting = testPhoneFormatting;
+function validateAndFormatPhone(phone) {
     if (!phone || typeof phone !== 'string') {
         return null;
     }
@@ -30,11 +36,11 @@ export function validateAndFormatPhone(phone) {
     console.log(`📞 Phone formatted: ${phone} -> ${cleaned}`);
     return cleaned;
 }
-export function isValidShopifyPhone(phone) {
+function isValidShopifyPhone(phone) {
     const formatted = validateAndFormatPhone(phone);
     return formatted !== null;
 }
-export const SHOPIFY_PHONE_EXAMPLES = [
+exports.SHOPIFY_PHONE_EXAMPLES = [
     '+1234567890',
     '+12345678901',
     '+447123456789',
@@ -42,7 +48,7 @@ export const SHOPIFY_PHONE_EXAMPLES = [
     '+49123456789',
     '+91123456789',
 ];
-export function testPhoneFormatting() {
+function testPhoneFormatting() {
     const testCases = [
         '+1234567890',
         '1234567890',

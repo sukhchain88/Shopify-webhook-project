@@ -1,4 +1,7 @@
-export async function processEmailJob(job) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.processEmailJob = processEmailJob;
+async function processEmailJob(job) {
     const startTime = Date.now();
     const { to, subject, template, body, htmlBody, templateData, attachments, cc, bcc } = job.data;
     console.log(`[Email Processor] Starting email job ${job.id}:`, {

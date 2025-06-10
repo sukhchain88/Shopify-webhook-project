@@ -1,5 +1,11 @@
-import crypto from 'crypto';
-import { SHOPIFY_WEBHOOK_SECRET } from '../config/config.js';
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.verifyShopifyWebhook = void 0;
+const crypto_1 = __importDefault(require("crypto"));
+const config_js_1 = require("../config/config.js");
 class WebhookError extends Error {
     constructor(statusCode, message) {
         super(message);
@@ -7,7 +13,7 @@ class WebhookError extends Error {
         this.name = 'WebhookError';
     }
 }
-export const verifyShopifyWebhook = (req, res, next) => {
+const verifyShopifyWebhook = (req, res, next) => {
     try {
         const hmacHeader = req.headers['x-shopify-hmac-sha256'];
         const topic = req.headers['x-shopify-topic'];
@@ -16,7 +22,7 @@ export const verifyShopifyWebhook = (req, res, next) => {
             const error = new WebhookError(401, 'Missing required Shopify webhook headers');
             return next(error);
         }
-        if (!SHOPIFY_WEBHOOK_SECRET) {
+        if (!config_js_1.SHOPIFY_WEBHOOK_SECRET) {
             const error = new WebhookError(500, 'Shopify webhook secret is not configured');
             return next(error);
         }
@@ -25,8 +31,8 @@ export const verifyShopifyWebhook = (req, res, next) => {
             const error = new WebhookError(400, 'Request body must be raw buffer');
             return next(error);
         }
-        const calculatedHmac = crypto
-            .createHmac('sha256', SHOPIFY_WEBHOOK_SECRET)
+        const calculatedHmac = crypto_1.default
+            .createHmac('sha256', config_js_1.SHOPIFY_WEBHOOK_SECRET)
             .update(rawBody)
             .digest('base64');
         console.log('🔐 Webhook verification:', {
@@ -64,3 +70,4 @@ export const verifyShopifyWebhook = (req, res, next) => {
         next(error);
     }
 };
+exports.verifyShopifyWebhook = verifyShopifyWebhook;

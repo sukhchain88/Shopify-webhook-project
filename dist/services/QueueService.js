@@ -1,10 +1,13 @@
-import { queues } from '../queues/index.js';
-import { JOB_NAMES } from '../queues/types.js';
-export class QueueService {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.QueueService = void 0;
+const index_js_1 = require("../queues/index.js");
+const types_js_1 = require("../queues/types.js");
+class QueueService {
     static async sendEmail(data, options) {
         console.log(`[Queue Service] Scheduling email job for ${data.to}`);
         try {
-            const job = await queues.email.add(JOB_NAMES.SEND_EMAIL, data, {
+            const job = await index_js_1.queues.email.add(types_js_1.JOB_NAMES.SEND_EMAIL, data, {
                 priority: data.priority || 5,
                 ...options,
             });
@@ -25,14 +28,14 @@ export class QueueService {
         try {
             const { delayBetween = 100, priority = 3 } = options || {};
             const jobs = emails.map((email, index) => ({
-                name: JOB_NAMES.SEND_EMAIL,
+                name: types_js_1.JOB_NAMES.SEND_EMAIL,
                 data: email,
                 opts: {
                     delay: index * delayBetween,
                     priority: email.priority || priority,
                 },
             }));
-            const scheduledJobs = await queues.email.addBulk(jobs);
+            const scheduledJobs = await index_js_1.queues.email.addBulk(jobs);
             console.log(`[Queue Service] ${scheduledJobs.length} bulk email jobs scheduled successfully`);
             return scheduledJobs;
         }
@@ -58,7 +61,7 @@ export class QueueService {
             eventType: data.eventType,
         });
         try {
-            const job = await queues.webhook.add(JOB_NAMES.PROCESS_WEBHOOK, data, {
+            const job = await index_js_1.queues.webhook.add(types_js_1.JOB_NAMES.PROCESS_WEBHOOK, data, {
                 priority: 10,
                 ...options,
             });
@@ -89,7 +92,7 @@ export class QueueService {
             action: data.action,
         });
         try {
-            const job = await queues.productSync.add(JOB_NAMES.SYNC_PRODUCT, data, {
+            const job = await index_js_1.queues.productSync.add(types_js_1.JOB_NAMES.SYNC_PRODUCT, data, {
                 priority: 2,
                 ...options,
             });
@@ -112,7 +115,7 @@ export class QueueService {
             shopDomain,
             forceSync: true,
         };
-        return await queues.productSync.add(JOB_NAMES.SYNC_ALL_PRODUCTS, data, {
+        return await index_js_1.queues.productSync.add(types_js_1.JOB_NAMES.SYNC_ALL_PRODUCTS, data, {
             priority: 1,
             ...options,
         });
@@ -122,7 +125,7 @@ export class QueueService {
             taskType: data.taskType,
         });
         try {
-            const job = await queues.background.add(`background-${data.taskType}`, data, {
+            const job = await index_js_1.queues.background.add(`background-${data.taskType}`, data, {
                 priority: 0,
                 ...options,
             });
@@ -154,7 +157,7 @@ export class QueueService {
             action: data.action,
         });
         try {
-            const job = await queues.orderProcessing.add(JOB_NAMES.PROCESS_ORDER, data, {
+            const job = await index_js_1.queues.orderProcessing.add(types_js_1.JOB_NAMES.PROCESS_ORDER, data, {
                 priority: 8,
                 ...options,
             });
@@ -176,7 +179,7 @@ export class QueueService {
         });
         try {
             const priority = this.getNotificationPriority(data.urgency);
-            const job = await queues.notifications.add(JOB_NAMES.SEND_NOTIFICATION, data, {
+            const job = await index_js_1.queues.notifications.add(types_js_1.JOB_NAMES.SEND_NOTIFICATION, data, {
                 priority,
                 ...options,
             });
@@ -195,7 +198,7 @@ export class QueueService {
         console.log(`[Queue Service] Fetching queue statistics`);
         try {
             const statistics = {};
-            for (const [name, queue] of Object.entries(queues)) {
+            for (const [name, queue] of Object.entries(index_js_1.queues)) {
                 const [waiting, active, completed, failed, delayed] = await Promise.all([
                     queue.getWaiting(),
                     queue.getActive(),
@@ -221,7 +224,7 @@ export class QueueService {
     }
     static async getJob(queueName, jobId) {
         try {
-            const queue = queues[queueName];
+            const queue = index_js_1.queues[queueName];
             if (!queue) {
                 throw new Error(`Queue ${queueName} not found`);
             }
@@ -252,7 +255,7 @@ export class QueueService {
         console.log(`[Queue Service] Cleaning completed jobs older than ${olderThan}ms`);
         try {
             const cleanResults = [];
-            for (const [name, queue] of Object.entries(queues)) {
+            for (const [name, queue] of Object.entries(index_js_1.queues)) {
                 const cleaned = await queue.clean(olderThan, 0, 'completed');
                 cleanResults.push({ queue: name, cleaned });
                 console.log(`[Queue Service] Cleaned ${cleaned.length} completed jobs from ${name} queue`);
@@ -266,7 +269,7 @@ export class QueueService {
     }
     static async pauseQueue(queueName) {
         try {
-            const queue = queues[queueName];
+            const queue = index_js_1.queues[queueName];
             await queue.pause();
             console.log(`[Queue Service] Queue ${queueName} paused successfully`);
         }
@@ -277,7 +280,7 @@ export class QueueService {
     }
     static async resumeQueue(queueName) {
         try {
-            const queue = queues[queueName];
+            const queue = index_js_1.queues[queueName];
             await queue.resume();
             console.log(`[Queue Service] Queue ${queueName} resumed successfully`);
         }
@@ -311,3 +314,4 @@ export class QueueService {
         };
     }
 }
+exports.QueueService = QueueService;

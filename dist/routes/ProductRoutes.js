@@ -1,14 +1,19 @@
-import express from "express";
-import { createProduct, getAllProducts, getProductById, updateProduct, deleteProduct, } from "../controllers/ProductController.js";
-import { asyncHandler } from "../middleware/errorHandler.js";
-import { handleProductWebhook } from "../webhookHandlers/productHandler.js";
-import { Product } from "../models/Product.js";
-const router = express.Router();
-router.get("/", asyncHandler(getAllProducts));
-router.get("/:id", asyncHandler(getProductById));
-router.post("/", asyncHandler(createProduct));
-router.put("/:id", asyncHandler(updateProduct));
-router.delete("/:id", asyncHandler(deleteProduct));
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const ProductController_js_1 = require("../controllers/ProductController.js");
+const errorHandler_js_1 = require("../middleware/errorHandler.js");
+const productHandler_js_1 = require("../webhookHandlers/productHandler.js");
+const Product_js_1 = require("../models/Product.js");
+const router = express_1.default.Router();
+router.get("/", (0, errorHandler_js_1.asyncHandler)(ProductController_js_1.getAllProducts));
+router.get("/:id", (0, errorHandler_js_1.asyncHandler)(ProductController_js_1.getProductById));
+router.post("/", (0, errorHandler_js_1.asyncHandler)(ProductController_js_1.createProduct));
+router.put("/:id", (0, errorHandler_js_1.asyncHandler)(ProductController_js_1.updateProduct));
+router.delete("/:id", (0, errorHandler_js_1.asyncHandler)(ProductController_js_1.deleteProduct));
 router.post("/test-webhook", async (req, res) => {
     try {
         const webhookPayload = req.body;
@@ -24,8 +29,8 @@ router.post("/test-webhook", async (req, res) => {
             webhookPayload.webhook_type = 'products/create';
         }
         try {
-            await handleProductWebhook(webhookPayload);
-            const product = await Product.findOne({
+            await (0, productHandler_js_1.handleProductWebhook)(webhookPayload);
+            const product = await Product_js_1.Product.findOne({
                 where: { shopify_product_id: String(webhookPayload.id) }
             });
             return res.json({
@@ -75,8 +80,8 @@ router.post("/test-webhook", async (req, res) => {
 });
 router.get("/debug/count", async (req, res) => {
     try {
-        const count = await Product.count();
-        const products = await Product.findAll({
+        const count = await Product_js_1.Product.count();
+        const products = await Product_js_1.Product.findAll({
             limit: 5,
             order: [['id', 'DESC']]
         });
@@ -104,4 +109,4 @@ router.get("/debug/count", async (req, res) => {
         });
     }
 });
-export default router;
+exports.default = router;

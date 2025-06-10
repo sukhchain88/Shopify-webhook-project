@@ -1,7 +1,7 @@
 import express from "express";
 import { OrderItemService } from "../services/OrderItemService";
-import { Order } from "../models/Order.js";
-import { OrderItem } from "../models/OrderItem.js";
+import { Order } from "../models/Order";
+import { OrderItem } from "../models/OrderItem";
 
 const router = express.Router();
 

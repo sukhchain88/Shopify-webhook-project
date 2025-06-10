@@ -1,4 +1,7 @@
-export const QUEUE_NAMES = {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.JOB_NAMES = exports.QUEUE_NAMES = void 0;
+exports.QUEUE_NAMES = {
     EMAIL: 'email',
     WEBHOOK: 'webhook-processing',
     PRODUCT_SYNC: 'product-sync',
@@ -6,7 +9,7 @@ export const QUEUE_NAMES = {
     ORDER_PROCESSING: 'order-processing',
     NOTIFICATIONS: 'notifications',
 };
-export const JOB_NAMES = {
+exports.JOB_NAMES = {
     SEND_EMAIL: 'send-email',
     SEND_BULK_EMAIL: 'send-bulk-email',
     PROCESS_WEBHOOK: 'process-webhook',

@@ -1,43 +1,49 @@
-import { DataTypes } from "sequelize";
-import sequelize from "../config/db.js";
-import { Customer } from "./Customer.js";
-export const Order = sequelize.define("orders", {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Order = void 0;
+const sequelize_1 = require("sequelize");
+const db_js_1 = __importDefault(require("../config/db.js"));
+const Customer_1 = require("./Customer");
+exports.Order = db_js_1.default.define("orders", {
     id: {
-        type: DataTypes.INTEGER,
+        type: sequelize_1.DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
     },
     shop_domain: {
-        type: DataTypes.STRING(255),
+        type: sequelize_1.DataTypes.STRING(255),
         allowNull: false,
     },
     order_number: {
-        type: DataTypes.STRING(50),
+        type: sequelize_1.DataTypes.STRING(50),
         allowNull: false,
     },
     customer_id: {
-        type: DataTypes.INTEGER,
+        type: sequelize_1.DataTypes.INTEGER,
         allowNull: true,
         references: {
-            model: Customer,
+            model: Customer_1.Customer,
             key: 'id'
         }
     },
     total_price: {
-        type: DataTypes.DECIMAL(10, 2),
+        type: sequelize_1.DataTypes.DECIMAL(10, 2),
         allowNull: true,
     },
     currency: {
-        type: DataTypes.STRING(10),
+        type: sequelize_1.DataTypes.STRING(10),
         allowNull: true,
         defaultValue: 'USD',
     },
     status: {
-        type: DataTypes.STRING(50),
+        type: sequelize_1.DataTypes.STRING(50),
         allowNull: true,
     },
     shopify_order_id: {
-        type: DataTypes.STRING(255),
+        type: sequelize_1.DataTypes.STRING(255),
         allowNull: true,
     }
 }, {
@@ -45,5 +51,5 @@ export const Order = sequelize.define("orders", {
     timestamps: true,
     underscored: true,
 });
-Order.belongsTo(Customer, { foreignKey: 'customer_id' });
-Customer.hasMany(Order, { foreignKey: 'customer_id' });
+exports.Order.belongsTo(Customer_1.Customer, { foreignKey: 'customer_id' });
+Customer_1.Customer.hasMany(exports.Order, { foreignKey: 'customer_id' });

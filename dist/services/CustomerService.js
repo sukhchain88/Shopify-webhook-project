@@ -1,19 +1,22 @@
-import { Customer } from "../models/Customer.js";
-import { shopifyApiService } from "./ShopifyService.js";
-import { Op } from "sequelize";
-import { validateAndFormatPhone } from "../utils/phoneValidator.js";
-export class CustomerService {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CustomerService = void 0;
+const Customer_js_1 = require("../models/Customer.js");
+const ShopifyService_js_1 = require("./ShopifyService.js");
+const sequelize_1 = require("sequelize");
+const phoneValidator_js_1 = require("../utils/phoneValidator.js");
+class CustomerService {
     static async findByShopifyId(shopifyId) {
-        return await Customer.findOne({
+        return await Customer_js_1.Customer.findOne({
             where: { shopify_customer_id: shopifyId }
         });
     }
     static async createCustomer(customerData) {
         try {
-            const localCustomer = await Customer.create(customerData);
+            const localCustomer = await Customer_js_1.Customer.create(customerData);
             let shopifyCustomer = null;
             try {
-                const formattedPhone = validateAndFormatPhone(customerData.phone);
+                const formattedPhone = (0, phoneValidator_js_1.validateAndFormatPhone)(customerData.phone);
                 const shopifyCustomerData = {
                     first_name: customerData.first_name,
                     last_name: customerData.last_name,
@@ -33,7 +36,7 @@ export class CustomerService {
                 else if (customerData.phone) {
                     console.warn(`⚠️ Skipping invalid phone number for Shopify: ${customerData.phone}`);
                 }
-                const shopifyResponse = await shopifyApiService("POST", "customers.json", {
+                const shopifyResponse = await (0, ShopifyService_js_1.shopifyApiService)("POST", "customers.json", {
                     customer: shopifyCustomerData
                 });
                 await localCustomer.update({
@@ -58,7 +61,7 @@ export class CustomerService {
     }
     static async updateCustomer(id, customerData) {
         try {
-            const customer = await Customer.findByPk(id);
+            const customer = await Customer_js_1.Customer.findByPk(id);
             if (!customer) {
                 throw new Error("Customer not found");
             }
@@ -67,7 +70,7 @@ export class CustomerService {
             const shopifyCustomerId = customer.get('shopify_customer_id');
             if (shopifyCustomerId) {
                 try {
-                    const formattedPhone = validateAndFormatPhone(customerData.phone);
+                    const formattedPhone = (0, phoneValidator_js_1.validateAndFormatPhone)(customerData.phone);
                     const shopifyCustomerData = {
                         first_name: customerData.first_name,
                         last_name: customerData.last_name,
@@ -87,7 +90,7 @@ export class CustomerService {
                     else if (customerData.phone) {
                         console.warn(`⚠️ Skipping invalid phone number for Shopify update: ${customerData.phone}`);
                     }
-                    await shopifyApiService("PUT", `customers/${shopifyCustomerId}.json`, {
+                    await (0, ShopifyService_js_1.shopifyApiService)("PUT", `customers/${shopifyCustomerId}.json`, {
                         customer: shopifyCustomerData
                     });
                     shopifyUpdated = true;
@@ -112,7 +115,7 @@ export class CustomerService {
     }
     static async deleteCustomer(id) {
         try {
-            const customer = await Customer.findByPk(id);
+            const customer = await Customer_js_1.Customer.findByPk(id);
             if (!customer) {
                 throw new Error("Customer not found");
             }
@@ -120,7 +123,7 @@ export class CustomerService {
             const shopifyCustomerId = customer.get('shopify_customer_id');
             if (shopifyCustomerId) {
                 try {
-                    await shopifyApiService("DELETE", `customers/${shopifyCustomerId}.json`);
+                    await (0, ShopifyService_js_1.shopifyApiService)("DELETE", `customers/${shopifyCustomerId}.json`);
                     shopifyDeleted = true;
                     console.log("✅ Customer deleted from both local DB and Shopify");
                 }
@@ -145,7 +148,7 @@ export class CustomerService {
     static async getCustomers(page = 1, limit = 10) {
         try {
             const offset = (page - 1) * limit;
-            const customers = await Customer.findAndCountAll({
+            const customers = await Customer_js_1.Customer.findAndCountAll({
                 limit,
                 offset,
                 order: [["createdAt", "DESC"]]
@@ -167,7 +170,7 @@ export class CustomerService {
     }
     static async getCustomerById(id) {
         try {
-            const customer = await Customer.findByPk(id);
+            const customer = await Customer_js_1.Customer.findByPk(id);
             if (!customer) {
                 throw new Error("Customer not found");
             }
@@ -180,10 +183,10 @@ export class CustomerService {
     }
     static async syncCustomersFromShopify() {
         try {
-            const response = await shopifyApiService("GET", "customers.json");
+            const response = await (0, ShopifyService_js_1.shopifyApiService)("GET", "customers.json");
             const shopifyCustomers = response.customers;
             for (const shopifyCustomer of shopifyCustomers) {
-                await Customer.findOrCreate({
+                await Customer_js_1.Customer.findOrCreate({
                     where: { shopify_customer_id: String(shopifyCustomer.id) },
                     defaults: {
                         shop_domain: shopifyCustomer.shop_domain,
@@ -205,12 +208,12 @@ export class CustomerService {
     static async searchCustomers(query, page = 1, limit = 10) {
         try {
             const offset = (page - 1) * limit;
-            const customers = await Customer.findAndCountAll({
+            const customers = await Customer_js_1.Customer.findAndCountAll({
                 where: {
-                    [Op.or]: [
-                        { email: { [Op.like]: `%${query}%` } },
-                        { first_name: { [Op.like]: `%${query}%` } },
-                        { last_name: { [Op.like]: `%${query}%` } }
+                    [sequelize_1.Op.or]: [
+                        { email: { [sequelize_1.Op.like]: `%${query}%` } },
+                        { first_name: { [sequelize_1.Op.like]: `%${query}%` } },
+                        { last_name: { [sequelize_1.Op.like]: `%${query}%` } }
                     ]
                 },
                 limit,
@@ -233,3 +236,4 @@ export class CustomerService {
         }
     }
 }
+exports.CustomerService = CustomerService;

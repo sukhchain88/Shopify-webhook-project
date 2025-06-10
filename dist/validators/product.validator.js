@@ -1,29 +1,34 @@
-import { z } from "zod";
-const productSchema = z.object({
-    title: z.string().min(1, "Title is required"),
-    description: z.string().nullable().optional(),
-    price: z.union([z.string(), z.number()]),
-    shopify_product_id: z.string().optional(),
-    status: z.enum(["active", "draft", "archived"]).default("active"),
-    metadata: z.object({
-        vendor: z.string().nullable().optional(),
-        product_type: z.string().nullable().optional(),
-        tags: z.string().nullable().optional()
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.validateWebhook = exports.validateProduct = exports.webhookSchema = void 0;
+const zod_1 = require("zod");
+const productSchema = zod_1.z.object({
+    title: zod_1.z.string().min(1, "Title is required"),
+    description: zod_1.z.string().nullable().optional(),
+    price: zod_1.z.union([zod_1.z.string(), zod_1.z.number()]),
+    shopify_product_id: zod_1.z.string().optional(),
+    status: zod_1.z.enum(["active", "draft", "archived"]).default("active"),
+    metadata: zod_1.z.object({
+        vendor: zod_1.z.string().nullable().optional(),
+        product_type: zod_1.z.string().nullable().optional(),
+        tags: zod_1.z.string().nullable().optional()
     }).optional()
 });
-export const webhookSchema = z.object({
-    id: z.union([z.string(), z.number()]),
-    title: z.string(),
-    body_html: z.string().nullable().optional(),
-    vendor: z.string().nullable().optional(),
-    product_type: z.string().nullable().optional(),
-    tags: z.string().nullable().optional(),
-    status: z.enum(["active", "draft", "archived"]).default("active"),
-    variants: z.array(z.object({
-        price: z.union([z.string(), z.number()]),
-        sku: z.string().nullable().optional(),
-        inventory_quantity: z.number().nullable().optional(),
+exports.webhookSchema = zod_1.z.object({
+    id: zod_1.z.union([zod_1.z.string(), zod_1.z.number()]),
+    title: zod_1.z.string(),
+    body_html: zod_1.z.string().nullable().optional(),
+    vendor: zod_1.z.string().nullable().optional(),
+    product_type: zod_1.z.string().nullable().optional(),
+    tags: zod_1.z.string().nullable().optional(),
+    status: zod_1.z.enum(["active", "draft", "archived"]).default("active"),
+    variants: zod_1.z.array(zod_1.z.object({
+        price: zod_1.z.union([zod_1.z.string(), zod_1.z.number()]),
+        sku: zod_1.z.string().nullable().optional(),
+        inventory_quantity: zod_1.z.number().nullable().optional(),
     })).min(1, "At least one variant is required")
 });
-export const validateProduct = (data) => productSchema.safeParse(data);
-export const validateWebhook = (data) => webhookSchema.safeParse(data);
+const validateProduct = (data) => productSchema.safeParse(data);
+exports.validateProduct = validateProduct;
+const validateWebhook = (data) => exports.webhookSchema.safeParse(data);
+exports.validateWebhook = validateWebhook;

@@ -1,16 +1,19 @@
-import { Webhook } from "../models/Webhook.js";
-import { shopifyApiService } from "./ShopifyService.js";
-import { handleProductWebhook } from "../webhookHandlers/productHandler.js";
-import { handleOrderWebhook } from "../webhookHandlers/orderHandler.js";
-import { handleCustomerWebhook } from "../webhookHandlers/customerHandler.js";
-import { VALID_WEBHOOK_TOPICS } from "../config/webhookConstants.js";
-export { VALID_WEBHOOK_TOPICS };
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.WebhookService = exports.deleteShopifyWebhook = exports.createShopifyWebhook = exports.listShopifyWebhooks = exports.VALID_WEBHOOK_TOPICS = void 0;
+const Webhook_js_1 = require("../models/Webhook.js");
+const ShopifyService_js_1 = require("./ShopifyService.js");
+const productHandler_js_1 = require("../webhookHandlers/productHandler.js");
+const orderHandler_js_1 = require("../webhookHandlers/orderHandler.js");
+const customerHandler_js_1 = require("../webhookHandlers/customerHandler.js");
+const webhookConstants_js_1 = require("../config/webhookConstants.js");
+Object.defineProperty(exports, "VALID_WEBHOOK_TOPICS", { enumerable: true, get: function () { return webhookConstants_js_1.VALID_WEBHOOK_TOPICS; } });
 const normalizeAddress = (address) => {
     return address.trim().toLowerCase();
 };
-export const listShopifyWebhooks = async () => {
+const listShopifyWebhooks = async () => {
     try {
-        const response = await shopifyApiService("GET", "webhooks.json");
+        const response = await (0, ShopifyService_js_1.shopifyApiService)("GET", "webhooks.json");
         return response;
     }
     catch (error) {
@@ -22,16 +25,17 @@ export const listShopifyWebhooks = async () => {
         throw error;
     }
 };
-export const createShopifyWebhook = async ({ topic, address, }) => {
+exports.listShopifyWebhooks = listShopifyWebhooks;
+const createShopifyWebhook = async ({ topic, address, }) => {
     const cleanAddress = address.trim();
     const normalizedAddress = normalizeAddress(cleanAddress);
     try {
-        const existingWebhooks = await listShopifyWebhooks();
+        const existingWebhooks = await (0, exports.listShopifyWebhooks)();
         const existingWebhook = existingWebhooks.webhooks.find((webhook) => webhook.topic === topic);
         if (existingWebhook &&
             normalizeAddress(existingWebhook.address) !== normalizedAddress) {
             console.log(`🔁 Deleting old webhook for topic ${topic} at ${existingWebhook.address}`);
-            await deleteShopifyWebhook(existingWebhook.id);
+            await (0, exports.deleteShopifyWebhook)(existingWebhook.id);
         }
         console.log(`Creating webhook for topic: ${topic}`);
         const data = {
@@ -41,7 +45,7 @@ export const createShopifyWebhook = async ({ topic, address, }) => {
                 format: "json",
             },
         };
-        const response = await shopifyApiService("POST", "webhooks.json", data);
+        const response = await (0, ShopifyService_js_1.shopifyApiService)("POST", "webhooks.json", data);
         console.log(`✅ Webhook created successfully for topic: ${topic}`);
         return response;
     }
@@ -50,9 +54,10 @@ export const createShopifyWebhook = async ({ topic, address, }) => {
         throw new Error(`Failed to create webhook: ${error.message || "Unknown error"}`);
     }
 };
-export const deleteShopifyWebhook = async (webhookId) => {
+exports.createShopifyWebhook = createShopifyWebhook;
+const deleteShopifyWebhook = async (webhookId) => {
     try {
-        await shopifyApiService("DELETE", `webhooks/${webhookId}.json`);
+        await (0, ShopifyService_js_1.shopifyApiService)("DELETE", `webhooks/${webhookId}.json`);
         return { success: true };
     }
     catch (error) {
@@ -60,7 +65,8 @@ export const deleteShopifyWebhook = async (webhookId) => {
         throw error;
     }
 };
-export class WebhookService {
+exports.deleteShopifyWebhook = deleteShopifyWebhook;
+class WebhookService {
     static async processWebhook(topic, payload, shopDomain) {
         let webhook;
         try {
@@ -78,7 +84,7 @@ export class WebhookService {
         }
     }
     static async storeWebhook(topic, payload, shopDomain) {
-        return await Webhook.create({
+        return await Webhook_js_1.Webhook.create({
             topic,
             shop_domain: shopDomain,
             payload,
@@ -91,18 +97,18 @@ export class WebhookService {
             case "customers/create":
             case "customers/update":
             case "customers/delete":
-                await handleCustomerWebhook(payload);
+                await (0, customerHandler_js_1.handleCustomerWebhook)(payload);
                 break;
             case "products/create":
             case "products/update":
             case "products/delete":
-                await handleProductWebhook(payload);
+                await (0, productHandler_js_1.handleProductWebhook)(payload);
                 break;
             case "orders/create":
             case "orders/updated":
             case "orders/cancelled":
             case "orders/fulfilled":
-                await handleOrderWebhook(payload);
+                await (0, orderHandler_js_1.handleOrderWebhook)(payload);
                 break;
             default:
                 console.log(`Unhandled webhook topic: ${topic}`);
@@ -132,14 +138,14 @@ export class WebhookService {
         }
     }
     static async getWebhooks(page = 1, limit = 10) {
-        return await Webhook.findAndCountAll({
+        return await Webhook_js_1.Webhook.findAndCountAll({
             order: [["id", "DESC"]],
             limit,
             offset: (page - 1) * limit
         });
     }
     static async getWebhookById(id) {
-        return await Webhook.findByPk(id);
+        return await Webhook_js_1.Webhook.findByPk(id);
     }
     static async deleteWebhook(id) {
         const webhook = await this.getWebhookById(id);
@@ -147,7 +153,7 @@ export class WebhookService {
             throw new Error("Webhook not found");
         }
         try {
-            await shopifyApiService("DELETE", `webhooks/${id}.json`);
+            await (0, ShopifyService_js_1.shopifyApiService)("DELETE", `webhooks/${id}.json`);
         }
         catch (error) {
             console.error("Failed to delete webhook from Shopify:", error);
@@ -156,3 +162,4 @@ export class WebhookService {
         return true;
     }
 }
+exports.WebhookService = WebhookService;
