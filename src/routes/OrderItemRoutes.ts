@@ -1,10 +1,39 @@
-// @ts-nocheck
 import express from "express";
 import { OrderItemService } from "../services/OrderItemService.js";
 import { Order } from "../models/Order.js";
 import { OrderItem } from "../models/OrderItem.js";
 
 const router = express.Router();
+
+/**
+ * GET /api/order-items
+ * Get basic info about order items endpoints
+ */
+router.get("/", async (req, res) => {
+  try {
+    res.json({
+      success: true,
+      message: "Order Items API",
+      available_endpoints: {
+        "GET /api/order-items/order/:orderId": "Get items for a specific order",
+        "GET /api/order-items/orders-with-items": "Get all orders with their items",
+        "GET /api/order-items/customer/:customerId/history": "Get customer purchase history",
+        "GET /api/order-items/analytics/product/:productId": "Get product sales analytics",
+        "GET /api/order-items/search?q=term": "Search order items",
+        "PUT /api/order-items/:itemId": "Update an order item",
+        "POST /api/order-items/test-webhook": "Test webhook processing"
+      }
+    });
+    
+  } catch (error: any) {
+    console.error("Error in order items root endpoint:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to load order items API info",
+      error: error.message || "Unknown error"
+    });
+  }
+});
 
 /**
  * GET /api/order-items/order/:orderId
@@ -381,7 +410,7 @@ router.post("/test-webhook", async (req, res) => {
 
     try {
       // Import the order webhook handler
-      const { handleOrderWebhook } = await import("../webhookHandlers/orderHandler");
+      const { handleOrderWebhook } = await import("../webhookHandlers/orderHandler.js");
       
       // Process the webhook using the actual handler
       await handleOrderWebhook(webhookPayload);
@@ -394,7 +423,7 @@ router.post("/test-webhook", async (req, res) => {
         }
       });
 
-      let orderItems = [];
+      let orderItems: any[] = [];
       if (createdOrder) {
         orderItems = await OrderItem.findAll({
           where: { order_id: (createdOrder as any).id },
@@ -434,7 +463,7 @@ router.post("/test-webhook", async (req, res) => {
         }
       });
 
-    } catch (webhookError) {
+    } catch (webhookError: any) {
       console.error("❌ Webhook processing error:", webhookError);
       
       res.status(500).json({

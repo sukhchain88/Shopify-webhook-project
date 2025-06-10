@@ -3,6 +3,31 @@ import { OrderItemService } from "../services/OrderItemService.js";
 import { Order } from "../models/Order.js";
 import { OrderItem } from "../models/OrderItem.js";
 const router = express.Router();
+router.get("/", async (req, res) => {
+    try {
+        res.json({
+            success: true,
+            message: "Order Items API",
+            available_endpoints: {
+                "GET /api/order-items/order/:orderId": "Get items for a specific order",
+                "GET /api/order-items/orders-with-items": "Get all orders with their items",
+                "GET /api/order-items/customer/:customerId/history": "Get customer purchase history",
+                "GET /api/order-items/analytics/product/:productId": "Get product sales analytics",
+                "GET /api/order-items/search?q=term": "Search order items",
+                "PUT /api/order-items/:itemId": "Update an order item",
+                "POST /api/order-items/test-webhook": "Test webhook processing"
+            }
+        });
+    }
+    catch (error) {
+        console.error("Error in order items root endpoint:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to load order items API info",
+            error: error.message || "Unknown error"
+        });
+    }
+});
 router.get("/order/:orderId", async (req, res) => {
     try {
         const orderId = parseInt(req.params.orderId);
@@ -285,7 +310,7 @@ router.post("/test-webhook", async (req, res) => {
         }
         console.log("🧪 Testing webhook payload:", JSON.stringify(webhookPayload, null, 2));
         try {
-            const { handleOrderWebhook } = await import("../webhookHandlers/orderHandler");
+            const { handleOrderWebhook } = await import("../webhookHandlers/orderHandler.js");
             await handleOrderWebhook(webhookPayload);
             const createdOrder = await Order.findOne({
                 where: {

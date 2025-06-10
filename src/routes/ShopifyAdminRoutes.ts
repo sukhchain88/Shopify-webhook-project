@@ -5,6 +5,69 @@ import { ProductService } from "../services/ProductService.js";
 const router = Router();
 
 /**
+ * GET /api/shopify-admin
+ * Get basic info about Shopify Admin API endpoints
+ */
+router.get("/", async (req, res) => {
+  try {
+    res.json({
+      success: true,
+      message: "Shopify Admin API",
+      available_endpoints: {
+        "POST /api/shopify-admin/products": "Create a product in Shopify",
+        "PUT /api/shopify-admin/products/:id": "Update a product in Shopify", 
+        "POST /api/shopify-admin/customers": "Create a customer in Shopify",
+        "PUT /api/shopify-admin/customers/:id": "Update a customer in Shopify",
+        "GET /api/shopify-admin/customers": "Get all customers from Shopify",
+        "POST /api/shopify-admin/orders": "Create an order in Shopify",
+        "PUT /api/shopify-admin/orders/:id": "Update an order in Shopify",
+        "GET /api/shopify-admin/orders": "Get all orders from Shopify",
+        "POST /api/shopify-admin/orders/:id/cancel": "Cancel an order in Shopify",
+        "POST /api/shopify-admin/sync": "Sync local data to Shopify",
+        "POST /api/shopify-admin/sync-local-products": "Sync all local products to Shopify"
+      }
+    });
+  } catch (error: any) {
+    console.error("Error in Shopify Admin root endpoint:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to load Shopify Admin API info",
+      error: error.message || "Unknown error"
+    });
+  }
+});
+
+/**
+ * GET /api/shopify-admin/products
+ * Get all products from Shopify admin store
+ */
+router.get("/products", async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit as string) || 50;
+    
+    res.json({
+      success: true,
+      message: "Products endpoint available",
+      info: "Use POST to create products, PUT to update them",
+      available_methods: {
+        "POST /api/shopify-admin/products": "Create a new product",
+        "PUT /api/shopify-admin/products/:id": "Update existing product"
+      },
+      query_parameters: {
+        limit: `Optional - limit results (default: ${limit})`
+      }
+    });
+  } catch (error: any) {
+    console.error("Error in products endpoint:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to access products endpoint",
+      error: error.message || "Unknown error"
+    });
+  }
+});
+
+/**
  * POST /api/shopify-admin/products
  * Create a product in Shopify admin store
  */
