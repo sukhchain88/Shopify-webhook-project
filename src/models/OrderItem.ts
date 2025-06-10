@@ -147,26 +147,7 @@ OrderItem.init({
   ]
 });
 
-// Define relationships
-OrderItem.belongsTo(Order, { 
-  foreignKey: 'order_id',
-  as: 'order'
-});
-
-OrderItem.belongsTo(Product, { 
-  foreignKey: 'product_id',
-  as: 'product'
-});
-
-Order.hasMany(OrderItem, { 
-  foreignKey: 'order_id',
-  as: 'items'
-});
-
-Product.hasMany(OrderItem, { 
-  foreignKey: 'product_id',
-  as: 'orderItems'
-});
+// Associations are defined in associations.ts to avoid circular dependencies
 
 export default OrderItem;
 

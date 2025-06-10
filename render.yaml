@@ -2,7 +2,15 @@ services:
   - type: web
     name: shopify-webhook-handler
     env: node
-    buildCommand: npm ci && npm run build:production
+    buildCommand: |
+      echo "Node version: $(node --version)"
+      echo "NPM version: $(npm --version)"
+      echo "Installing dependencies..."
+      npm ci --include=dev
+      echo "Validating build environment..."
+      node scripts/validate-build.js
+      echo "Running TypeScript compilation..."
+      npm run build:production
     startCommand: npm start
     healthCheckPath: /health
     envVars:
@@ -12,4 +20,6 @@ services:
         value: 10000
       - key: NODE_VERSION
         value: 20.15.1
+      - key: NPM_CONFIG_PRODUCTION
+        value: false
     autoDeploy: true 

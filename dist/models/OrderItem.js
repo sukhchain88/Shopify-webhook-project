@@ -133,20 +133,4 @@ OrderItem.init({
         }
     ]
 });
-OrderItem.belongsTo(Order_1.Order, {
-    foreignKey: 'order_id',
-    as: 'order'
-});
-OrderItem.belongsTo(Product_1.Product, {
-    foreignKey: 'product_id',
-    as: 'product'
-});
-Order_1.Order.hasMany(OrderItem, {
-    foreignKey: 'order_id',
-    as: 'items'
-});
-Product_1.Product.hasMany(OrderItem, {
-    foreignKey: 'product_id',
-    as: 'orderItems'
-});
 exports.default = OrderItem;

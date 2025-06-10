@@ -51,5 +51,3 @@ exports.Order = db_1.default.define("orders", {
     timestamps: true,
     underscored: true,
 });
-exports.Order.belongsTo(Customer_1.Customer, { foreignKey: 'customer_id' });
-Customer_1.Customer.hasMany(exports.Order, { foreignKey: 'customer_id' });

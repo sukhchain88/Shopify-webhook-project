@@ -1,0 +1,21 @@
+# Render ignore file
+# Development files
+src/
+tests/
+*.test.ts
+*.spec.ts
+
+# Documentation and config files
+README.md
+.env.example
+.gitignore
+tsconfig.json
+
+# Development dependencies
+node_modules/.cache/
+.vscode/
+.idea/
+
+# Build artifacts that we don't want duplicated
+*.tsbuildinfo
+*.log 

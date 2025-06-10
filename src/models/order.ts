@@ -48,7 +48,5 @@ export const Order = sequelize.define("orders", {
   underscored: true,
 });
 
-// Define the relationship between Order and Customer
-Order.belongsTo(Customer, { foreignKey: 'customer_id' });
-Customer.hasMany(Order, { foreignKey: 'customer_id' });
+// Associations are defined in associations.ts to avoid circular dependencies
  

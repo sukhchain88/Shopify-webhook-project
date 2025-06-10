@@ -1,10 +1,16 @@
-// Central exports for all models
+// Central exports for all models with proper association handling
 export { Product } from './Product';
 export { Customer } from './Customer';
 export { Order } from './Order';
 export { OrderItem } from './OrderItem';
 export { Webhook } from './Webhook';
 export { Users } from './User';
+
+// Import and initialize associations
+import { initializeAssociations } from './associations';
+
+// Initialize associations when models are imported
+initializeAssociations();
 
 // Re-export default exports for compatibility
 import { Product } from './Product';
