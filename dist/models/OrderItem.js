@@ -5,9 +5,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrderItem = void 0;
 const sequelize_1 = require("sequelize");
-const db_1 = __importDefault(require("../config/db"));
-const Order_1 = require("./Order");
-const Product_1 = require("./Product");
+const db_js_1 = __importDefault(require("../config/db.js"));
+const Order_js_1 = require("./Order.js");
+const Product_js_1 = require("./Product.js");
 // Define the OrderItem model with proper TypeScript types
 class OrderItem extends sequelize_1.Model {
 }
@@ -22,7 +22,7 @@ OrderItem.init({
         type: sequelize_1.DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: Order_1.Order,
+            model: Order_js_1.Order,
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -32,7 +32,7 @@ OrderItem.init({
         type: sequelize_1.DataTypes.INTEGER,
         allowNull: true, // Can be null if product is deleted
         references: {
-            model: Product_1.Product,
+            model: Product_js_1.Product,
             key: 'id'
         },
         onDelete: 'SET NULL',
@@ -115,7 +115,7 @@ OrderItem.init({
         defaultValue: sequelize_1.DataTypes.NOW,
     }
 }, {
-    sequelize: db_1.default,
+    sequelize: db_js_1.default,
     tableName: "order_items",
     timestamps: true,
     underscored: true,
@@ -135,19 +135,19 @@ OrderItem.init({
     ]
 });
 // Define relationships
-OrderItem.belongsTo(Order_1.Order, {
+OrderItem.belongsTo(Order_js_1.Order, {
     foreignKey: 'order_id',
     as: 'order'
 });
-OrderItem.belongsTo(Product_1.Product, {
+OrderItem.belongsTo(Product_js_1.Product, {
     foreignKey: 'product_id',
     as: 'product'
 });
-Order_1.Order.hasMany(OrderItem, {
+Order_js_1.Order.hasMany(OrderItem, {
     foreignKey: 'order_id',
     as: 'items'
 });
-Product_1.Product.hasMany(OrderItem, {
+Product_js_1.Product.hasMany(OrderItem, {
     foreignKey: 'product_id',
     as: 'orderItems'
 });

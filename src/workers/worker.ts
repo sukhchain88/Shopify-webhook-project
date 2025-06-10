@@ -1,8 +1,8 @@
 import { Worker, Job } from 'bullmq';
-import { redisConnection, workerConfig } from '../queues/config';
-import { QUEUE_NAMES } from '../queues/types';
-import { processEmailJob } from '../jobs/processors/email.processor';
-import { processWebhookJob } from '../jobs/processors/webhook.processor';
+import { redisConnection, workerConfig } from '../queues/config.js';
+import { QUEUE_NAMES } from '../queues/types.js';
+import { processEmailJob } from '../jobs/processors/email.processor.js';
+import { processWebhookJob } from '../jobs/processors/webhook.processor.js';
 
 /**
  * BullMQ Workers Setup

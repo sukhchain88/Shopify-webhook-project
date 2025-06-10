@@ -1,7 +1,7 @@
 // src\controllers\customer.controller.ts
 import { Request, Response } from "express";
-import { CustomerService } from "../services/CustomerService";
-import { validateCustomerInput, validateCustomerApiInput, validateCustomerUpdateApiInput } from "../validators/customer.validator";
+import { CustomerService } from "../services/CustomerService.js";
+import { validateCustomerInput, validateCustomerApiInput, validateCustomerUpdateApiInput } from "../validators/customer.validator.js";
 
 // Create a new customer
 export const createCustomer = async (req: Request, res: Response): Promise<void> => {

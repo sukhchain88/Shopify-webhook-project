@@ -5,8 +5,8 @@ import {
   SHOPIFY_STORE_URL,
   SHOPIFY_ACCESS_TOKEN,
   WEBHOOK_BASE_URL,
-} from "../config/config";
-import { VALID_WEBHOOK_TOPICS } from "./WebhookService";
+} from "../config/config.js";
+import { VALID_WEBHOOK_TOPICS } from "./WebhookService.js";
 
 export const shopifyApiService = async <T>(
   method: Method,

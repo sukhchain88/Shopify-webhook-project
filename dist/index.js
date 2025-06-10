@@ -50,21 +50,20 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const dotenv = __importStar(require("dotenv"));
 // Import route handlers
-const ProductRoutes_1 = __importDefault(require("./routes/ProductRoutes"));
-const WebhookRoutes_1 = __importDefault(require("./routes/WebhookRoutes"));
-const ShopifyRoutes_1 = __importDefault(require("./routes/ShopifyRoutes"));
-const ShopifyAdminRoutes_1 = __importDefault(require("./routes/ShopifyAdminRoutes"));
-const CustomerRoutes_1 = __importDefault(require("./routes/CustomerRoutes"));
-const OrderRoutes_1 = __importDefault(require("./routes/OrderRoutes"));
-const OrderItemRoutes_1 = __importDefault(require("./routes/OrderItemRoutes"));
-const HealthRoutes_1 = __importDefault(require("./routes/HealthRoutes"));
-const UserRoutes_1 = __importDefault(require("./routes/UserRoutes"));
+const ProductRoutes_js_1 = __importDefault(require("./routes/ProductRoutes.js"));
+const WebhookRoutes_js_1 = __importDefault(require("./routes/WebhookRoutes.js"));
+const ShopifyRoutes_js_1 = __importDefault(require("./routes/ShopifyRoutes.js"));
+const ShopifyAdminRoutes_js_1 = __importDefault(require("./routes/ShopifyAdminRoutes.js"));
+const CustomerRoutes_js_1 = __importDefault(require("./routes/CustomerRoutes.js"));
+const OrderRoutes_js_1 = __importDefault(require("./routes/OrderRoutes.js"));
+const OrderItemRoutes_js_1 = __importDefault(require("./routes/OrderItemRoutes.js"));
+const HealthRoutes_js_1 = __importDefault(require("./routes/HealthRoutes.js"));
+const UserRoutes_js_1 = __importDefault(require("./routes/UserRoutes.js"));
 // Import middleware
-const requestTiming_1 = require("./middleware/requestTiming");
-const errorHandler_1 = require("./middleware/errorHandler");
+const requestTiming_js_1 = require("./middleware/requestTiming.js");
+const errorHandler_js_1 = require("./middleware/errorHandler.js");
 // Import database connection
 require("./config/db"); // This initializes the database connection
-const initDatabase_1 = require("./config/initDatabase"); // Initialize database tables
 // Load environment variables
 dotenv.config();
 /**
@@ -83,7 +82,7 @@ app.use((0, cors_1.default)({
  * Request Timing Middleware
  * Logs request duration for performance monitoring
  */
-app.use(requestTiming_1.requestTiming);
+app.use(requestTiming_js_1.requestTiming);
 /**
  * Body Parsing Middleware
  *
@@ -121,23 +120,23 @@ app.use(express_1.default.urlencoded({
  * - /users: User management
  */
 // Health check endpoint (should be first for monitoring)
-app.use("/health", HealthRoutes_1.default);
+app.use("/health", HealthRoutes_js_1.default);
 // Product management routes
-app.use("/products", ProductRoutes_1.default);
+app.use("/products", ProductRoutes_js_1.default);
 // Webhook handling routes (with raw body parsing)
-app.use("/api/webhooks", WebhookRoutes_1.default);
+app.use("/api/webhooks", WebhookRoutes_js_1.default);
 // Shopify integration routes
-app.use("/shopify", ShopifyRoutes_1.default);
+app.use("/shopify", ShopifyRoutes_js_1.default);
 // Shopify Admin API routes
-app.use("/api/shopify-admin", ShopifyAdminRoutes_1.default);
+app.use("/api/shopify-admin", ShopifyAdminRoutes_js_1.default);
 // Customer management routes
-app.use("/customers", CustomerRoutes_1.default);
+app.use("/customers", CustomerRoutes_js_1.default);
 // Order management routes
-app.use("/orders", OrderRoutes_1.default);
+app.use("/orders", OrderRoutes_js_1.default);
 // Order items and product relationships routes
-app.use("/api/order-items", OrderItemRoutes_1.default);
+app.use("/api/order-items", OrderItemRoutes_js_1.default);
 // User management routes
-app.use("/users", UserRoutes_1.default);
+app.use("/users", UserRoutes_js_1.default);
 /**
  * Root endpoint - API information
  */
@@ -176,7 +175,7 @@ app.use("*", (req, res) => {
  * Global Error Handler
  * Catches all unhandled errors and returns consistent error responses
  */
-app.use(errorHandler_1.errorHandler);
+app.use(errorHandler_js_1.errorHandler);
 /**
  * Server Configuration
  */
@@ -187,8 +186,6 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
  */
 const startServer = async () => {
     try {
-        // Initialize database first
-        await (0, initDatabase_1.initDatabase)();
         const server = app.listen(PORT, () => {
             console.log(`🚀 Server running on port ${PORT}`);
             console.log(`📊 Environment: ${NODE_ENV}`);

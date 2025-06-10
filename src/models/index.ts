@@ -1,18 +1,18 @@
 // Central exports for all models
-export { Product } from './Product';
-export { Customer } from './Customer';
-export { Order } from './Order';
-export { OrderItem } from './OrderItem';
-export { Webhook } from './Webhook';
-export { Users } from './User';
+export { Product } from './Product.js';
+export { Customer } from './Customer.js';
+export { Order } from './Order.js';
+export { OrderItem } from './OrderItem.js';
+export { Webhook } from './Webhook.js';
+export { Users } from './User.js';
 
 // Re-export default exports for compatibility
-import { Product } from './Product';
-import { Customer } from './Customer';
-import { Order } from './Order';
-import { OrderItem } from './OrderItem';
-import { Webhook } from './Webhook';
-import { Users } from './User';
+import { Product } from './Product.js';
+import { Customer } from './Customer.js';
+import { Order } from './Order.js';
+import { OrderItem } from './OrderItem.js';
+import { Webhook } from './Webhook.js';
+import { Users } from './User.js';
 
 export default {
   Product,

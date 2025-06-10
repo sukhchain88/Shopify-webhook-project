@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteWebhookHandler = exports.listWebhooksHandler = exports.createWebhookHandler = void 0;
-const WebhookService_1 = require("../services/WebhookService");
+const WebhookService_js_1 = require("../services/WebhookService.js");
 /**
  * Create a new webhook
  * POST /create-webhook
@@ -23,7 +23,7 @@ const createWebhookHandler = async (req, res) => {
         console.log(`Attempting to create webhook for topic: ${webhook.topic}`);
         console.log(`Webhook address: ${webhook.address}`);
         // c Create the webhook
-        const result = await (0, WebhookService_1.createShopifyWebhook)({
+        const result = await (0, WebhookService_js_1.createShopifyWebhook)({
             topic: webhook.topic,
             address: webhook.address
         });
@@ -51,7 +51,7 @@ exports.createWebhookHandler = createWebhookHandler;
  */
 const listWebhooksHandler = async (req, res) => {
     try {
-        const webhooks = await (0, WebhookService_1.listShopifyWebhooks)();
+        const webhooks = await (0, WebhookService_js_1.listShopifyWebhooks)();
         res.status(200).json({
             message: "Webhooks retrieved successfully",
             data: webhooks
@@ -80,7 +80,7 @@ const deleteWebhookHandler = async (req, res) => {
             });
             return;
         }
-        await (0, WebhookService_1.deleteShopifyWebhook)(webhookId);
+        await (0, WebhookService_js_1.deleteShopifyWebhook)(webhookId);
         res.status(200).json({
             message: "Webhook deleted successfully",
             webhookId

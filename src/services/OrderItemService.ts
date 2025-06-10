@@ -1,9 +1,9 @@
-import { OrderItem } from "../models/OrderItem";
-import { Product } from "../models/Product";
-import { Order } from "../models/Order";
-import { Customer } from "../models/Customer";
+import { OrderItem } from "../models/OrderItem.js";
+import { Product } from "../models/Product.js";
+import { Order } from "../models/Order.js";
+import { Customer } from "../models/Customer.js";
 import { Op } from "sequelize";
-import sequelize from "../config/db";
+import sequelize from "../config/db.js";
 
 export class OrderItemService {
   

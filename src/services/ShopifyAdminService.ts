@@ -1,5 +1,5 @@
-import { shopifyApiService } from "./ShopifyService";
-import { ShopifyOrderResponse } from "../types/shopifyInterface";
+import { shopifyApiService } from "./ShopifyService.js";
+import { ShopifyOrderResponse } from "../types/shopifyInterface.js";
 
 interface ShopifyCustomerPayload {
   customer: {

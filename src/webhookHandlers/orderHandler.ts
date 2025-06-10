@@ -1,6 +1,6 @@
-import { Customer } from "../models/Customer";
-import { Order } from "../models/Order";
-import { OrderItemService } from "../services/OrderItemService";
+import { Customer } from "../models/Customer.js";
+import { Order } from "../models/Order.js";
+import { OrderItemService } from "../services/OrderItemService.js";
 
 export async function handleOrderWebhook(payload: any) {
   try {

@@ -1,8 +1,8 @@
 // @ts-nocheck
 import express from "express";
-import { OrderItemService } from "../services/OrderItemService";
-import { Order } from "../models/Order";
-import { OrderItem } from "../models/OrderItem";
+import { OrderItemService } from "../services/OrderItemService.js";
+import { Order } from "../models/Order.js";
+import { OrderItem } from "../models/OrderItem.js";
 
 const router = express.Router();
 

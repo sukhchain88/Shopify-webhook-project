@@ -6,8 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Webhook = void 0;
 // src/models/Webhook.ts
 const sequelize_1 = require("sequelize");
-const db_1 = __importDefault(require("../config/db"));
-exports.Webhook = db_1.default.define("webhooks", {
+const db_js_1 = __importDefault(require("../config/db.js"));
+exports.Webhook = db_js_1.default.define("webhooks", {
     id: {
         type: sequelize_1.DataTypes.INTEGER,
         autoIncrement: true,

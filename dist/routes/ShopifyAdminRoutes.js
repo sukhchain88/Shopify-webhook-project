@@ -1,41 +1,8 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const ShopifyAdminService_1 = require("../services/ShopifyAdminService");
-const ProductService_1 = require("../services/ProductService");
+const ShopifyAdminService_js_1 = require("../services/ShopifyAdminService.js");
+const ProductService_js_1 = require("../services/ProductService.js");
 const router = (0, express_1.Router)();
 /**
  * POST /api/shopify-admin/products
@@ -50,7 +17,7 @@ router.post("/products", async (req, res) => {
             });
             return;
         }
-        const result = await ProductService_1.ProductService.createProductInShopify(productData);
+        const result = await ProductService_js_1.ProductService.createProductInShopify(productData);
         res.status(201).json({
             message: "Product created successfully in Shopify",
             data: result
@@ -72,7 +39,7 @@ router.put("/products/:id", async (req, res) => {
     try {
         const { id } = req.params;
         const productData = req.body;
-        const result = await ProductService_1.ProductService.updateProductInShopify(id, productData);
+        const result = await ProductService_js_1.ProductService.updateProductInShopify(id, productData);
         res.json({
             message: "Product updated successfully in Shopify",
             data: result
@@ -99,7 +66,7 @@ router.post("/customers", async (req, res) => {
             });
             return;
         }
-        const result = await ShopifyAdminService_1.ShopifyAdminService.createCustomer(customerData);
+        const result = await ShopifyAdminService_js_1.ShopifyAdminService.createCustomer(customerData);
         res.status(201).json({
             message: "Customer created successfully in Shopify",
             data: result
@@ -121,7 +88,7 @@ router.put("/customers/:id", async (req, res) => {
     try {
         const { id } = req.params;
         const customerData = req.body;
-        const result = await ShopifyAdminService_1.ShopifyAdminService.updateCustomer(id, customerData);
+        const result = await ShopifyAdminService_js_1.ShopifyAdminService.updateCustomer(id, customerData);
         res.json({
             message: "Customer updated successfully in Shopify",
             data: result
@@ -148,7 +115,7 @@ router.post("/orders", async (req, res) => {
             });
             return;
         }
-        const result = await ShopifyAdminService_1.ShopifyAdminService.createOrder(orderData);
+        const result = await ShopifyAdminService_js_1.ShopifyAdminService.createOrder(orderData);
         res.status(201).json({
             message: "Order created successfully in Shopify",
             data: result
@@ -170,7 +137,7 @@ router.put("/orders/:id", async (req, res) => {
     try {
         const { id } = req.params;
         const orderData = req.body;
-        const result = await ShopifyAdminService_1.ShopifyAdminService.updateOrder(id, orderData);
+        const result = await ShopifyAdminService_js_1.ShopifyAdminService.updateOrder(id, orderData);
         res.json({
             message: "Order updated successfully in Shopify",
             data: result
@@ -192,7 +159,7 @@ router.post("/orders/:id/cancel", async (req, res) => {
     try {
         const { id } = req.params;
         const { reason } = req.body;
-        const result = await ShopifyAdminService_1.ShopifyAdminService.cancelOrder(id, reason);
+        const result = await ShopifyAdminService_js_1.ShopifyAdminService.cancelOrder(id, reason);
         res.json({
             message: "Order cancelled successfully in Shopify",
             data: result
@@ -214,7 +181,7 @@ router.get("/orders", async (req, res) => {
     try {
         const limit = parseInt(req.query.limit) || 50;
         const status = req.query.status || "any";
-        const result = await ShopifyAdminService_1.ShopifyAdminService.getAllOrders(limit, status);
+        const result = await ShopifyAdminService_js_1.ShopifyAdminService.getAllOrders(limit, status);
         res.json({
             message: "Orders retrieved successfully from Shopify",
             data: result
@@ -235,7 +202,7 @@ router.get("/orders", async (req, res) => {
 router.get("/customers", async (req, res) => {
     try {
         const limit = parseInt(req.query.limit) || 50;
-        const result = await ShopifyAdminService_1.ShopifyAdminService.getAllCustomers(limit);
+        const result = await ShopifyAdminService_js_1.ShopifyAdminService.getAllCustomers(limit);
         res.json({
             message: "Customers retrieved successfully from Shopify",
             data: result
@@ -256,7 +223,7 @@ router.get("/customers", async (req, res) => {
 router.post("/sync", async (req, res) => {
     try {
         const { products, customers, orders } = req.body;
-        const result = await ShopifyAdminService_1.ShopifyAdminService.syncDataToShopify({
+        const result = await ShopifyAdminService_js_1.ShopifyAdminService.syncDataToShopify({
             products,
             customers,
             orders
@@ -281,13 +248,13 @@ router.post("/sync", async (req, res) => {
 router.post("/sync-local-products", async (req, res) => {
     try {
         // Get all local products
-        const { Product } = await Promise.resolve().then(() => __importStar(require("../models/Product")));
+        const { Product } = await import("../models/Product.js");
         const localProducts = await Product.findAll();
         const results = [];
         for (const product of localProducts) {
             try {
                 const productData = product.get({ plain: true });
-                const result = await ProductService_1.ProductService.syncProductToShopify(productData);
+                const result = await ProductService_js_1.ProductService.syncProductToShopify(productData);
                 results.push(result);
             }
             catch (error) {

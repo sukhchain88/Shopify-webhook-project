@@ -5,17 +5,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 // src\routes\user.routes.ts
 const express_1 = __importDefault(require("express"));
-const UserController_1 = require("../controllers/UserController");
+const UserController_js_1 = require("../controllers/UserController.js");
 const userRouter = express_1.default.Router();
 // No need to add /users prefix as it's already in the path
 // GET all users
-userRouter.get('/', UserController_1.getAllUsers);
+userRouter.get('/', UserController_js_1.getAllUsers);
 // GET a single user by ID
-userRouter.get('/:id', UserController_1.getUserById);
+userRouter.get('/:id', UserController_js_1.getUserById);
 // POST create a new user
-userRouter.post('/', UserController_1.createUser);
+userRouter.post('/', UserController_js_1.createUser);
 // PUT update a user
-userRouter.put('/:id', UserController_1.updateUser);
+userRouter.put('/:id', UserController_js_1.updateUser);
 // DELETE a user
-userRouter.delete('/:id', UserController_1.deleteUser);
+userRouter.delete('/:id', UserController_js_1.deleteUser);
 exports.default = userRouter;

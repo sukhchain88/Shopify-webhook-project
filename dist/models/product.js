@@ -6,8 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Product = void 0;
 // src/models/Product.ts
 const sequelize_1 = require("sequelize");
-const db_1 = __importDefault(require("../config/db"));
-exports.Product = db_1.default.define("products", {
+const db_js_1 = __importDefault(require("../config/db.js"));
+exports.Product = db_js_1.default.define("products", {
     id: {
         type: sequelize_1.DataTypes.INTEGER,
         autoIncrement: true,

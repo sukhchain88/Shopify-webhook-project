@@ -1,14 +1,14 @@
 // src\services\webhook.service.ts
-import { Webhook } from "../models/Webhook";
-import { shopifyApiService } from "./ShopifyService";
-import { handleProductWebhook } from "../webhookHandlers/productHandler";
-import { handleOrderWebhook } from "../webhookHandlers/orderHandler";
-import { handleCustomerWebhook } from "../webhookHandlers/customerHandler";
+import { Webhook } from "../models/Webhook.js";
+import { shopifyApiService } from "./ShopifyService.js";
+import { handleProductWebhook } from "../webhookHandlers/productHandler.js";
+import { handleOrderWebhook } from "../webhookHandlers/orderHandler.js";
+import { handleCustomerWebhook } from "../webhookHandlers/customerHandler.js";
 import {
   WebhookOptions,
   WebhookResponse,
   WebhooksListResponse,
-} from "../types/webhookInterface";
+} from "../types/webhookInterface.js";
 
 export const VALID_WEBHOOK_TOPICS = [
   "customers/create",

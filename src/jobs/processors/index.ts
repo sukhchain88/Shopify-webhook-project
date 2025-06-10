@@ -6,10 +6,10 @@
  */
 
 // Email processors
-export { processEmailJob } from './email.processor';
+export { processEmailJob } from './email.processor.js';
 
 // Webhook processors
-export { processWebhookJob } from './webhook.processor';
+export { processWebhookJob } from './webhook.processor.js';
 
 // Export processor registry for dynamic access
 export const processors = {

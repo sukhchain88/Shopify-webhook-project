@@ -1,7 +1,7 @@
 import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from "sequelize";
-import sequelize from "../config/db";
-import { Order } from "./Order";
-import { Product } from "./Product";
+import sequelize from "../config/db.js";
+import { Order } from "./Order.js";
+import { Product } from "./Product.js";
 
 // Define the OrderItem model with proper TypeScript types
 export class OrderItem extends Model<InferAttributes<OrderItem>, InferCreationAttributes<OrderItem>> {

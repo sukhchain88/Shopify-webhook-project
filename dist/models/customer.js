@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Customer = void 0;
 // src/models/Customer.ts
 const sequelize_1 = require("sequelize");
-const db_1 = __importDefault(require("../config/db"));
+const db_js_1 = __importDefault(require("../config/db.js"));
 // Define the Customer model with proper TypeScript types
 class Customer extends sequelize_1.Model {
 }
@@ -74,7 +74,7 @@ Customer.init({
         field: 'updated_at'
     },
 }, {
-    sequelize: db_1.default,
+    sequelize: db_js_1.default,
     tableName: "customers",
     timestamps: true,
     underscored: true,

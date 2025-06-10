@@ -6,10 +6,10 @@ exports.getWorkerStatus = getWorkerStatus;
 exports.pauseAllWorkers = pauseAllWorkers;
 exports.resumeAllWorkers = resumeAllWorkers;
 const bullmq_1 = require("bullmq");
-const config_1 = require("../queues/config");
-const types_1 = require("../queues/types");
-const email_processor_1 = require("../jobs/processors/email.processor");
-const webhook_processor_1 = require("../jobs/processors/webhook.processor");
+const config_js_1 = require("../queues/config.js");
+const types_js_1 = require("../queues/types.js");
+const email_processor_js_1 = require("../jobs/processors/email.processor.js");
+const webhook_processor_js_1 = require("../jobs/processors/webhook.processor.js");
 /**
  * BullMQ Workers Setup
  *
@@ -28,35 +28,35 @@ const webhook_processor_1 = require("../jobs/processors/webhook.processor");
  *
  * Processes email-related jobs with high concurrency for better throughput
  */
-exports.emailWorker = new bullmq_1.Worker(types_1.QUEUE_NAMES.EMAIL, async (job) => {
+exports.emailWorker = new bullmq_1.Worker(types_js_1.QUEUE_NAMES.EMAIL, async (job) => {
     console.log(`[Email Worker] Processing job ${job.id}: ${job.name}`);
-    return await (0, email_processor_1.processEmailJob)(job);
+    return await (0, email_processor_js_1.processEmailJob)(job);
 }, {
-    connection: config_1.redisConnection,
-    concurrency: config_1.workerConfig.concurrency.email,
-    stalledInterval: config_1.workerConfig.stalledInterval,
-    maxStalledCount: config_1.workerConfig.maxStalledCount,
+    connection: config_js_1.redisConnection,
+    concurrency: config_js_1.workerConfig.concurrency.email,
+    stalledInterval: config_js_1.workerConfig.stalledInterval,
+    maxStalledCount: config_js_1.workerConfig.maxStalledCount,
 });
 /**
  * Webhook Worker
  *
  * Processes webhook events with moderate concurrency to handle database operations safely
  */
-exports.webhookWorker = new bullmq_1.Worker(types_1.QUEUE_NAMES.WEBHOOK, async (job) => {
+exports.webhookWorker = new bullmq_1.Worker(types_js_1.QUEUE_NAMES.WEBHOOK, async (job) => {
     console.log(`[Webhook Worker] Processing job ${job.id}: ${job.name}`);
-    return await (0, webhook_processor_1.processWebhookJob)(job);
+    return await (0, webhook_processor_js_1.processWebhookJob)(job);
 }, {
-    connection: config_1.redisConnection,
-    concurrency: config_1.workerConfig.concurrency.webhook,
-    stalledInterval: config_1.workerConfig.stalledInterval,
-    maxStalledCount: config_1.workerConfig.maxStalledCount,
+    connection: config_js_1.redisConnection,
+    concurrency: config_js_1.workerConfig.concurrency.webhook,
+    stalledInterval: config_js_1.workerConfig.stalledInterval,
+    maxStalledCount: config_js_1.workerConfig.maxStalledCount,
 });
 /**
  * Product Sync Worker
  *
  * Processes product synchronization jobs with limited concurrency to avoid API rate limits
  */
-exports.productSyncWorker = new bullmq_1.Worker(types_1.QUEUE_NAMES.PRODUCT_SYNC, async (job) => {
+exports.productSyncWorker = new bullmq_1.Worker(types_js_1.QUEUE_NAMES.PRODUCT_SYNC, async (job) => {
     console.log(`[Product Sync Worker] Processing job ${job.id}: ${job.name}`);
     // Placeholder processor - implement based on your needs
     console.log(`[Product Sync Worker] Product sync job completed: ${job.id}`);
@@ -67,17 +67,17 @@ exports.productSyncWorker = new bullmq_1.Worker(types_1.QUEUE_NAMES.PRODUCT_SYNC
         data: { jobId: job.id },
     };
 }, {
-    connection: config_1.redisConnection,
-    concurrency: config_1.workerConfig.concurrency.productSync,
-    stalledInterval: config_1.workerConfig.stalledInterval,
-    maxStalledCount: config_1.workerConfig.maxStalledCount,
+    connection: config_js_1.redisConnection,
+    concurrency: config_js_1.workerConfig.concurrency.productSync,
+    stalledInterval: config_js_1.workerConfig.stalledInterval,
+    maxStalledCount: config_js_1.workerConfig.maxStalledCount,
 });
 /**
  * Background Tasks Worker
  *
  * Processes background tasks with low concurrency to avoid impacting system performance
  */
-exports.backgroundWorker = new bullmq_1.Worker(types_1.QUEUE_NAMES.BACKGROUND, async (job) => {
+exports.backgroundWorker = new bullmq_1.Worker(types_js_1.QUEUE_NAMES.BACKGROUND, async (job) => {
     console.log(`[Background Worker] Processing job ${job.id}: ${job.name}`);
     // Placeholder processor - implement based on your needs
     const { taskType, parameters } = job.data;
@@ -98,17 +98,17 @@ exports.backgroundWorker = new bullmq_1.Worker(types_1.QUEUE_NAMES.BACKGROUND, a
         data: { jobId: job.id, taskType },
     };
 }, {
-    connection: config_1.redisConnection,
-    concurrency: config_1.workerConfig.concurrency.background,
-    stalledInterval: config_1.workerConfig.stalledInterval,
-    maxStalledCount: config_1.workerConfig.maxStalledCount,
+    connection: config_js_1.redisConnection,
+    concurrency: config_js_1.workerConfig.concurrency.background,
+    stalledInterval: config_js_1.workerConfig.stalledInterval,
+    maxStalledCount: config_js_1.workerConfig.maxStalledCount,
 });
 /**
  * Order Processing Worker
  *
  * Processes order-related operations with moderate concurrency
  */
-exports.orderProcessingWorker = new bullmq_1.Worker(types_1.QUEUE_NAMES.ORDER_PROCESSING, async (job) => {
+exports.orderProcessingWorker = new bullmq_1.Worker(types_js_1.QUEUE_NAMES.ORDER_PROCESSING, async (job) => {
     console.log(`[Order Processing Worker] Processing job ${job.id}: ${job.name}`);
     // Placeholder processor - implement based on your needs
     const { orderId, action, orderData } = job.data;
@@ -120,17 +120,17 @@ exports.orderProcessingWorker = new bullmq_1.Worker(types_1.QUEUE_NAMES.ORDER_PR
         data: { jobId: job.id, orderId, action },
     };
 }, {
-    connection: config_1.redisConnection,
-    concurrency: config_1.workerConfig.concurrency.webhook, // Same as webhook for high priority
-    stalledInterval: config_1.workerConfig.stalledInterval,
-    maxStalledCount: config_1.workerConfig.maxStalledCount,
+    connection: config_js_1.redisConnection,
+    concurrency: config_js_1.workerConfig.concurrency.webhook, // Same as webhook for high priority
+    stalledInterval: config_js_1.workerConfig.stalledInterval,
+    maxStalledCount: config_js_1.workerConfig.maxStalledCount,
 });
 /**
  * Notifications Worker
  *
  * Processes notification jobs with moderate concurrency
  */
-exports.notificationWorker = new bullmq_1.Worker(types_1.QUEUE_NAMES.NOTIFICATIONS, async (job) => {
+exports.notificationWorker = new bullmq_1.Worker(types_js_1.QUEUE_NAMES.NOTIFICATIONS, async (job) => {
     console.log(`[Notification Worker] Processing job ${job.id}: ${job.name}`);
     // Placeholder processor - implement based on your needs
     const { type, message, recipient, urgency } = job.data;
@@ -142,10 +142,10 @@ exports.notificationWorker = new bullmq_1.Worker(types_1.QUEUE_NAMES.NOTIFICATIO
         data: { jobId: job.id, type, urgency },
     };
 }, {
-    connection: config_1.redisConnection,
-    concurrency: config_1.workerConfig.concurrency.email, // Same as email for similar workload
-    stalledInterval: config_1.workerConfig.stalledInterval,
-    maxStalledCount: config_1.workerConfig.maxStalledCount,
+    connection: config_js_1.redisConnection,
+    concurrency: config_js_1.workerConfig.concurrency.email, // Same as email for similar workload
+    stalledInterval: config_js_1.workerConfig.stalledInterval,
+    maxStalledCount: config_js_1.workerConfig.maxStalledCount,
 });
 // ===========================================
 // WORKER EVENT HANDLERS

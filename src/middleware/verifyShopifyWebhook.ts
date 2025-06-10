@@ -11,7 +11,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
-import { SHOPIFY_WEBHOOK_SECRET } from '../config/config';
+import { SHOPIFY_WEBHOOK_SECRET } from '../config/config.js';
 
 /**
  * Custom Error for Webhook Verification

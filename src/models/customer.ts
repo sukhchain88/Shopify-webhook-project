@@ -1,6 +1,6 @@
 // src/models/Customer.ts
 import { Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional } from "sequelize";
-import sequelize  from "../config/db";
+import sequelize  from "../config/db.js";
 
 // Define the Customer model with proper TypeScript types
 export class Customer extends Model<InferAttributes<Customer>, InferCreationAttributes<Customer>> {

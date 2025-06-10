@@ -1,46 +1,13 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 // @ts-nocheck
 const express_1 = __importDefault(require("express"));
-const OrderItemService_1 = require("../services/OrderItemService");
-const Order_1 = require("../models/Order");
-const OrderItem_1 = require("../models/OrderItem");
+const OrderItemService_js_1 = require("../services/OrderItemService.js");
+const Order_js_1 = require("../models/Order.js");
+const OrderItem_js_1 = require("../models/OrderItem.js");
 const router = express_1.default.Router();
 /**
  * GET /api/order-items/order/:orderId
@@ -55,7 +22,7 @@ router.get("/order/:orderId", async (req, res) => {
                 message: "Invalid order ID"
             });
         }
-        const orderItems = await OrderItemService_1.OrderItemService.getOrderItems(orderId);
+        const orderItems = await OrderItemService_js_1.OrderItemService.getOrderItems(orderId);
         res.json({
             success: true,
             data: orderItems,
@@ -79,7 +46,7 @@ router.get("/orders-with-items", async (req, res) => {
     try {
         const limit = parseInt(req.query.limit) || 50;
         const offset = parseInt(req.query.offset) || 0;
-        const orders = await OrderItemService_1.OrderItemService.getOrdersWithItems(limit, offset);
+        const orders = await OrderItemService_js_1.OrderItemService.getOrdersWithItems(limit, offset);
         res.json({
             success: true,
             data: orders,
@@ -113,7 +80,7 @@ router.get("/customer/:customerId/history", async (req, res) => {
                 message: "Invalid customer ID"
             });
         }
-        const purchaseHistory = await OrderItemService_1.OrderItemService.getCustomerPurchaseHistory(customerId);
+        const purchaseHistory = await OrderItemService_js_1.OrderItemService.getCustomerPurchaseHistory(customerId);
         res.json({
             success: true,
             data: purchaseHistory,
@@ -142,7 +109,7 @@ router.get("/analytics/product/:productId?", async (req, res) => {
                 message: "Invalid product ID"
             });
         }
-        const analytics = await OrderItemService_1.OrderItemService.getProductSalesAnalytics(productId);
+        const analytics = await OrderItemService_js_1.OrderItemService.getProductSalesAnalytics(productId);
         res.json({
             success: true,
             data: analytics
@@ -171,7 +138,7 @@ router.get("/search", async (req, res) => {
                 message: "Search term (q) is required"
             });
         }
-        const orderItems = await OrderItemService_1.OrderItemService.searchOrderItems(searchTerm, limit);
+        const orderItems = await OrderItemService_js_1.OrderItemService.searchOrderItems(searchTerm, limit);
         res.json({
             success: true,
             data: orderItems,
@@ -202,7 +169,7 @@ router.put("/:itemId", async (req, res) => {
             });
         }
         const updateData = req.body;
-        const updatedItem = await OrderItemService_1.OrderItemService.updateOrderItem(itemId, updateData);
+        const updatedItem = await OrderItemService_js_1.OrderItemService.updateOrderItem(itemId, updateData);
         res.json({
             success: true,
             message: "Order item updated successfully",
@@ -231,7 +198,7 @@ router.delete("/:itemId", async (req, res) => {
                 message: "Invalid item ID"
             });
         }
-        const result = await OrderItemService_1.OrderItemService.deleteOrderItem(itemId);
+        const result = await OrderItemService_js_1.OrderItemService.deleteOrderItem(itemId);
         res.json({
             success: true,
             message: result.message
@@ -260,7 +227,7 @@ router.post("/debug-webhook", async (req, res) => {
             });
         }
         // Check if order exists
-        const order = await Order_1.Order.findByPk(orderId);
+        const order = await Order_js_1.Order.findByPk(orderId);
         if (!order) {
             return res.status(404).json({
                 success: false,
@@ -268,7 +235,7 @@ router.post("/debug-webhook", async (req, res) => {
             });
         }
         // Check if order already has order items
-        const existingItems = await OrderItem_1.OrderItem.findAll({
+        const existingItems = await OrderItem_js_1.OrderItem.findAll({
             where: { order_id: orderId }
         });
         // Simulate webhook line items creation
@@ -283,7 +250,7 @@ router.post("/debug-webhook", async (req, res) => {
                 sku: "DEBUG-SKU-001"
             }
         ];
-        const result = await OrderItemService_1.OrderItemService.createOrderItemsFromWebhook(orderId, mockLineItems);
+        const result = await OrderItemService_js_1.OrderItemService.createOrderItemsFromWebhook(orderId, mockLineItems);
         res.json({
             success: true,
             message: "Debug webhook simulation completed",
@@ -312,7 +279,7 @@ router.post("/debug-webhook", async (req, res) => {
  */
 router.post("/create-missing", async (req, res) => {
     try {
-        const result = await OrderItemService_1.OrderItemService.createMissingOrderItems();
+        const result = await OrderItemService_js_1.OrderItemService.createMissingOrderItems();
         res.json({
             success: true,
             message: result.message,
@@ -374,11 +341,11 @@ router.post("/test-webhook", async (req, res) => {
         console.log("🧪 Testing webhook payload:", JSON.stringify(webhookPayload, null, 2));
         try {
             // Import the order webhook handler
-            const { handleOrderWebhook } = await Promise.resolve().then(() => __importStar(require("../webhookHandlers/orderHandler")));
+            const { handleOrderWebhook } = await import("../webhookHandlers/orderHandler");
             // Process the webhook using the actual handler
             await handleOrderWebhook(webhookPayload);
             // Check what was created
-            const createdOrder = await Order_1.Order.findOne({
+            const createdOrder = await Order_js_1.Order.findOne({
                 where: {
                     shopify_order_id: webhookPayload.id.toString(),
                     shop_domain: webhookPayload.shop_domain
@@ -386,11 +353,11 @@ router.post("/test-webhook", async (req, res) => {
             });
             let orderItems = [];
             if (createdOrder) {
-                orderItems = await OrderItem_1.OrderItem.findAll({
+                orderItems = await OrderItem_js_1.OrderItem.findAll({
                     where: { order_id: createdOrder.id },
                     include: [
                         {
-                            model: Order_1.Order,
+                            model: Order_js_1.Order,
                             as: 'order'
                         }
                     ]

@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
-import { ShopifyAdminService } from "../services/ShopifyAdminService";
-import { ProductService } from "../services/ProductService";
+import { ShopifyAdminService } from "../services/ShopifyAdminService.js";
+import { ProductService } from "../services/ProductService.js";
 
 const router = Router();
 
@@ -271,7 +271,7 @@ router.post("/sync", async (req: Request, res: Response): Promise<void> => {
 router.post("/sync-local-products", async (req: Request, res: Response): Promise<void> => {
   try {
     // Get all local products
-    const { Product } = await import("../models/Product");
+    const { Product } = await import("../models/Product.js");
     const localProducts = await Product.findAll();
 
     const results = [];

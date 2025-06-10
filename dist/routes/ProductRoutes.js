@@ -19,10 +19,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // src\routes\products.routes.ts
 // src\routes\products.routes.js
 const express_1 = __importDefault(require("express"));
-const ProductController_1 = require("../controllers/ProductController");
-const errorHandler_1 = require("../middleware/errorHandler");
-const productHandler_1 = require("../webhookHandlers/productHandler");
-const Product_1 = require("../models/Product");
+const ProductController_js_1 = require("../controllers/ProductController.js");
+const errorHandler_js_1 = require("../middleware/errorHandler.js");
+const productHandler_js_1 = require("../webhookHandlers/productHandler.js");
+const Product_js_1 = require("../models/Product.js");
 const router = express_1.default.Router();
 /**
  * @route   GET /products
@@ -33,14 +33,14 @@ const router = express_1.default.Router();
  * @query   search - Search term for product title
  * @query   status - Filter by product status (active, draft, archived)
  */
-router.get("/", (0, errorHandler_1.asyncHandler)(ProductController_1.getAllProducts));
+router.get("/", (0, errorHandler_js_1.asyncHandler)(ProductController_js_1.getAllProducts));
 /**
  * @route   GET /products/:id
  * @desc    Get a specific product by ID
  * @access  Public
  * @param   id - Product ID
  */
-router.get("/:id", (0, errorHandler_1.asyncHandler)(ProductController_1.getProductById));
+router.get("/:id", (0, errorHandler_js_1.asyncHandler)(ProductController_js_1.getProductById));
 /**
  * @route   POST /products
  * @desc    Create a new product
@@ -51,7 +51,7 @@ router.get("/:id", (0, errorHandler_1.asyncHandler)(ProductController_1.getProdu
  * @body    status - Product status (optional, default: active)
  * @body    metadata - Additional product metadata (optional)
  */
-router.post("/", (0, errorHandler_1.asyncHandler)(ProductController_1.createProduct));
+router.post("/", (0, errorHandler_js_1.asyncHandler)(ProductController_js_1.createProduct));
 /**
  * @route   PUT /products/:id
  * @desc    Update an existing product
@@ -59,14 +59,14 @@ router.post("/", (0, errorHandler_1.asyncHandler)(ProductController_1.createProd
  * @param   id - Product ID
  * @body    Any product fields to update
  */
-router.put("/:id", (0, errorHandler_1.asyncHandler)(ProductController_1.updateProduct));
+router.put("/:id", (0, errorHandler_js_1.asyncHandler)(ProductController_js_1.updateProduct));
 /**
  * @route   DELETE /products/:id
  * @desc    Delete a product
  * @access  Public (should be protected in production)
  * @param   id - Product ID
  */
-router.delete("/:id", (0, errorHandler_1.asyncHandler)(ProductController_1.deleteProduct));
+router.delete("/:id", (0, errorHandler_js_1.asyncHandler)(ProductController_js_1.deleteProduct));
 /**
  * @route   POST /products/test-webhook
  * @desc    Test product webhook processing without signature validation
@@ -91,9 +91,9 @@ router.post("/test-webhook", async (req, res) => {
         }
         try {
             // Process using the product webhook handler
-            await (0, productHandler_1.handleProductWebhook)(webhookPayload);
+            await (0, productHandler_js_1.handleProductWebhook)(webhookPayload);
             // Check if product was created/updated
-            const product = await Product_1.Product.findOne({
+            const product = await Product_js_1.Product.findOne({
                 where: { shopify_product_id: String(webhookPayload.id) }
             });
             return res.json({
@@ -148,8 +148,8 @@ router.post("/test-webhook", async (req, res) => {
  */
 router.get("/debug/count", async (req, res) => {
     try {
-        const count = await Product_1.Product.count();
-        const products = await Product_1.Product.findAll({
+        const count = await Product_js_1.Product.count();
+        const products = await Product_js_1.Product.findAll({
             limit: 5,
             order: [['id', 'DESC']]
         });

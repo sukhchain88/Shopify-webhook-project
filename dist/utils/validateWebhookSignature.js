@@ -5,13 +5,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.validateWebhookSignature = void 0;
 const crypto_1 = __importDefault(require("crypto"));
-const config_1 = require("../config/config");
+const config_js_1 = require("../config/config.js");
 const validateWebhookSignature = (req) => {
     try {
         // In development mode, be more flexible with validation
-        if (config_1.NODE_ENV === "development") {
+        if (config_js_1.NODE_ENV === "development") {
             // Skip validation if no secret is configured
-            if (!config_1.SHOPIFY_WEBHOOK_SECRET) {
+            if (!config_js_1.SHOPIFY_WEBHOOK_SECRET) {
                 console.log("⚠️ Skipping webhook signature validation in development mode (no secret configured)");
                 return true;
             }
@@ -28,7 +28,7 @@ const validateWebhookSignature = (req) => {
             console.log("Missing hmac header or body");
             return false;
         }
-        const webhookSecret = config_1.SHOPIFY_WEBHOOK_SECRET;
+        const webhookSecret = config_js_1.SHOPIFY_WEBHOOK_SECRET;
         if (!webhookSecret) {
             console.log("Missing webhook secret");
             return false;

@@ -4,12 +4,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrderItemService = void 0;
-const OrderItem_1 = require("../models/OrderItem");
-const Product_1 = require("../models/Product");
-const Order_1 = require("../models/Order");
-const Customer_1 = require("../models/Customer");
+const OrderItem_js_1 = require("../models/OrderItem.js");
+const Product_js_1 = require("../models/Product.js");
+const Order_js_1 = require("../models/Order.js");
+const Customer_js_1 = require("../models/Customer.js");
 const sequelize_1 = require("sequelize");
-const db_1 = __importDefault(require("../config/db"));
+const db_js_1 = __importDefault(require("../config/db.js"));
 class OrderItemService {
     /**
      * Create order items from Shopify webhook line_items
@@ -21,14 +21,14 @@ class OrderItemService {
                 // Try to find matching local product by shopify_product_id
                 let localProduct = null;
                 if (item.product_id) {
-                    localProduct = await Product_1.Product.findOne({
+                    localProduct = await Product_js_1.Product.findOne({
                         where: {
                             shopify_product_id: item.product_id.toString()
                         }
                     });
                 }
                 // Create order item
-                const orderItem = await OrderItem_1.OrderItem.create({
+                const orderItem = await OrderItem_js_1.OrderItem.create({
                     order_id: orderId,
                     product_id: localProduct ? localProduct.id : null,
                     shopify_product_id: item.product_id?.toString(),
@@ -68,11 +68,11 @@ class OrderItemService {
      */
     static async getOrderItems(orderId) {
         try {
-            const orderItems = await OrderItem_1.OrderItem.findAll({
+            const orderItems = await OrderItem_js_1.OrderItem.findAll({
                 where: { order_id: orderId },
                 include: [
                     {
-                        model: Product_1.Product,
+                        model: Product_js_1.Product,
                         as: 'product',
                         required: false // LEFT JOIN - include even if product is deleted
                     }
@@ -91,18 +91,18 @@ class OrderItemService {
      */
     static async getOrdersWithItems(limit = 50, offset = 0) {
         try {
-            const orders = await Order_1.Order.findAll({
+            const orders = await Order_js_1.Order.findAll({
                 include: [
                     {
-                        model: Customer_1.Customer,
+                        model: Customer_js_1.Customer,
                         required: false // LEFT JOIN - include even if customer is null
                     },
                     {
-                        model: OrderItem_1.OrderItem,
+                        model: OrderItem_js_1.OrderItem,
                         as: 'items',
                         include: [
                             {
-                                model: Product_1.Product,
+                                model: Product_js_1.Product,
                                 as: 'product',
                                 required: false
                             }
@@ -125,15 +125,15 @@ class OrderItemService {
      */
     static async getCustomerPurchaseHistory(customerId) {
         try {
-            const orders = await Order_1.Order.findAll({
+            const orders = await Order_js_1.Order.findAll({
                 where: { customer_id: customerId },
                 include: [
                     {
-                        model: OrderItem_1.OrderItem,
+                        model: OrderItem_js_1.OrderItem,
                         as: 'items',
                         include: [
                             {
-                                model: Product_1.Product,
+                                model: Product_js_1.Product,
                                 as: 'product',
                                 required: false
                             }
@@ -155,16 +155,16 @@ class OrderItemService {
     static async getProductSalesAnalytics(productId) {
         try {
             const whereClause = productId ? { product_id: productId } : {};
-            const salesData = await OrderItem_1.OrderItem.findAll({
+            const salesData = await OrderItem_js_1.OrderItem.findAll({
                 where: whereClause,
                 include: [
                     {
-                        model: Product_1.Product,
+                        model: Product_js_1.Product,
                         as: 'product',
                         required: false
                     },
                     {
-                        model: Order_1.Order,
+                        model: Order_js_1.Order,
                         as: 'order',
                         required: true
                     }
@@ -218,7 +218,7 @@ class OrderItemService {
      */
     static async updateOrderItem(itemId, updateData) {
         try {
-            const orderItem = await OrderItem_1.OrderItem.findByPk(itemId);
+            const orderItem = await OrderItem_js_1.OrderItem.findByPk(itemId);
             if (!orderItem) {
                 throw new Error('Order item not found');
             }
@@ -241,7 +241,7 @@ class OrderItemService {
      */
     static async deleteOrderItem(itemId) {
         try {
-            const orderItem = await OrderItem_1.OrderItem.findByPk(itemId);
+            const orderItem = await OrderItem_js_1.OrderItem.findByPk(itemId);
             if (!orderItem) {
                 throw new Error('Order item not found');
             }
@@ -262,22 +262,22 @@ class OrderItemService {
             // For SQLite: use LIKE with LOWER()
             // For PostgreSQL: use ILIKE
             const searchPattern = `%${searchTerm.toLowerCase()}%`;
-            const orderItems = await OrderItem_1.OrderItem.findAll({
+            const orderItems = await OrderItem_js_1.OrderItem.findAll({
                 where: {
                     [sequelize_1.Op.or]: [
-                        db_1.default.where(db_1.default.fn('LOWER', db_1.default.col('product_title')), sequelize_1.Op.like, searchPattern),
-                        db_1.default.where(db_1.default.fn('LOWER', db_1.default.col('sku')), sequelize_1.Op.like, searchPattern),
-                        db_1.default.where(db_1.default.fn('LOWER', db_1.default.col('product_variant_title')), sequelize_1.Op.like, searchPattern)
+                        db_js_1.default.where(db_js_1.default.fn('LOWER', db_js_1.default.col('product_title')), sequelize_1.Op.like, searchPattern),
+                        db_js_1.default.where(db_js_1.default.fn('LOWER', db_js_1.default.col('sku')), sequelize_1.Op.like, searchPattern),
+                        db_js_1.default.where(db_js_1.default.fn('LOWER', db_js_1.default.col('product_variant_title')), sequelize_1.Op.like, searchPattern)
                     ]
                 },
                 include: [
                     {
-                        model: Product_1.Product,
+                        model: Product_js_1.Product,
                         as: 'product',
                         required: false
                     },
                     {
-                        model: Order_1.Order,
+                        model: Order_js_1.Order,
                         as: 'order',
                         required: true
                     }
@@ -299,10 +299,10 @@ class OrderItemService {
     static async createMissingOrderItems() {
         try {
             // Find orders that don't have any order items
-            const ordersWithoutItems = await Order_1.Order.findAll({
+            const ordersWithoutItems = await Order_js_1.Order.findAll({
                 include: [
                     {
-                        model: OrderItem_1.OrderItem,
+                        model: OrderItem_js_1.OrderItem,
                         as: 'items',
                         required: false
                     }
@@ -319,7 +319,7 @@ class OrderItemService {
             for (const order of ordersWithoutItems) {
                 try {
                     // Create a generic order item for orders without line items data
-                    await OrderItem_1.OrderItem.create({
+                    await OrderItem_js_1.OrderItem.create({
                         order_id: order.id,
                         product_id: null,
                         shopify_product_id: null,

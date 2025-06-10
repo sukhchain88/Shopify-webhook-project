@@ -1,8 +1,8 @@
 // src\controllers\order.controller.ts
 import { Request, Response } from "express";
-import { OrderService } from "../services/OrderService";
-import { validateOrder } from "../validators/order.validator";
-import { ResponseHandler } from "../utils/responseHandler";
+import { OrderService } from "../services/OrderService.js";
+import { validateOrder } from "../validators/order.validator.js";
+import { ResponseHandler } from "../utils/responseHandler.js";
 
 // Create a new order
 export const createOrder = async (req: Request, res: Response) => {

@@ -6,9 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Order = void 0;
 // src/models/Order.ts
 const sequelize_1 = require("sequelize");
-const db_1 = __importDefault(require("../config/db"));
-const Customer_1 = require("./Customer");
-exports.Order = db_1.default.define("orders", {
+const db_js_1 = __importDefault(require("../config/db.js"));
+const Customer_js_1 = require("./Customer.js");
+exports.Order = db_js_1.default.define("orders", {
     id: {
         type: sequelize_1.DataTypes.INTEGER,
         autoIncrement: true,
@@ -26,7 +26,7 @@ exports.Order = db_1.default.define("orders", {
         type: sequelize_1.DataTypes.INTEGER,
         allowNull: true,
         references: {
-            model: Customer_1.Customer,
+            model: Customer_js_1.Customer,
             key: 'id'
         }
     },
@@ -53,5 +53,5 @@ exports.Order = db_1.default.define("orders", {
     underscored: true,
 });
 // Define the relationship between Order and Customer
-exports.Order.belongsTo(Customer_1.Customer, { foreignKey: 'customer_id' });
-Customer_1.Customer.hasMany(exports.Order, { foreignKey: 'customer_id' });
+exports.Order.belongsTo(Customer_js_1.Customer, { foreignKey: 'customer_id' });
+Customer_js_1.Customer.hasMany(exports.Order, { foreignKey: 'customer_id' });

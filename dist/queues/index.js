@@ -8,8 +8,8 @@ exports.resumeAllQueues = resumeAllQueues;
 exports.cleanAllQueues = cleanAllQueues;
 exports.shutdownQueues = shutdownQueues;
 const bullmq_1 = require("bullmq");
-const config_1 = require("./config");
-const types_1 = require("./types");
+const config_js_1 = require("./config.js");
+const types_js_1 = require("./types.js");
 /**
  * Queue Registry
  *
@@ -26,9 +26,9 @@ const types_1 = require("./types");
  * - Marketing emails
  * - System notifications
  */
-exports.emailQueue = new bullmq_1.Queue(types_1.QUEUE_NAMES.EMAIL, {
-    connection: config_1.redisConnection,
-    defaultJobOptions: config_1.queueConfigs.email,
+exports.emailQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.EMAIL, {
+    connection: config_js_1.redisConnection,
+    defaultJobOptions: config_js_1.queueConfigs.email,
 });
 /**
  * Webhook Processing Queue
@@ -38,9 +38,9 @@ exports.emailQueue = new bullmq_1.Queue(types_1.QUEUE_NAMES.EMAIL, {
  * - Payment gateway webhooks
  * - Third-party service notifications
  */
-exports.webhookQueue = new bullmq_1.Queue(types_1.QUEUE_NAMES.WEBHOOK, {
-    connection: config_1.redisConnection,
-    defaultJobOptions: config_1.queueConfigs.webhook,
+exports.webhookQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.WEBHOOK, {
+    connection: config_js_1.redisConnection,
+    defaultJobOptions: config_js_1.queueConfigs.webhook,
 });
 /**
  * Product Synchronization Queue
@@ -51,9 +51,9 @@ exports.webhookQueue = new bullmq_1.Queue(types_1.QUEUE_NAMES.WEBHOOK, {
  * - Price synchronization
  * - Product metadata updates
  */
-exports.productSyncQueue = new bullmq_1.Queue(types_1.QUEUE_NAMES.PRODUCT_SYNC, {
-    connection: config_1.redisConnection,
-    defaultJobOptions: config_1.queueConfigs.productSync,
+exports.productSyncQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.PRODUCT_SYNC, {
+    connection: config_js_1.redisConnection,
+    defaultJobOptions: config_js_1.queueConfigs.productSync,
 });
 /**
  * Background Tasks Queue
@@ -64,9 +64,9 @@ exports.productSyncQueue = new bullmq_1.Queue(types_1.QUEUE_NAMES.PRODUCT_SYNC, 
  * - Bulk data exports
  * - System maintenance tasks
  */
-exports.backgroundQueue = new bullmq_1.Queue(types_1.QUEUE_NAMES.BACKGROUND, {
-    connection: config_1.redisConnection,
-    defaultJobOptions: config_1.queueConfigs.background,
+exports.backgroundQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.BACKGROUND, {
+    connection: config_js_1.redisConnection,
+    defaultJobOptions: config_js_1.queueConfigs.background,
 });
 /**
  * Order Processing Queue
@@ -77,9 +77,9 @@ exports.backgroundQueue = new bullmq_1.Queue(types_1.QUEUE_NAMES.BACKGROUND, {
  * - Inventory adjustments
  * - Customer notifications
  */
-exports.orderProcessingQueue = new bullmq_1.Queue(types_1.QUEUE_NAMES.ORDER_PROCESSING, {
-    connection: config_1.redisConnection,
-    defaultJobOptions: config_1.queueConfigs.webhook, // Use webhook config for high priority
+exports.orderProcessingQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.ORDER_PROCESSING, {
+    connection: config_js_1.redisConnection,
+    defaultJobOptions: config_js_1.queueConfigs.webhook, // Use webhook config for high priority
 });
 /**
  * Notifications Queue
@@ -90,9 +90,9 @@ exports.orderProcessingQueue = new bullmq_1.Queue(types_1.QUEUE_NAMES.ORDER_PROC
  * - Slack alerts
  * - Webhook notifications
  */
-exports.notificationQueue = new bullmq_1.Queue(types_1.QUEUE_NAMES.NOTIFICATIONS, {
-    connection: config_1.redisConnection,
-    defaultJobOptions: config_1.queueConfigs.email, // Use email config for moderate priority
+exports.notificationQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.NOTIFICATIONS, {
+    connection: config_js_1.redisConnection,
+    defaultJobOptions: config_js_1.queueConfigs.email, // Use email config for moderate priority
 });
 /**
  * Queues Registry Object

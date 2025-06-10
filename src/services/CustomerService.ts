@@ -1,9 +1,9 @@
-import { Customer } from "../models/Customer";
-import { shopifyApiService } from "./ShopifyService";
-import { CustomerData, ShopifyCustomerResponse, ShopifyCustomersResponse } from "../types/customerInterface";
-import { CustomerInput } from "../validators/customer.validator";
+import { Customer } from "../models/Customer.js";
+import { shopifyApiService } from "./ShopifyService.js";
+import { CustomerData, ShopifyCustomerResponse, ShopifyCustomersResponse } from "../types/customerInterface.js";
+import { CustomerInput } from "../validators/customer.validator.js";
 import { Op } from "sequelize";
-import { validateAndFormatPhone } from "../utils/phoneValidator";
+import { validateAndFormatPhone } from "../utils/phoneValidator.js";
 
 export class CustomerService {
   /**

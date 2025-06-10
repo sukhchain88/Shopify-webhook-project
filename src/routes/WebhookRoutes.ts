@@ -5,7 +5,7 @@ import {
   getWebhooks,
   getWebhookById,
   deleteWebhook
-} from "../controllers/WebhookController";
+} from "../controllers/WebhookController.js";
 
 const webhookRoutes = express.Router();
 

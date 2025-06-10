@@ -10,11 +10,11 @@
  */
 
 import { Request, Response } from "express";
-import { Product } from "../models/Product";
-import { validateProduct, validateWebhook } from "../validators/product.validator";
-import { ProductService } from "../services/ProductService";
+import { Product } from "../models/Product.js";
+import { validateProduct, validateWebhook } from "../validators/product.validator.js";
+import { ProductService } from "../services/ProductService.js";
 import { Op } from "sequelize";
-import sequelize from "../config/db";
+import sequelize from "../config/db.js";
 
 /**
  * Create a new product

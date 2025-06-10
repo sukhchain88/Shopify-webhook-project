@@ -5,8 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 // src/routes/health.routes.ts
 const express_1 = __importDefault(require("express"));
-const Product_1 = require("../models/Product");
-const db_1 = __importDefault(require("../config/db"));
+const Product_js_1 = require("../models/Product.js");
+const db_js_1 = __importDefault(require("../config/db.js"));
 const router = express_1.default.Router();
 router.get("/", async (req, res) => {
     const startTime = Date.now();
@@ -19,10 +19,10 @@ router.get("/", async (req, res) => {
     };
     try {
         // Test database connection
-        await db_1.default.authenticate();
+        await db_js_1.default.authenticate();
         healthcheck.database = "connected";
         // Get product count as a basic check
-        const count = await Product_1.Product.count();
+        const count = await Product_js_1.Product.count();
         healthcheck.productCount = count;
         res.status(200).json({
             ...healthcheck,
