@@ -176,12 +176,12 @@ router.get("/debug/count", async (req, res) => {
       message: "Product count retrieved",
       data: {
         total_products: count,
-        recent_products: products.map(p => ({
-          id: (p as any).id,
-          title: (p as any).title,
-          shopify_product_id: (p as any).shopify_product_id,
-          price: (p as any).price,
-          status: (p as any).status
+        recent_products: products.map((p: any) => ({
+          id: p.id,
+          title: p.title,
+          shopify_product_id: p.shopify_product_id,
+          price: p.price,
+          status: p.status
         }))
       }
     });
