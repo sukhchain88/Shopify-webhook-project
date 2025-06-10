@@ -1,32 +1,36 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.initDatabase = void 0;
-const db_1 = __importDefault(require("./db"));
+import sequelize from "./db.js";
+import { Product } from "../models/Product.js";
+import { Customer } from "../models/Customer.js";
 /**
  * Initialize database and create all tables
  */
-const initDatabase = async () => {
+export const initDatabase = async () => {
     try {
         console.log("🔧 Initializing database...");
         // Test connection first
-        await db_1.default.authenticate();
+        await sequelize.authenticate();
         console.log("✅ Database connection established");
         // Sync all models (create tables if they don't exist)
-        await db_1.default.sync({ force: false, alter: false });
+        // In production, consider using migrations instead
+        await sequelize.sync({
+            force: false,
+            alter: process.env.NODE_ENV === 'development'
+        });
         console.log("✅ Database tables synchronized");
         // Log which tables were created/verified
         const tables = [
-            'products',
-            'customers',
-            'orders',
-            'order_items',
-            'webhooks',
-            'users'
+            "products",
+            "customers",
+            "orders",
+            "order_items",
+            "webhooks",
+            "users",
         ];
         console.log("📋 Verified tables:", tables.join(", "));
+        // Optionally seed data in development
+        if (process.env.NODE_ENV === 'development' && process.env.SEED_DATABASE === 'true') {
+            await seedDevelopmentData();
+        }
     }
     catch (error) {
         console.error("❌ Database initialization failed:", error);
@@ -35,9 +39,75 @@ const initDatabase = async () => {
             console.log("⚠️ Continuing in development mode without database");
         }
         else {
+            // In production, this is a critical error
             throw error;
         }
     }
 };
-exports.initDatabase = initDatabase;
-exports.default = exports.initDatabase;
+/**
+ * Seed development data (optional)
+ */
+async function seedDevelopmentData() {
+    try {
+        console.log("🌱 Seeding development data...");
+        // Check if data already exists
+        const productCount = await Product.count();
+        if (productCount > 0) {
+            console.log("📋 Development data already exists, skipping seed");
+            return;
+        }
+        // Create sample products
+        const sampleProducts = [
+            {
+                title: "Sample Product 1",
+                description: "This is a sample product for development",
+                price: 29.99,
+                status: "active",
+                shopify_product_id: "sample_1",
+                metadata: { category: "electronics", featured: true }
+            },
+            {
+                title: "Sample Product 2",
+                description: "Another sample product",
+                price: 49.99,
+                status: "active",
+                shopify_product_id: "sample_2",
+                metadata: { category: "clothing", featured: false }
+            }
+        ];
+        await Product.bulkCreate(sampleProducts);
+        console.log("✅ Sample products created");
+        // Create sample customer
+        const sampleCustomer = await Customer.create({
+            shop_domain: "dev-store.myshopify.com",
+            first_name: "John",
+            last_name: "Doe",
+            email: "john.doe@example.com",
+            phone: "+1234567890",
+            shopify_customer_id: "sample_customer_1",
+            address: "123 Main St",
+            city: "Anytown",
+            province: "CA",
+            country: "United States",
+            zip: "12345"
+        });
+        console.log("✅ Sample customer created");
+    }
+    catch (error) {
+        console.error("❌ Failed to seed development data:", error);
+        // Don't throw error for seeding failure
+    }
+}
+/**
+ * Close database connection gracefully
+ */
+export const closeDatabase = async () => {
+    try {
+        await sequelize.close();
+        console.log("✅ Database connection closed");
+    }
+    catch (error) {
+        console.error("❌ Error closing database:", error);
+    }
+};
+export default initDatabase;

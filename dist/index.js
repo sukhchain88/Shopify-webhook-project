@@ -10,7 +10,11 @@
  */
 import express from "express";
 import cors from "cors";
+import morgan from "morgan";
+import compression from "compression";
 import * as dotenv from "dotenv";
+// Import security middleware
+import { helmetConfig, generalRateLimit, webhookRateLimit, sanitizeRequest, requestSizeLimit } from "./middleware/security.js";
 // Import route handlers
 import productRoutes from "./routes/ProductRoutes.js";
 import webhookRoutes from "./routes/WebhookRoutes.js";
@@ -24,8 +28,8 @@ import userRouter from "./routes/UserRoutes.js";
 // Import middleware
 import { requestTiming } from "./middleware/requestTiming.js";
 import { errorHandler } from "./middleware/errorHandler.js";
-// Import database connection
-import "./config/db.js"; // This initializes the database connection
+// Import database initialization
+import { initDatabase, closeDatabase } from "./config/initDatabase.js";
 // Load environment variables
 dotenv.config();
 /**
@@ -33,18 +37,43 @@ dotenv.config();
  */
 const app = express();
 /**
+ * Security Middleware
+ * Applied before other middleware for maximum protection
+ */
+app.use(helmetConfig);
+app.use(compression());
+/**
+ * Request Logging (in development)
+ */
+if (process.env.NODE_ENV === 'development') {
+    app.use(morgan('combined'));
+}
+/**
  * CORS Configuration
  * Allow cross-origin requests for API access
  */
 app.use(cors({
     origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
-    credentials: true
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    optionsSuccessStatus: 200
 }));
+/**
+ * Trust proxy for accurate IP addresses behind reverse proxies
+ */
+app.set('trust proxy', 1);
 /**
  * Request Timing Middleware
  * Logs request duration for performance monitoring
  */
 app.use(requestTiming);
+/**
+ * General Security Middleware
+ */
+app.use(requestSizeLimit);
+app.use(generalRateLimit);
+app.use(sanitizeRequest);
 /**
  * Body Parsing Middleware
  *
@@ -85,8 +114,8 @@ app.use(express.urlencoded({
 app.use("/health", healthRoutes);
 // Product management routes
 app.use("/products", productRoutes);
-// Webhook handling routes (with raw body parsing)
-app.use("/api/webhooks", webhookRoutes);
+// Webhook handling routes (with raw body parsing and specific rate limiting)
+app.use("/api/webhooks", webhookRateLimit, webhookRoutes);
 // Shopify integration routes
 app.use("/shopify", shopifyRoutes);
 // Shopify Admin API routes
@@ -148,6 +177,8 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
  */
 const startServer = async () => {
     try {
+        // Initialize database first
+        await initDatabase();
         const server = app.listen(PORT, () => {
             console.log(`🚀 Server running on port ${PORT}`);
             console.log(`📊 Environment: ${NODE_ENV}`);
@@ -163,14 +194,16 @@ const startServer = async () => {
          */
         process.on('SIGTERM', () => {
             console.log('🛑 SIGTERM received, shutting down gracefully...');
-            server.close(() => {
+            server.close(async () => {
+                await closeDatabase();
                 console.log('✅ Server closed');
                 process.exit(0);
             });
         });
         process.on('SIGINT', () => {
             console.log('🛑 SIGINT received, shutting down gracefully...');
-            server.close(() => {
+            server.close(async () => {
+                await closeDatabase();
                 console.log('✅ Server closed');
                 process.exit(0);
             });

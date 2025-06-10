@@ -202,17 +202,18 @@ export const shopifyIPWhitelist = (req: Request, res: Response, next: NextFuncti
  * 
  * Ensures request payloads aren't too large
  */
-export const requestSizeLimit = (req: Request, res: Response, next: NextFunction) => {
+export const requestSizeLimit = (req: Request, res: Response, next: NextFunction): void => {
   const contentLength = parseInt(req.get('content-length') || '0', 10);
   const maxSize = 10 * 1024 * 1024; // 10MB
   
   if (contentLength > maxSize) {
-    return res.status(413).json({
+    res.status(413).json({
       success: false,
       error: 'Request payload too large',
       maxSize: '10MB',
       receivedSize: `${Math.round(contentLength / 1024 / 1024 * 100) / 100}MB`
     });
+    return;
   }
   
   next();

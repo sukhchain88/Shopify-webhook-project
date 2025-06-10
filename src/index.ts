@@ -39,8 +39,8 @@ import userRouter from "./routes/UserRoutes.js";
 import { requestTiming } from "./middleware/requestTiming.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
-// Import database connection
-import "./config/db.js"; // This initializes the database connection
+// Import database initialization
+import { initDatabase, closeDatabase } from "./config/initDatabase.js";
 
 // Load environment variables
 dotenv.config();
@@ -215,6 +215,8 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
  */
 const startServer = async () => {
   try {
+    // Initialize database first
+    await initDatabase();
     
     const server = app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
@@ -233,7 +235,8 @@ const startServer = async () => {
      */
     process.on('SIGTERM', () => {
       console.log('🛑 SIGTERM received, shutting down gracefully...');
-      server.close(() => {
+      server.close(async () => {
+        await closeDatabase();
         console.log('✅ Server closed');
         process.exit(0);
       });
@@ -241,7 +244,8 @@ const startServer = async () => {
 
     process.on('SIGINT', () => {
       console.log('🛑 SIGINT received, shutting down gracefully...');
-      server.close(() => {
+      server.close(async () => {
+        await closeDatabase();
         console.log('✅ Server closed');
         process.exit(0);
       });
