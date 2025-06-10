@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyShopifyWebhook = void 0;
 const crypto_1 = __importDefault(require("crypto"));
-const config_js_1 = require("../config/config.js");
+const config_1 = require("../config/config");
 class WebhookError extends Error {
     constructor(statusCode, message) {
         super(message);
@@ -22,7 +22,7 @@ const verifyShopifyWebhook = (req, res, next) => {
             const error = new WebhookError(401, 'Missing required Shopify webhook headers');
             return next(error);
         }
-        if (!config_js_1.SHOPIFY_WEBHOOK_SECRET) {
+        if (!config_1.SHOPIFY_WEBHOOK_SECRET) {
             const error = new WebhookError(500, 'Shopify webhook secret is not configured');
             return next(error);
         }
@@ -32,7 +32,7 @@ const verifyShopifyWebhook = (req, res, next) => {
             return next(error);
         }
         const calculatedHmac = crypto_1.default
-            .createHmac('sha256', config_js_1.SHOPIFY_WEBHOOK_SECRET)
+            .createHmac('sha256', config_1.SHOPIFY_WEBHOOK_SECRET)
             .update(rawBody)
             .digest('base64');
         console.log('🔐 Webhook verification:', {

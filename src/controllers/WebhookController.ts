@@ -1,8 +1,8 @@
 // src\controllers\webhook.controller.ts
 import { Request, Response } from "express";
-import { validateWebhookSignature } from "../utils/validateWebhookSignature.js";
-import { WebhookService } from "../services/WebhookService.js";
-import { validateWebhookPayload } from "../validators/webhook.validator.js";
+import { validateWebhookSignature } from "../utils/validateWebhookSignature";
+import { WebhookService } from "../services/WebhookService";
+import { validateWebhookPayload } from "../validators/webhook.validator";
 
 export const handleWebhook = async (req: Request, res: Response) => {
   try {

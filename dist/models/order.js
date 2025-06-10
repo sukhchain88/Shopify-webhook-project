@@ -5,9 +5,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Order = void 0;
 const sequelize_1 = require("sequelize");
-const db_js_1 = __importDefault(require("../config/db.js"));
+const db_1 = __importDefault(require("../config/db"));
 const Customer_1 = require("./Customer");
-exports.Order = db_js_1.default.define("orders", {
+exports.Order = db_1.default.define("orders", {
     id: {
         type: sequelize_1.DataTypes.INTEGER,
         autoIncrement: true,

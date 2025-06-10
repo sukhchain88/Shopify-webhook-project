@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrderItem = void 0;
 const sequelize_1 = require("sequelize");
-const db_js_1 = __importDefault(require("../config/db.js"));
+const db_1 = __importDefault(require("../config/db"));
 const Order_1 = require("./Order");
 const Product_1 = require("./Product");
 class OrderItem extends sequelize_1.Model {
@@ -114,7 +114,7 @@ OrderItem.init({
         defaultValue: sequelize_1.DataTypes.NOW,
     }
 }, {
-    sequelize: db_js_1.default,
+    sequelize: db_1.default,
     tableName: "order_items",
     timestamps: true,
     underscored: true,

@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.syncCustomers = exports.deleteCustomer = exports.updateCustomer = exports.getCustomerById = exports.getAllCustomers = exports.createCustomer = void 0;
-const CustomerService_js_1 = require("../services/CustomerService.js");
-const customer_validator_js_1 = require("../validators/customer.validator.js");
+const CustomerService_1 = require("../services/CustomerService");
+const customer_validator_1 = require("../validators/customer.validator");
 const createCustomer = async (req, res) => {
     try {
-        const validationResult = (0, customer_validator_js_1.validateCustomerApiInput)(req.body);
+        const validationResult = (0, customer_validator_1.validateCustomerApiInput)(req.body);
         if (!validationResult.success) {
             res.status(400).json({
                 success: false,
@@ -27,7 +27,7 @@ const createCustomer = async (req, res) => {
             zip: validationResult.data.address?.zip || null,
             shop_domain: process.env.SHOPIFY_STORE_URL || "api-created.myshopify.com"
         };
-        const customer = await CustomerService_js_1.CustomerService.createCustomer(customerData);
+        const customer = await CustomerService_1.CustomerService.createCustomer(customerData);
         res.status(201).json({
             success: true,
             message: "Customer created successfully",
@@ -51,10 +51,10 @@ const getAllCustomers = async (req, res) => {
         const search = req.query.search;
         let result;
         if (search) {
-            result = await CustomerService_js_1.CustomerService.searchCustomers(search, page, limit);
+            result = await CustomerService_1.CustomerService.searchCustomers(search, page, limit);
         }
         else {
-            result = await CustomerService_js_1.CustomerService.getCustomers(page, limit);
+            result = await CustomerService_1.CustomerService.getCustomers(page, limit);
         }
         res.status(200).json({
             success: true,
@@ -74,7 +74,7 @@ const getAllCustomers = async (req, res) => {
 exports.getAllCustomers = getAllCustomers;
 const getCustomerById = async (req, res) => {
     try {
-        const customer = await CustomerService_js_1.CustomerService.getCustomerById(parseInt(req.params.id));
+        const customer = await CustomerService_1.CustomerService.getCustomerById(parseInt(req.params.id));
         res.status(200).json({
             success: true,
             message: "Customer retrieved successfully",
@@ -93,7 +93,7 @@ const getCustomerById = async (req, res) => {
 exports.getCustomerById = getCustomerById;
 const updateCustomer = async (req, res) => {
     try {
-        const validationResult = (0, customer_validator_js_1.validateCustomerUpdateApiInput)(req.body);
+        const validationResult = (0, customer_validator_1.validateCustomerUpdateApiInput)(req.body);
         if (!validationResult.success) {
             res.status(400).json({
                 success: false,
@@ -135,7 +135,7 @@ const updateCustomer = async (req, res) => {
                 updateData.zip = validationResult.data.address.zip;
             }
         }
-        const customer = await CustomerService_js_1.CustomerService.updateCustomer(parseInt(req.params.id), updateData);
+        const customer = await CustomerService_1.CustomerService.updateCustomer(parseInt(req.params.id), updateData);
         res.status(200).json({
             success: true,
             message: "Customer updated successfully",
@@ -154,7 +154,7 @@ const updateCustomer = async (req, res) => {
 exports.updateCustomer = updateCustomer;
 const deleteCustomer = async (req, res) => {
     try {
-        await CustomerService_js_1.CustomerService.deleteCustomer(parseInt(req.params.id));
+        await CustomerService_1.CustomerService.deleteCustomer(parseInt(req.params.id));
         res.status(200).json({
             success: true,
             message: "Customer deleted successfully"
@@ -172,7 +172,7 @@ const deleteCustomer = async (req, res) => {
 exports.deleteCustomer = deleteCustomer;
 const syncCustomers = async (req, res) => {
     try {
-        const count = await CustomerService_js_1.CustomerService.syncCustomersFromShopify();
+        const count = await CustomerService_1.CustomerService.syncCustomersFromShopify();
         res.status(200).json({
             success: true,
             message: `Successfully synced ${count} customers from Shopify`

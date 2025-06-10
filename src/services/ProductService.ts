@@ -1,9 +1,9 @@
 // src\services\product.service.ts
-import { Product } from "../models/Product.js";
-import { shopifyApiService } from "./ShopifyService.js";
-import { ShopifyProductResponse } from "../types/shopifyInterface.js";
-import { formatShopifyProduct } from "../utils/shopifyFormatter.js";
-import type { ProductWebhook } from "../validators/product.validator.js";
+import { Product } from "../models/Product";
+import { shopifyApiService } from "./ShopifyService";
+import { ShopifyProductResponse } from "../types/shopifyInterface";
+import { formatShopifyProduct } from "../utils/shopifyFormatter";
+import type { ProductWebhook } from "../validators/product.validator";
 
 interface ProductAttributes {
   title: string;

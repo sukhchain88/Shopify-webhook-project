@@ -1,5 +1,5 @@
 import { Queue } from 'bullmq';
-import { redisConnection, queueConfigs } from './config.js';
+import { redisConnection, queueConfigs } from './config';
 import { 
   EmailJobData, 
   WebhookJobData, 
@@ -9,7 +9,7 @@ import {
   OrderProcessingJobData,
   NotificationJobData,
   QUEUE_NAMES 
-} from './types.js';
+} from './types';
 
 /**
  * Queue Registry

@@ -8,31 +8,31 @@ exports.resumeAllQueues = resumeAllQueues;
 exports.cleanAllQueues = cleanAllQueues;
 exports.shutdownQueues = shutdownQueues;
 const bullmq_1 = require("bullmq");
-const config_js_1 = require("./config.js");
-const types_js_1 = require("./types.js");
-exports.emailQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.EMAIL, {
-    connection: config_js_1.redisConnection,
-    defaultJobOptions: config_js_1.queueConfigs.email,
+const config_1 = require("./config");
+const types_1 = require("./types");
+exports.emailQueue = new bullmq_1.Queue(types_1.QUEUE_NAMES.EMAIL, {
+    connection: config_1.redisConnection,
+    defaultJobOptions: config_1.queueConfigs.email,
 });
-exports.webhookQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.WEBHOOK, {
-    connection: config_js_1.redisConnection,
-    defaultJobOptions: config_js_1.queueConfigs.webhook,
+exports.webhookQueue = new bullmq_1.Queue(types_1.QUEUE_NAMES.WEBHOOK, {
+    connection: config_1.redisConnection,
+    defaultJobOptions: config_1.queueConfigs.webhook,
 });
-exports.productSyncQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.PRODUCT_SYNC, {
-    connection: config_js_1.redisConnection,
-    defaultJobOptions: config_js_1.queueConfigs.productSync,
+exports.productSyncQueue = new bullmq_1.Queue(types_1.QUEUE_NAMES.PRODUCT_SYNC, {
+    connection: config_1.redisConnection,
+    defaultJobOptions: config_1.queueConfigs.productSync,
 });
-exports.backgroundQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.BACKGROUND, {
-    connection: config_js_1.redisConnection,
-    defaultJobOptions: config_js_1.queueConfigs.background,
+exports.backgroundQueue = new bullmq_1.Queue(types_1.QUEUE_NAMES.BACKGROUND, {
+    connection: config_1.redisConnection,
+    defaultJobOptions: config_1.queueConfigs.background,
 });
-exports.orderProcessingQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.ORDER_PROCESSING, {
-    connection: config_js_1.redisConnection,
-    defaultJobOptions: config_js_1.queueConfigs.webhook,
+exports.orderProcessingQueue = new bullmq_1.Queue(types_1.QUEUE_NAMES.ORDER_PROCESSING, {
+    connection: config_1.redisConnection,
+    defaultJobOptions: config_1.queueConfigs.webhook,
 });
-exports.notificationQueue = new bullmq_1.Queue(types_js_1.QUEUE_NAMES.NOTIFICATIONS, {
-    connection: config_js_1.redisConnection,
-    defaultJobOptions: config_js_1.queueConfigs.email,
+exports.notificationQueue = new bullmq_1.Queue(types_1.QUEUE_NAMES.NOTIFICATIONS, {
+    connection: config_1.redisConnection,
+    defaultJobOptions: config_1.queueConfigs.email,
 });
 exports.queues = {
     email: exports.emailQueue,

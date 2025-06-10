@@ -21,10 +21,10 @@ import {
   getProductById,
   updateProduct,
   deleteProduct,
-} from "../controllers/ProductController.js";
-import { asyncHandler } from "../middleware/errorHandler.js";
-import { handleProductWebhook } from "../webhookHandlers/productHandler.js"; 
-import { Product } from "../models/Product.js";
+} from "../controllers/ProductController";
+import { asyncHandler } from "../middleware/errorHandler";
+import { handleProductWebhook } from "../webhookHandlers/productHandler";
+import { Product } from "../models/Product";
 
 const router = express.Router();
 

@@ -2,10 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.processors = exports.processWebhookJob = exports.processEmailJob = void 0;
 exports.getProcessor = getProcessor;
-var email_processor_js_1 = require("./email.processor.js");
-Object.defineProperty(exports, "processEmailJob", { enumerable: true, get: function () { return email_processor_js_1.processEmailJob; } });
-var webhook_processor_js_1 = require("./webhook.processor.js");
-Object.defineProperty(exports, "processWebhookJob", { enumerable: true, get: function () { return webhook_processor_js_1.processWebhookJob; } });
+var email_processor_1 = require("./email.processor");
+Object.defineProperty(exports, "processEmailJob", { enumerable: true, get: function () { return email_processor_1.processEmailJob; } });
+var webhook_processor_1 = require("./webhook.processor");
+Object.defineProperty(exports, "processWebhookJob", { enumerable: true, get: function () { return webhook_processor_1.processWebhookJob; } });
 exports.processors = {
     email: {
         'send-email': 'processEmailJob',

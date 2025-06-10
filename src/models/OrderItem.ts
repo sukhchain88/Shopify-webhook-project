@@ -1,5 +1,5 @@
 import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from "sequelize";
-import sequelize from "../config/db.js";
+import sequelize from "../config/db";
 import { Order } from "./Order";
 import { Product } from "./Product";
 

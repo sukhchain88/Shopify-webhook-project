@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ShopifyAdminService = void 0;
-const ShopifyService_js_1 = require("./ShopifyService.js");
+const ShopifyService_1 = require("./ShopifyService");
 class ShopifyAdminService {
     static async createCustomer(customerData) {
         const shopifyPayload = {
@@ -26,7 +26,7 @@ class ShopifyAdminService {
             }
         };
         try {
-            const response = await (0, ShopifyService_js_1.shopifyApiService)("POST", "customers.json", shopifyPayload);
+            const response = await (0, ShopifyService_1.shopifyApiService)("POST", "customers.json", shopifyPayload);
             console.log(`✅ Customer created in Shopify: ${response.customer.email} (ID: ${response.customer.id})`);
             return response;
         }
@@ -40,7 +40,7 @@ class ShopifyAdminService {
             customer: customerData
         };
         try {
-            const response = await (0, ShopifyService_js_1.shopifyApiService)("PUT", `customers/${customerId}.json`, shopifyPayload);
+            const response = await (0, ShopifyService_1.shopifyApiService)("PUT", `customers/${customerId}.json`, shopifyPayload);
             console.log(`✅ Customer updated in Shopify: ${response.customer.email} (ID: ${response.customer.id})`);
             return response;
         }
@@ -51,7 +51,7 @@ class ShopifyAdminService {
     }
     static async getCustomer(customerId) {
         try {
-            const response = await (0, ShopifyService_js_1.shopifyApiService)("GET", `customers/${customerId}.json`);
+            const response = await (0, ShopifyService_1.shopifyApiService)("GET", `customers/${customerId}.json`);
             console.log(`✅ Customer retrieved from Shopify: ${response.customer.email}`);
             return response;
         }
@@ -75,7 +75,7 @@ class ShopifyAdminService {
             }
         };
         try {
-            const response = await (0, ShopifyService_js_1.shopifyApiService)("POST", "orders.json", shopifyPayload);
+            const response = await (0, ShopifyService_1.shopifyApiService)("POST", "orders.json", shopifyPayload);
             console.log(`✅ Order created in Shopify: #${response.order.order_number} (ID: ${response.order.id})`);
             return response;
         }
@@ -89,7 +89,7 @@ class ShopifyAdminService {
             order: orderData
         };
         try {
-            const response = await (0, ShopifyService_js_1.shopifyApiService)("PUT", `orders/${orderId}.json`, shopifyPayload);
+            const response = await (0, ShopifyService_1.shopifyApiService)("PUT", `orders/${orderId}.json`, shopifyPayload);
             console.log(`✅ Order updated in Shopify: #${response.order.order_number} (ID: ${response.order.id})`);
             return response;
         }
@@ -100,7 +100,7 @@ class ShopifyAdminService {
     }
     static async getOrder(orderId) {
         try {
-            const response = await (0, ShopifyService_js_1.shopifyApiService)("GET", `orders/${orderId}.json`);
+            const response = await (0, ShopifyService_1.shopifyApiService)("GET", `orders/${orderId}.json`);
             console.log(`✅ Order retrieved from Shopify: #${response.order.order_number}`);
             return response;
         }
@@ -114,7 +114,7 @@ class ShopifyAdminService {
             reason: reason || "customer"
         };
         try {
-            const response = await (0, ShopifyService_js_1.shopifyApiService)("POST", `orders/${orderId}/cancel.json`, shopifyPayload);
+            const response = await (0, ShopifyService_1.shopifyApiService)("POST", `orders/${orderId}/cancel.json`, shopifyPayload);
             console.log(`✅ Order cancelled in Shopify: #${response.order.order_number} (ID: ${response.order.id})`);
             return response;
         }
@@ -125,7 +125,7 @@ class ShopifyAdminService {
     }
     static async getAllOrders(limit = 50, status = "any") {
         try {
-            const response = await (0, ShopifyService_js_1.shopifyApiService)("GET", `orders.json?limit=${limit}&status=${status}`);
+            const response = await (0, ShopifyService_1.shopifyApiService)("GET", `orders.json?limit=${limit}&status=${status}`);
             console.log(`✅ Retrieved ${response.orders.length} orders from Shopify`);
             return response;
         }
@@ -136,7 +136,7 @@ class ShopifyAdminService {
     }
     static async getAllCustomers(limit = 50) {
         try {
-            const response = await (0, ShopifyService_js_1.shopifyApiService)("GET", `customers.json?limit=${limit}`);
+            const response = await (0, ShopifyService_1.shopifyApiService)("GET", `customers.json?limit=${limit}`);
             console.log(`✅ Retrieved ${response.customers.length} customers from Shopify`);
             return response;
         }
@@ -213,7 +213,7 @@ class ShopifyAdminService {
                 ]
             }
         };
-        return await (0, ShopifyService_js_1.shopifyApiService)("POST", "products.json", shopifyPayload);
+        return await (0, ShopifyService_1.shopifyApiService)("POST", "products.json", shopifyPayload);
     }
 }
 exports.ShopifyAdminService = ShopifyAdminService;

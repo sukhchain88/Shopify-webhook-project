@@ -1,6 +1,6 @@
 // src\utils\shopifyFormatter.ts
 import { Model } from 'sequelize';
-import type { ProductWebhook } from '../validators/product.validator.js';
+import type { ProductWebhook } from '../validators/product.validator';
 
 interface ProductAttributes {
   title: string;

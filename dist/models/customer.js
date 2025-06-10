@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Customer = void 0;
 const sequelize_1 = require("sequelize");
-const db_js_1 = __importDefault(require("../config/db.js"));
+const db_1 = __importDefault(require("../config/db"));
 class Customer extends sequelize_1.Model {
 }
 exports.Customer = Customer;
@@ -71,7 +71,7 @@ Customer.init({
         field: 'updated_at'
     },
 }, {
-    sequelize: db_js_1.default,
+    sequelize: db_1.default,
     tableName: "customers",
     timestamps: true,
     underscored: true,

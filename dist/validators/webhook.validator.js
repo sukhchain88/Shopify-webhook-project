@@ -2,9 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.validateWebhookPayload = void 0;
 const zod_1 = require("zod");
-const order_validator_js_1 = require("./order.validator.js");
-const customer_validator_js_1 = require("./customer.validator.js");
-const product_validator_js_1 = require("./product.validator.js");
+const order_validator_1 = require("./order.validator");
+const customer_validator_1 = require("./customer.validator");
+const product_validator_1 = require("./product.validator");
 const webhookBaseSchema = zod_1.z.object({
     id: zod_1.z.number().or(zod_1.z.string()),
     shop_domain: zod_1.z.string().min(1, "Shop domain is required")
@@ -63,21 +63,21 @@ const validateWebhookPayload = (topic, data) => {
         case 'customers/create':
         case 'customers/update':
             console.log("✅ Using customer schema for create/update");
-            return customer_validator_js_1.customerSchema.safeParse(data);
+            return customer_validator_1.customerSchema.safeParse(data);
         case 'customers/delete':
             console.log("✅ Using customer delete schema");
             return customerDeleteWebhookSchema.safeParse(data);
         case 'products/create':
         case 'products/update':
             console.log("✅ Using product schema for create/update");
-            return product_validator_js_1.webhookSchema.safeParse(data);
+            return product_validator_1.webhookSchema.safeParse(data);
         case 'products/delete':
             console.log("✅ Using product delete schema");
             return productDeleteWebhookSchema.safeParse(data);
         case 'orders/create':
         case 'orders/update':
             console.log("✅ Using order schema for create/update");
-            return (0, order_validator_js_1.validateShopifyOrderWebhook)(data);
+            return (0, order_validator_1.validateShopifyOrderWebhook)(data);
         case 'orders/delete':
             console.log("✅ Using order delete schema");
             return orderDeleteWebhookSchema.safeParse(data);

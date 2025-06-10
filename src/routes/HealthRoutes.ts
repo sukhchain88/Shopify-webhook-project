@@ -1,7 +1,7 @@
 // src/routes/health.routes.ts
 import express from "express";
-import { Product } from "../models/Product.js";
-import sequelize from "../config/db.js";
+import { Product } from "../models/Product";
+import sequelize from "../config/db";
 
 const router = express.Router();
 

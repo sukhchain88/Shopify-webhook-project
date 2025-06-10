@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { validateShopifyOrderWebhook } from "./order.validator.js";
-import { customerSchema } from "./customer.validator.js";
-import { webhookSchema } from "./product.validator.js";
+import { validateShopifyOrderWebhook } from "./order.validator";
+import { customerSchema } from "./customer.validator";
+import { webhookSchema } from "./product.validator";
 
 // Base webhook schema with common fields
 const webhookBaseSchema = z.object({

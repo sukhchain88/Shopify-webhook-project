@@ -5,7 +5,7 @@ import {
   createShopifyWebhook, 
   listShopifyWebhooks, 
   deleteShopifyWebhook,
-} from "../services/WebhookService.js";
+} from "../services/WebhookService";
 
 /**
  * Create a new webhook

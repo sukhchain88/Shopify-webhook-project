@@ -1,9 +1,9 @@
-import { Order } from "../models/Order.js";
-import { Customer } from "../models/Customer.js";
-import { shopifyApiService } from "./ShopifyService.js";
-import { ShopifyOrderResponse } from "../types/shopifyInterface.js";
-import { OrderInput } from "../validators/order.validator.js";
-import { Logger } from "../utils/logger.js";
+import { Order } from "../models/Order";
+import { Customer } from "../models/Customer";
+import { shopifyApiService } from "./ShopifyService";
+import { ShopifyOrderResponse } from "../types/shopifyInterface";
+import { OrderInput } from "../validators/order.validator";
+import { Logger } from "../utils/logger";
 import { literal } from "sequelize";
 
 export class OrderService {

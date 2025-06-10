@@ -5,19 +5,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.listRegisteredWebhooks = exports.verifyAndRegisterWebhooks = exports.shopifyApiService = void 0;
 const axios_1 = __importDefault(require("axios"));
-const config_js_1 = require("../config/config.js");
-const webhookConstants_js_1 = require("../config/webhookConstants.js");
+const config_1 = require("../config/config");
+const webhookConstants_1 = require("../config/webhookConstants");
 const shopifyApiService = async (method, endpoint, data) => {
-    if (!config_js_1.SHOPIFY_STORE_URL || !config_js_1.SHOPIFY_ACCESS_TOKEN) {
+    if (!config_1.SHOPIFY_STORE_URL || !config_1.SHOPIFY_ACCESS_TOKEN) {
         throw new Error("Shopify API credentials are not configured. Please check your .env file.");
     }
-    const url = `https://${config_js_1.SHOPIFY_STORE_URL}/admin/api/2025-04/${endpoint}`;
+    const url = `https://${config_1.SHOPIFY_STORE_URL}/admin/api/2025-04/${endpoint}`;
     try {
         const response = await (0, axios_1.default)({
             method,
             url,
             headers: {
-                "X-Shopify-Access-Token": config_js_1.SHOPIFY_ACCESS_TOKEN,
+                "X-Shopify-Access-Token": config_1.SHOPIFY_ACCESS_TOKEN,
                 "Content-Type": "application/json",
             },
             data,
@@ -31,13 +31,13 @@ const shopifyApiService = async (method, endpoint, data) => {
 };
 exports.shopifyApiService = shopifyApiService;
 const verifyAndRegisterWebhooks = async () => {
-    if (!config_js_1.SHOPIFY_STORE_URL || !config_js_1.SHOPIFY_ACCESS_TOKEN || !config_js_1.WEBHOOK_BASE_URL) {
+    if (!config_1.SHOPIFY_STORE_URL || !config_1.SHOPIFY_ACCESS_TOKEN || !config_1.WEBHOOK_BASE_URL) {
         throw new Error("Missing required environment variables");
     }
-    const webhookUrl = config_js_1.WEBHOOK_BASE_URL.trim();
+    const webhookUrl = config_1.WEBHOOK_BASE_URL.trim();
     try {
         const { webhooks: existingWebhooks } = await (0, exports.shopifyApiService)("GET", "webhooks.json");
-        for (const topic of webhookConstants_js_1.VALID_WEBHOOK_TOPICS) {
+        for (const topic of webhookConstants_1.VALID_WEBHOOK_TOPICS) {
             try {
                 const existingWebhook = existingWebhooks.find((webhook) => webhook.topic === topic);
                 if (existingWebhook) {

@@ -6,29 +6,29 @@ exports.getWorkerStatus = getWorkerStatus;
 exports.pauseAllWorkers = pauseAllWorkers;
 exports.resumeAllWorkers = resumeAllWorkers;
 const bullmq_1 = require("bullmq");
-const config_js_1 = require("../queues/config.js");
-const types_js_1 = require("../queues/types.js");
-const email_processor_js_1 = require("../jobs/processors/email.processor.js");
-const webhook_processor_js_1 = require("../jobs/processors/webhook.processor.js");
-exports.emailWorker = new bullmq_1.Worker(types_js_1.QUEUE_NAMES.EMAIL, async (job) => {
+const config_1 = require("../queues/config");
+const types_1 = require("../queues/types");
+const email_processor_1 = require("../jobs/processors/email.processor");
+const webhook_processor_1 = require("../jobs/processors/webhook.processor");
+exports.emailWorker = new bullmq_1.Worker(types_1.QUEUE_NAMES.EMAIL, async (job) => {
     console.log(`[Email Worker] Processing job ${job.id}: ${job.name}`);
-    return await (0, email_processor_js_1.processEmailJob)(job);
+    return await (0, email_processor_1.processEmailJob)(job);
 }, {
-    connection: config_js_1.redisConnection,
-    concurrency: config_js_1.workerConfig.concurrency.email,
-    stalledInterval: config_js_1.workerConfig.stalledInterval,
-    maxStalledCount: config_js_1.workerConfig.maxStalledCount,
+    connection: config_1.redisConnection,
+    concurrency: config_1.workerConfig.concurrency.email,
+    stalledInterval: config_1.workerConfig.stalledInterval,
+    maxStalledCount: config_1.workerConfig.maxStalledCount,
 });
-exports.webhookWorker = new bullmq_1.Worker(types_js_1.QUEUE_NAMES.WEBHOOK, async (job) => {
+exports.webhookWorker = new bullmq_1.Worker(types_1.QUEUE_NAMES.WEBHOOK, async (job) => {
     console.log(`[Webhook Worker] Processing job ${job.id}: ${job.name}`);
-    return await (0, webhook_processor_js_1.processWebhookJob)(job);
+    return await (0, webhook_processor_1.processWebhookJob)(job);
 }, {
-    connection: config_js_1.redisConnection,
-    concurrency: config_js_1.workerConfig.concurrency.webhook,
-    stalledInterval: config_js_1.workerConfig.stalledInterval,
-    maxStalledCount: config_js_1.workerConfig.maxStalledCount,
+    connection: config_1.redisConnection,
+    concurrency: config_1.workerConfig.concurrency.webhook,
+    stalledInterval: config_1.workerConfig.stalledInterval,
+    maxStalledCount: config_1.workerConfig.maxStalledCount,
 });
-exports.productSyncWorker = new bullmq_1.Worker(types_js_1.QUEUE_NAMES.PRODUCT_SYNC, async (job) => {
+exports.productSyncWorker = new bullmq_1.Worker(types_1.QUEUE_NAMES.PRODUCT_SYNC, async (job) => {
     console.log(`[Product Sync Worker] Processing job ${job.id}: ${job.name}`);
     console.log(`[Product Sync Worker] Product sync job completed: ${job.id}`);
     return {
@@ -38,12 +38,12 @@ exports.productSyncWorker = new bullmq_1.Worker(types_js_1.QUEUE_NAMES.PRODUCT_S
         data: { jobId: job.id },
     };
 }, {
-    connection: config_js_1.redisConnection,
-    concurrency: config_js_1.workerConfig.concurrency.productSync,
-    stalledInterval: config_js_1.workerConfig.stalledInterval,
-    maxStalledCount: config_js_1.workerConfig.maxStalledCount,
+    connection: config_1.redisConnection,
+    concurrency: config_1.workerConfig.concurrency.productSync,
+    stalledInterval: config_1.workerConfig.stalledInterval,
+    maxStalledCount: config_1.workerConfig.maxStalledCount,
 });
-exports.backgroundWorker = new bullmq_1.Worker(types_js_1.QUEUE_NAMES.BACKGROUND, async (job) => {
+exports.backgroundWorker = new bullmq_1.Worker(types_1.QUEUE_NAMES.BACKGROUND, async (job) => {
     console.log(`[Background Worker] Processing job ${job.id}: ${job.name}`);
     const { taskType, parameters } = job.data;
     switch (taskType) {
@@ -63,12 +63,12 @@ exports.backgroundWorker = new bullmq_1.Worker(types_js_1.QUEUE_NAMES.BACKGROUND
         data: { jobId: job.id, taskType },
     };
 }, {
-    connection: config_js_1.redisConnection,
-    concurrency: config_js_1.workerConfig.concurrency.background,
-    stalledInterval: config_js_1.workerConfig.stalledInterval,
-    maxStalledCount: config_js_1.workerConfig.maxStalledCount,
+    connection: config_1.redisConnection,
+    concurrency: config_1.workerConfig.concurrency.background,
+    stalledInterval: config_1.workerConfig.stalledInterval,
+    maxStalledCount: config_1.workerConfig.maxStalledCount,
 });
-exports.orderProcessingWorker = new bullmq_1.Worker(types_js_1.QUEUE_NAMES.ORDER_PROCESSING, async (job) => {
+exports.orderProcessingWorker = new bullmq_1.Worker(types_1.QUEUE_NAMES.ORDER_PROCESSING, async (job) => {
     console.log(`[Order Processing Worker] Processing job ${job.id}: ${job.name}`);
     const { orderId, action, orderData } = job.data;
     console.log(`[Order Processing Worker] Processing ${action} for order ${orderId}`);
@@ -79,12 +79,12 @@ exports.orderProcessingWorker = new bullmq_1.Worker(types_js_1.QUEUE_NAMES.ORDER
         data: { jobId: job.id, orderId, action },
     };
 }, {
-    connection: config_js_1.redisConnection,
-    concurrency: config_js_1.workerConfig.concurrency.webhook,
-    stalledInterval: config_js_1.workerConfig.stalledInterval,
-    maxStalledCount: config_js_1.workerConfig.maxStalledCount,
+    connection: config_1.redisConnection,
+    concurrency: config_1.workerConfig.concurrency.webhook,
+    stalledInterval: config_1.workerConfig.stalledInterval,
+    maxStalledCount: config_1.workerConfig.maxStalledCount,
 });
-exports.notificationWorker = new bullmq_1.Worker(types_js_1.QUEUE_NAMES.NOTIFICATIONS, async (job) => {
+exports.notificationWorker = new bullmq_1.Worker(types_1.QUEUE_NAMES.NOTIFICATIONS, async (job) => {
     console.log(`[Notification Worker] Processing job ${job.id}: ${job.name}`);
     const { type, message, recipient, urgency } = job.data;
     console.log(`[Notification Worker] Sending ${type} notification with urgency ${urgency}`);
@@ -95,10 +95,10 @@ exports.notificationWorker = new bullmq_1.Worker(types_js_1.QUEUE_NAMES.NOTIFICA
         data: { jobId: job.id, type, urgency },
     };
 }, {
-    connection: config_js_1.redisConnection,
-    concurrency: config_js_1.workerConfig.concurrency.email,
-    stalledInterval: config_js_1.workerConfig.stalledInterval,
-    maxStalledCount: config_js_1.workerConfig.maxStalledCount,
+    connection: config_1.redisConnection,
+    concurrency: config_1.workerConfig.concurrency.email,
+    stalledInterval: config_1.workerConfig.stalledInterval,
+    maxStalledCount: config_1.workerConfig.maxStalledCount,
 });
 function setupWorkerEventHandlers() {
     const workers = [
