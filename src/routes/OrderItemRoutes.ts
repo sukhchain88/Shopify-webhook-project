@@ -1,7 +1,7 @@
 import express from "express";
 import { OrderItemService } from "../services/OrderItemService";
-import { Order } from "../models/Order";
-import { OrderItem } from "../models/OrderItem";
+import { Order } from "../models/Order.js";
+import { OrderItem } from "../models/OrderItem.js";
 
 const router = express.Router();
 
@@ -52,7 +52,7 @@ router.get("/order/:orderId", async (req, res) => {
     
     const orderItems = await OrderItemService.getOrderItems(orderId);
     
-    res.json({
+    return res.json({
       success: true,
       data: orderItems,
       count: orderItems.length
@@ -60,7 +60,7 @@ router.get("/order/:orderId", async (req, res) => {
     
   } catch (error: any) {
     console.error("Error fetching order items:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Failed to fetch order items",
       error: error.message || "Unknown error"
@@ -117,7 +117,7 @@ router.get("/customer/:customerId/history", async (req, res) => {
     
     const purchaseHistory = await OrderItemService.getCustomerPurchaseHistory(customerId);
     
-    res.json({
+    return res.json({
       success: true,
       data: purchaseHistory,
       count: purchaseHistory.length
@@ -125,7 +125,7 @@ router.get("/customer/:customerId/history", async (req, res) => {
     
   } catch (error: any) {
     console.error("Error fetching customer purchase history:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Failed to fetch customer purchase history",
       error: error.message || "Unknown error"
@@ -150,14 +150,14 @@ router.get("/analytics/product/:productId?", async (req, res) => {
     
     const analytics = await OrderItemService.getProductSalesAnalytics(productId);
     
-    res.json({
+    return res.json({
       success: true,
       data: analytics
     });
     
   } catch (error: any) {
     console.error("Error fetching product analytics:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Failed to fetch product analytics",
       error: error.message || "Unknown error"
@@ -183,7 +183,7 @@ router.get("/search", async (req, res) => {
     
     const orderItems = await OrderItemService.searchOrderItems(searchTerm, limit);
     
-    res.json({
+    return res.json({
       success: true,
       data: orderItems,
       count: orderItems.length,
@@ -192,7 +192,7 @@ router.get("/search", async (req, res) => {
     
   } catch (error: any) {
     console.error("Error searching order items:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Failed to search order items",
       error: error.message || "Unknown error"
@@ -218,7 +218,7 @@ router.put("/:itemId", async (req, res) => {
     const updateData = req.body;
     const updatedItem = await OrderItemService.updateOrderItem(itemId, updateData);
     
-    res.json({
+    return res.json({
       success: true,
       message: "Order item updated successfully",
       data: updatedItem
@@ -226,7 +226,7 @@ router.put("/:itemId", async (req, res) => {
     
   } catch (error: any) {
     console.error("Error updating order item:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Failed to update order item",
       error: error.message || "Unknown error"
@@ -251,14 +251,14 @@ router.delete("/:itemId", async (req, res) => {
     
     const result = await OrderItemService.deleteOrderItem(itemId);
     
-    res.json({
+    return res.json({
       success: true,
       message: result.message
     });
     
   } catch (error: any) {
     console.error("Error deleting order item:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Failed to delete order item",
       error: error.message || "Unknown error"
@@ -310,7 +310,7 @@ router.post("/debug-webhook", async (req, res) => {
 
     const result = await OrderItemService.createOrderItemsFromWebhook(orderId, mockLineItems);
 
-    res.json({
+    return res.json({
       success: true,
       message: "Debug webhook simulation completed",
       data: {
@@ -324,7 +324,7 @@ router.post("/debug-webhook", async (req, res) => {
 
   } catch (error: any) {
     console.error("Error in debug webhook:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Debug webhook failed",
       error: error.message || "Unknown error"
@@ -341,7 +341,7 @@ router.post("/create-missing", async (req, res) => {
   try {
     const result = await OrderItemService.createMissingOrderItems();
     
-    res.json({
+    return res.json({
       success: true,
       message: result.message,
       data: {
@@ -352,7 +352,7 @@ router.post("/create-missing", async (req, res) => {
     
   } catch (error: any) {
     console.error("Error creating missing order items:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Failed to create missing order items",
       error: error.message || "Unknown error"
@@ -436,7 +436,7 @@ router.post("/test-webhook", async (req, res) => {
         });
       }
 
-      res.json({
+      return res.json({
         success: true,
         message: "Test webhook processed successfully",
         data: {
@@ -466,7 +466,7 @@ router.post("/test-webhook", async (req, res) => {
     } catch (webhookError: any) {
       console.error("❌ Webhook processing error:", webhookError);
       
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: "Webhook processing failed",
         error: webhookError.message,
@@ -480,7 +480,7 @@ router.post("/test-webhook", async (req, res) => {
 
   } catch (error: any) {
     console.error("Error in test webhook:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Test webhook endpoint failed",
       error: error.message || "Unknown error"
@@ -499,7 +499,7 @@ router.post("/echo", async (req, res) => {
     console.log("🔍 ECHO - Body keys:", Object.keys(req.body || {}));
     console.log("🔍 ECHO - Headers:", req.headers);
     
-    res.json({
+    return res.json({
       success: true,
       message: "Echo test successful",
       received: {
@@ -513,7 +513,7 @@ router.post("/echo", async (req, res) => {
     
   } catch (error: any) {
     console.error("Echo endpoint error:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Echo endpoint failed",
       error: error.message
