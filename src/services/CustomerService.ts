@@ -1,4 +1,4 @@
-import { Customer } from "../models/Customer";
+import { Customer } from "../models";
 import { shopifyApiService } from "./ShopifyService";
 import { CustomerData, ShopifyCustomerResponse, ShopifyCustomersResponse } from "../types/customerInterface";
 import { CustomerInput } from "../validators/customer.validator";

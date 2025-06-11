@@ -1,5 +1,4 @@
-import { Order } from "../models/Order";
-import { Customer } from "../models/Customer";
+import { Order, Customer } from "../models";
 import { shopifyApiService } from "./ShopifyService";
 import { ShopifyOrderResponse } from "../types/shopifyInterface";
 import { OrderInput } from "../validators/order.validator";

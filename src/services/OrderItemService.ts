@@ -1,7 +1,4 @@
-import { OrderItem } from "../models/OrderItem";
-import { Product } from "../models/Product";
-import { Order } from "../models/Order";
-import { Customer } from "../models/Customer";
+import { OrderItem, Product, Order, Customer } from "../models";
 import { Op } from "sequelize";
 import sequelize from "../config/db";
 

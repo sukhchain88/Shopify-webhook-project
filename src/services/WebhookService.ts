@@ -1,5 +1,5 @@
 // src\services\webhook.service.ts
-import { Webhook } from "../models/Webhook";
+import { Webhook } from "../models";
 import { shopifyApiService } from "./ShopifyService";
 import { handleProductWebhook } from "../webhookHandlers/productHandler";
 import { handleOrderWebhook } from "../webhookHandlers/orderHandler";

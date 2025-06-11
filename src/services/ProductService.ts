@@ -1,5 +1,5 @@
 // src\services\product.service.ts
-import { Product } from "../models/Product";
+import { Product } from "../models";
 import { shopifyApiService } from "./ShopifyService";
 import { ShopifyProductResponse } from "../types/shopifyInterface";
 import { formatShopifyProduct } from "../utils/shopifyFormatter";

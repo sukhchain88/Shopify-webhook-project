@@ -1,7 +1,6 @@
 import express, { Request, Response } from "express";
 import { OrderItemService } from "../services/OrderItemService";
-import { Order } from "../models/Order";
-import { OrderItem } from "../models/OrderItem";
+import { Order, OrderItem } from "../models";
 import { asyncHandler } from "../middleware/errorHandler";
 
 const router = express.Router();

@@ -24,7 +24,7 @@ import {
 } from "../controllers/ProductController";
 import { asyncHandler } from "../middleware/errorHandler";
 import { handleProductWebhook } from "../webhookHandlers/productHandler";
-import { Product } from "../models/Product";
+import { Product } from "../models";
 
 const router = express.Router();
 

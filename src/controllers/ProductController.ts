@@ -10,7 +10,7 @@
  */
 
 import { Request, Response } from "express";
-import { Product } from "../models/Product";
+import { Product } from "../models";
 import { validateProduct, validateWebhook } from "../validators/product.validator";
 import { ProductService } from "../services/ProductService";
 import { Op } from "sequelize";

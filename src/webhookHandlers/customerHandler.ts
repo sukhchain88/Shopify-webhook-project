@@ -1,6 +1,6 @@
 import { CustomerService } from "../services/CustomerService";
 import { CustomerInput } from "../validators/customer.validator";
-import { Customer } from "../models/Customer";
+import { Customer } from "../models";
 
 export const handleCustomerWebhook = async (payload: any) => {
   try {
