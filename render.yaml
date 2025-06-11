@@ -1,24 +1,28 @@
-databases:
-  - name: mysite
-    databaseName: mysite
-    user: mysite
-
- services:
- - type: pserv
-   name: pgbouncer
-   runtime: docker
-   plan: standard
-   repo: https://github.com/render-oss/docker-pgbouncer
-   envVars:
-   - key: DATABASE_URL
-     fromDatabase:
-       name: mysite
-       property: connectionString
-   - key: POOL_MODE
-     value: transaction
-   - key: SERVER_RESET_QUERY
-     value: DISCARD ALL
-   - key: MAX_CLIENT_CONN
-     value: 500
-   - key: DEFAULT_POOL_SIZE
-     value: 50
+services:
+  - type: web
+    name: shopify-webhook-handler
+    env: node
+    buildCommand: |
+      echo "Node version: $(node --version)"
+      echo "NPM version: $(npm --version)"
+      echo "Installing dependencies..."
+      npm ci --include=dev
+      echo "Verifying bullmq installation..."
+      npm list bullmq
+      echo "Running TypeScript compilation..."
+      npm run build:production
+      echo "Verifying compiled worker exists..."
+      ls -la dist/workers/
+      echo "Build completed successfully!"
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: NODE_VERSION
+        value: 20.15.1
+      - key: NPM_CONFIG_PRODUCTION
+        value: false
+    autoDeploy: true
