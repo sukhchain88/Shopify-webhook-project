@@ -1,53 +1,49 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
-/node_modules
-/.pnp
+# Dependencies
+node_modules/
+.pnp
 .pnp.js
 
-# testing
-/coverage
+# Build output
+dist/
+build/
 
-# production
-/build
-/dist
-
-# misc
-.DS_Store
+# Environment variables
 .env*
 !.env.example
 
-# logs
+# Logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-*.log
 
-# runtime data
+# Runtime data
 pids
 *.pid
 *.seed
 *.pid.lock
 
-# coverage directory used by tools like istanbul
+# Coverage directory
 coverage/
 *.lcov
 
-# temporary folders
+# Temporary folders
 tmp/
 temp/
 
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
 # OS generated files
+.DS_Store
 Thumbs.db
 ehthumbs.db
 
 # Cache files
 .cache/
 *.tsbuildinfo
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
