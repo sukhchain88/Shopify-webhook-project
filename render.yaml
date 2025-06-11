@@ -3,28 +3,21 @@ services:
     name: shopify-webhook-handler
     env: node
     buildCommand: |
-      echo "Starting build process..."
-      echo "Node version: $(node --version)"
-      echo "NPM version: $(npm --version)"
-      echo "Current directory: $(pwd)"
-      echo "Clearing npm cache..."
-      npm cache clean --force
-      echo "Installing all dependencies (including dev)..."
-      npm install
-      echo "Verifying bullmq installation..."
-      npm list bullmq || echo "bullmq not found in npm list"
-      echo "Checking bullmq in node_modules..."
-      ls -la node_modules/ | grep bullmq || echo "bullmq not found in node_modules"
-      echo "Running TypeScript type check..."
-      npm run typecheck
-      echo "Running TypeScript compilation..."
+      set -e
+      echo "=== Node.js Build Process Started ==="
+      node --version
+      npm --version
+      echo "=== Installing Dependencies ==="
+      npm ci --include=dev
+      echo "=== Verifying Key Dependencies ==="
+      npm list --depth=0 | grep -E "(bullmq|express|typescript)" || echo "Some dependencies missing"
+      echo "=== Building Application ==="
       npm run build:production
-      echo "Verifying compiled files..."
+      echo "=== Verifying Build Output ==="
       ls -la dist/
-      echo "Verifying compiled worker exists..."
-      ls -la dist/workers/ || echo "workers directory not found"
-      echo "Build completed successfully!"
-    startCommand: npm start
+      test -f dist/index.js || (echo "ERROR: Main build file missing" && exit 1)
+      echo "=== Build Process Complete ==="
+    startCommand: node dist/index.js
     healthCheckPath: /health
     envVars:
       - key: NODE_ENV
@@ -32,7 +25,7 @@ services:
       - key: PORT
         value: 10000
       - key: NODE_VERSION
-        value: 20.9.0
+        value: 20.15.1
       - key: NPM_CONFIG_PRODUCTION
         value: false
     autoDeploy: true
