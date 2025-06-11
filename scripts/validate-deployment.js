@@ -48,7 +48,7 @@ try {
     { pattern: /type:\s*web/, name: 'Web service type' },
     { pattern: /env:\s*node/, name: 'Node.js environment' },
     { pattern: /buildCommand:/, name: 'Build command' },
-    { pattern: /startCommand:\s*npm start/, name: 'Start command' },
+    { pattern: /startCommand:\s*(npm start|node dist\/index\.js)/, name: 'Start command' },
     { pattern: /healthCheckPath:/, name: 'Health check' },
     { pattern: /PORT/, name: 'Port configuration' }
   ];
