@@ -5,6 +5,7 @@ export { Order } from './Order';
 export { OrderItem } from './OrderItem';
 export { Webhook } from './Webhook';
 export { Users } from './User';
+export { Job } from './Job';
 
 // Import and initialize associations
 import { initializeAssociations } from './associations';
@@ -19,6 +20,7 @@ import { Order } from './Order';
 import { OrderItem } from './OrderItem';
 import { Webhook } from './Webhook';
 import { Users } from './User';
+import { Job } from './Job';
 
 export default {
   Product,
@@ -26,5 +28,6 @@ export default {
   Order,
   OrderItem,
   Webhook,
-  Users
+  Users,
+  Job
 }; 
