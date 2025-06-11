@@ -9,6 +9,7 @@
     "build:clean": "rm -rf dist && tsc",
     "build:production": "npm run prebuild && tsc --noEmitOnError && echo 'Build completed successfully'",
     "postbuild": "echo 'TypeScript compilation completed'",
+    "postinstall": "npm run build:production",
     "start": "node dist/index.js",
     "start:dev": "node dist/index.js",
     "dev": "concurrently \"npm run build -- --watch\" \"nodemon dist/index.js\"",
