@@ -3,16 +3,26 @@ services:
     name: shopify-webhook-handler
     env: node
     buildCommand: |
+      echo "Starting build process..."
       echo "Node version: $(node --version)"
       echo "NPM version: $(npm --version)"
-      echo "Installing dependencies..."
-      npm ci --include=dev
+      echo "Current directory: $(pwd)"
+      echo "Clearing npm cache..."
+      npm cache clean --force
+      echo "Installing all dependencies (including dev)..."
+      npm install
       echo "Verifying bullmq installation..."
-      npm list bullmq
+      npm list bullmq || echo "bullmq not found in npm list"
+      echo "Checking bullmq in node_modules..."
+      ls -la node_modules/ | grep bullmq || echo "bullmq not found in node_modules"
+      echo "Running TypeScript type check..."
+      npm run typecheck
       echo "Running TypeScript compilation..."
       npm run build:production
+      echo "Verifying compiled files..."
+      ls -la dist/
       echo "Verifying compiled worker exists..."
-      ls -la dist/workers/
+      ls -la dist/workers/ || echo "workers directory not found"
       echo "Build completed successfully!"
     startCommand: npm start
     healthCheckPath: /health

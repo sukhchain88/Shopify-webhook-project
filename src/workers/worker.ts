@@ -1,4 +1,9 @@
 import { Worker, Job } from 'bullmq';
+// Alternative import if above fails: const { Worker, Job } = require('bullmq');
+
+console.log('🔄 Worker module loading...');
+console.log('📦 BullMQ imported successfully');
+
 import { redisConnection, workerConfig } from '../queues/config';
 import { QUEUE_NAMES } from '../queues/types';
 import { processEmailJob } from '../jobs/processors/email.processor';
