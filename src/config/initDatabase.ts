@@ -1,5 +1,5 @@
 import sequelize from "./db";
-import { Product, Customer, Order, OrderItem, Webhook, Users } from "../models";
+import { Product, Customer, Order, OrderItem, Webhook, Users, Job } from "../models";
 
 /**
  * Initialize database and create all tables
@@ -28,6 +28,7 @@ export const initDatabase = async (): Promise<void> => {
       "order_items",
       "webhooks",
       "users",
+      "jobs",
     ];
     
     console.log("📋 Verified tables:", tables.join(", "));
