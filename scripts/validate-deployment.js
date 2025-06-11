@@ -48,18 +48,35 @@ try {
     { pattern: /type:\s*web/, name: 'Web service type' },
     { pattern: /env:\s*node/, name: 'Node.js environment' },
     { pattern: /buildCommand:/, name: 'Build command' },
-    { pattern: /startCommand:\s*(npm start|node dist\/index\.js)/, name: 'Start command' },
+    { pattern: /startCommand:/, name: 'Start command' },
     { pattern: /healthCheckPath:/, name: 'Health check' },
     { pattern: /PORT/, name: 'Port configuration' }
   ];
+  
+  const validationIssues = [];
   
   checks.forEach(check => {
     if (check.pattern.test(renderYaml)) {
       console.log(`✅ ${check.name}`);
     } else {
       console.log(`❌ ${check.name} - MISSING OR INCORRECT`);
+      validationIssues.push(check.name);
     }
   });
+
+  // Validate render.yaml
+  if (renderYaml.includes('startCommand:')) {
+    const startCommand = renderYaml.split('startCommand:')[1].split('healthCheckPath:')[0].trim();
+    if (startCommand.includes('node dist/index.js')) {
+      console.log('✅ Start command');
+    } else {
+      console.log('❌ Start command - MISSING OR INCORRECT');
+      validationIssues.push('Start command should include "node dist/index.js"');
+    }
+  } else {
+    console.log('❌ Start command - MISSING');
+    validationIssues.push('Start command configuration missing');
+  }
 } catch (error) {
   console.log('❌ Failed to read render.yaml:', error.message);
 }
