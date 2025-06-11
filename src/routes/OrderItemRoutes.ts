@@ -1,7 +1,8 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import { OrderItemService } from "../services/OrderItemService";
 import { Order } from "../models/Order";
 import { OrderItem } from "../models/OrderItem";
+import { asyncHandler } from "../middleware/errorHandler";
 
 const router = express.Router();
 
@@ -9,7 +10,7 @@ const router = express.Router();
  * GET /api/order-items
  * Get basic info about order items endpoints
  */
-router.get("/", async (req, res) => {
+router.get("/", asyncHandler(async (req: Request, res: Response) => {
   try {
     res.json({
       success: true,
@@ -33,7 +34,7 @@ router.get("/", async (req, res) => {
       error: error.message || "Unknown error"
     });
   }
-});
+}));
 
 /**
  * GET /api/order-items/order/:orderId
@@ -337,7 +338,7 @@ router.post("/debug-webhook", async (req, res) => {
  * Create order items for existing orders that don't have any
  * This is useful for orders created before the order items feature was implemented
  */
-router.post("/create-missing", async (req, res) => {
+router.post("/create-missing", async (req, res): Promise<any> => {
   try {
     const result = await OrderItemService.createMissingOrderItems();
     
@@ -492,7 +493,7 @@ router.post("/test-webhook", async (req, res) => {
  * POST /api/order-items/echo
  * Simple endpoint to echo back the request body for debugging
  */
-router.post("/echo", async (req, res) => {
+router.post("/echo", async (req, res): Promise<any> => {
   try {
     console.log("🔍 ECHO - Raw request body:", req.body);
     console.log("🔍 ECHO - Body type:", typeof req.body);
