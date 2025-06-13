@@ -1,20 +1,23 @@
-# Use official Node.js 20 base image
+# Use Node.js 20 as base
 FROM node:20
 
 # Set working directory
 WORKDIR /app
 
-# Copy all files
+# Copy package files first for better caching
+COPY package*.json ./
+
+# Install dependencies using npm (not Bun)
+RUN npm ci --only=production=false
+
+# Copy all project files
 COPY . .
 
-# Install dependencies using npm
-RUN npm install
-
-# Build TypeScript
+# Compile TypeScript to JavaScript
 RUN npm run build
 
-# Expose the port (change to your app's port if different)
+# Expose port (change this if your app uses a different one)
 EXPOSE 3000
 
-# Start the app
+# Start your app
 CMD ["node", "dist/index.js"] 
