@@ -1,7 +1,12 @@
 services:
   - type: web
     name: shopify-webhooks-app
+    runtime: docker
     env: docker
     branch: main
-    dockerfilePath: Dockerfile
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
