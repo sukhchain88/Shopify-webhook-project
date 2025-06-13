@@ -1,0 +1,6 @@
+# Disable Bun for this project - force npm usage
+[install]
+disable = true
+
+[run]
+disable = true 

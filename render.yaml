@@ -2,7 +2,7 @@ services:
   - type: web
     name: shopify-webhook-handler
     env: node
-    buildCommand: npm ci && npm run build:production
+    buildCommand: npm ci --only=production=false && npm run build:production
     startCommand: node dist/index.js
     healthCheckPath: /health
     envVars:
@@ -14,4 +14,8 @@ services:
         value: 20.9.0
       - key: NPM_CONFIG_PRODUCTION
         value: false
+      - key: BUN_INSTALL
+        value: "0"
+      - key: DISABLE_BUN
+        value: "1"
     autoDeploy: true
