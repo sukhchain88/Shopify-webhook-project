@@ -1,8 +1,8 @@
 import { Job } from 'bullmq';
 import { WebhookJobData, ShopifyWebhookJobData, JobResult, JobError } from '../../queues/types';
-import { Order } from '../../models/Order';
+import { Order } from '../../models/order';
 import { OrderItem } from '../../models/OrderItem';
-import { Product } from '../../models/Product';
+import { Product } from '../../models/product';
 
 /**
  * Webhook Job Processor

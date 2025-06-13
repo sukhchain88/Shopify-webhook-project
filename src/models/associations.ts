@@ -1,10 +1,10 @@
 // Model associations to avoid circular dependencies
-import { Product } from './Product';
-import { Customer } from './Customer';  
-import { Order } from './Order';
+import { Product } from './product';
+import { Customer } from './customer';  
+import { Order } from './order';
 import { OrderItem } from './OrderItem';
-import { Webhook } from './Webhook';
-import { Users } from './User';
+import { Webhook } from './webhook';
+import { Users } from './user';
 
 // Define all model associations in one place
 export function initializeAssociations() {

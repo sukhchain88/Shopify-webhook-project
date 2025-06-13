@@ -1,7 +1,7 @@
 // src/models/Order.ts
 import { DataTypes } from "sequelize";
 import sequelize from "../config/db";
-import { Customer } from "./Customer";
+import { Customer } from "./customer";
 
 export const Order = sequelize.define("orders", {
   id: {
@@ -48,5 +48,4 @@ export const Order = sequelize.define("orders", {
   underscored: true,
 });
 
-// Associations are defined in associations.ts to avoid circular dependencies
- 
+// Associations are defined in associations.ts to avoid circular dependencies 
