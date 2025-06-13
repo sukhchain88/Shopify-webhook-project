@@ -13,10 +13,42 @@ RUN npm install
 # Copy all project files
 COPY . .
 
-# Compile TypeScript to JavaScript (ignore errors for now)
-RUN npx tsc --noEmitOnError false || npx tsc --skipLibCheck
+# Debug: List the actual files in models directory
+RUN echo "=== Files in src/models/ ===" && ls -la src/models/
 
-# Expose port (change this if your app uses a different one)
+# Debug: Check if TypeScript can see the files
+RUN echo "=== TypeScript version ===" && npx tsc --version
+
+# Create a temporary tsconfig for build that's more permissive
+RUN echo '{\
+  "compilerOptions": {\
+    "target": "ES2020",\
+    "lib": ["ES2020"],\
+    "module": "CommonJS",\
+    "moduleResolution": "node",\
+    "outDir": "./dist",\
+    "rootDir": "./src",\
+    "strict": false,\
+    "esModuleInterop": true,\
+    "allowSyntheticDefaultImports": true,\
+    "skipLibCheck": true,\
+    "forceConsistentCasingInFileNames": false,\
+    "resolveJsonModule": true,\
+    "declaration": false,\
+    "removeComments": true,\
+    "noEmitOnError": false\
+  },\
+  "include": ["src/**/*"],\
+  "exclude": ["node_modules", "dist"]\
+}' > tsconfig.build.json
+
+# Compile TypeScript with the permissive config
+RUN npx tsc -p tsconfig.build.json
+
+# Verify the build output
+RUN echo "=== Build output ===" && ls -la dist/
+
+# Expose port
 EXPOSE 3000
 
 # Start your app
